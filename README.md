@@ -20,12 +20,19 @@ To set up College Companion on your system:
 Clone the repository:
 
 git clone https://github.com/LN247/college-companion.git
+
 Navigate to the project folder:
 
 cd college-companion
 Install dependencies:
 
 npm install
+npm install vite
+npm install @vitejs/plugin-react
+npm install react-router-dom
+npm install @react-oauth/google
+npm install jwt-decode
+
 Start the application:
 
 npm start
@@ -55,7 +62,6 @@ Open a Pull Request.
 This project is licensed under the MIT License. Feel free to use and modify it!
 
 📬 Contact
-For any questions or feedback, reach out  preciouskhan1709@gmail.com, otangdesmond273@gmail.com,juniortebo50@gmail.com    .
+For any questions or feedback, reach out preciouskhan1709@gmail.com, otangdesmond273@gmail.com,juniortebo50@gmail.com .
 
 Would you like to add more details like screenshots or contributor guidelines? 🚀
-
