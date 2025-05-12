@@ -1,6 +1,5 @@
 import React from 'react'
-import './LoginForm.css'
-import { Link} from 'react-router-dom';
+import './Forms.css'
 import { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import validation from '../utils/validation.js';
@@ -8,7 +7,7 @@ const { validateEmail, validatePassword, validateFullname } = validation;
 import { useNavigate } from 'react-router-dom';
 import GoogleIcon from '../assets/google-icon.svg'
 
-import { useEffect } from 'react';
+
 
 
 

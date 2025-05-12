@@ -44,7 +44,12 @@
   color: #ffff;
 }
 .remember-me {
-  margin-right: 20px;
+
+  width: inherit;
+}
+.remember-me>span{
+margin-left: 20px;
+right: 0cm;
 }
 .box {
   display: flex;
@@ -227,18 +232,24 @@ button:active {
 }
 
 .error-message {
-  color: red;
-  font-size: 14px;
-  text-decoration-thickness: formal;
+  display: flex;
+  justify-content: center;
+ text-align: center;
+  color:black;
+  font-size: 20px;
+ background-color: rgb(231, 142, 142);
   margin-bottom: 10px;
-  text-align: center;
+  border-radius: 1px solid rgb(167, 8, 8);
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 }
 
 .checkbox {
   width: 20px;
   height: 20px;
   margin-right: 10px;
+  padding-right: 50px;
   background-color: #fff;
+  justify-content: space-between;
 }
 .checkbox:checked {
   background-color: black;
@@ -270,6 +281,12 @@ button:active {
 }
 
 @media (max-width: 980px) {
+
+
+html{
+  font-size: 62.25%;
+}
+
   .container {
     flex-direction: column;
     overflow-y: scroll;
