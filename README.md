@@ -24,13 +24,18 @@ git clone https://github.com/LN247/college-companion.git
 Navigate to the project folder:
 
 cd college-companion
+
 Install dependencies:
 
 npm install
 npm install vite
+
 npm install @vitejs/plugin-react
+
 npm install react-router-dom
+
 npm install @react-oauth/google
+
 npm install jwt-decode
 
 Start the application:
