@@ -1,5 +1,3 @@
-
-
 CREATE DATABASE IF NOT EXISTS college_companion;
 USE college_companion;
 
@@ -134,13 +132,4 @@ CREATE TABLE password_resets (
     expires_at DATETIME NOT NULL,
     used BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- Association table for many-to-many relationship between students and courses
-CREATE TABLE student_course (
-    student_id INT NOT NULL,
-    course_id INT NOT NULL,
-    PRIMARY KEY (student_id, course_id),
-    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
-);
+    );
