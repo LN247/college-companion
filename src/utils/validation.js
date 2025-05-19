@@ -6,7 +6,7 @@
  * @returns {boolean} 
  */
 function validateEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const re = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-zA-Z]{2,}$/;
   return re.test(String(email).toLowerCase())
   ?{success:true}
   :{success:false, message:'Invalid email ' }
