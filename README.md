@@ -23,7 +23,7 @@ git clone https://github.com/LN247/college-companion.git
 
 Navigate to the project folder:
 
-cd college-companion
+cd C:\Users\ngind\Desktop\ColCom\college-companion
 
 Install dependencies:
 
@@ -40,7 +40,7 @@ npm install jwt-decode
 
 Start the application:
 
-npm start
+npm run dev
 🎨 Tech Stack
 Frontend: React.js, CSS
 

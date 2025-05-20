@@ -1,11 +1,11 @@
 .notfound-container {
   width: 100%;
   height: 100vh;
-  background-color: #ffff;
+  background-color: #FFFFFF;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  color: black;
+  color: #06123D;
 }
 .box1 {
   width: 100%;
@@ -54,8 +54,8 @@ img {
 }
 
 .button-box > button {
-  background-color: #162537;
-  color: #ffff;
+  background-color: #06123D;
+  color: #FFFFFF;
   height: 7vh;
   width: 30%;
   border: none;
