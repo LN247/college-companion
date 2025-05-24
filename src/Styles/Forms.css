@@ -86,6 +86,7 @@
 
 .left-box {
   width: 50%;
+
   border-right: 3px solid black;
   background-image: url("../assets/background.webp");
   background-repeat: no-repeat;
