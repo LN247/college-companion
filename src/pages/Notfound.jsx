@@ -12,7 +12,7 @@ function Notfound() {
         <div className="message-box">
           <h1>404 </h1>
 
-          <p> it seems that you are lost </p>
+          <p> No such page </p>
         </div>
       </div>
 
