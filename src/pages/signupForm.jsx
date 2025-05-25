@@ -6,6 +6,7 @@ import validation from "../utils/validation.js";
 const { validateEmail, validatePassword, validateFullname } = validation;
 import { useNavigate } from "react-router-dom";
 import GoogleIcon from "../assets/google-icon.svg";
+import { login, googleLogin } from "../utils/api";
 
 function SignupForm() {
   const [email, setEmail] = useState("");
@@ -14,22 +15,31 @@ function SignupForm() {
   const [agree, setAgree] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const googleSignup = useGoogleLogin({
-    // handle google signup here i.e call the api to create a new user
-    // and then redirect to the next page
-    onError: (error) => {
-      setError("Login Failed");
-      console.log("Login Failed:", error);
+    onSuccess: async (tokenResponse) => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const result = await googleLogin(tokenResponse.credential);
+        if (result.success) {
+          navigate('/dashboard');
+        } else {
+          setError(result.error || "Failed to sign up with Google. Please try again.");
+        }
+      } catch (error) {
+        console.error("Google signup error:", error);
+        setError("An unexpected error occurred during Google signup. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
     },
-    // handle the success of the google signup
-    // and then redirect to the next page
-
-    onSuccess: (tokenResponse) => {
-      console.log(tokenResponse);
-      const token = jwtDecode(tokenResponse.credential);
-      console.log(token);
+    onError: (error) => {
+      console.error("Google OAuth error:", error);
+      setError("Failed to initialize Google signup. Please try again.");
+      setIsLoading(false);
     },
   });
 
@@ -52,17 +62,60 @@ function SignupForm() {
       return false;
     }
 
+    if (!agree) {
+      setError("Please agree to the terms and policy");
+      return false;
+    }
+
     setError("");
     return true;
   }
-  function handleSubmit(e) {
+
+  async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
     if (!validateForm()) {
+      setIsLoading(false);
       return;
     }
-    // Handle form submission logic here
-    console.log(Object.fromEntries(new FormData(e.target)));
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/auth/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: email.split('@')[0], // Generate username from email
+          email,
+          password,
+          first_name: fullname.split(' ')[0],
+          last_name: fullname.split(' ').slice(1).join(' '),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // After successful signup, log the user in
+        const loginResult = await login(email, password);
+        if (loginResult.success) {
+          navigate('/dashboard');
+        } else {
+          setError("Signup successful but login failed. Please try logging in.");
+          navigate('/login');
+        }
+      } else {
+        setError(data.message || "Signup failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -118,6 +171,7 @@ function SignupForm() {
                 autoComplete="name"
                 value={fullname}
                 onChange={(e) => setFullname(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
@@ -133,6 +187,7 @@ function SignupForm() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
@@ -148,6 +203,7 @@ function SignupForm() {
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             <div className="remember-me">
@@ -157,11 +213,14 @@ function SignupForm() {
                 className="checkbox"
                 checked={agree}
                 onChange={(e) => setAgree(e.target.checked)}
+                disabled={isLoading}
               />
               <label htmlFor="remember">Agree with terms and policy</label>
             </div>
 
-            <button type="submit">Continue</button>
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? "Signing up..." : "Continue"}
+            </button>
           </form>
 
           <div className="login-options">
@@ -169,15 +228,18 @@ function SignupForm() {
             <p className="p">or</p>
             <button
               className="signin-button"
-              onClick={() => {
-                navigate("/");
-              }}
+              onClick={() => navigate("/login")}
+              disabled={isLoading}
             >
               Login
             </button>
 
-            <button className="google-button" onClick={() => googleSignup()}>
-              <img src={GoogleIcon} className="google-icon" />
+            <button 
+              className="google-button" 
+              onClick={() => googleSignup()}
+              disabled={isLoading}
+            >
+              <img src={GoogleIcon} className="google-icon" alt="Google" />
               continue with Google
             </button>
             <div></div>

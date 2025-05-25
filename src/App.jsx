@@ -1,21 +1,18 @@
-import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import LoginForm from "./pages/LoginForm";
 import SignupForm from "./pages/signupForm";
 import Notfound from "./pages/Notfound";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Homepage from "./pages/Homepage";
 
 function App() {
   return (
-    <div>
-      <Router>
-        <Routes>
-          <Route path="/" element={<LoginForm />} />
-          <Route path="/signup" element={<SignupForm />} />
-          <Route path="/404" element={<Notfound />} />
-          <Route path="*" element={<Notfound />} />
-        </Routes>
-      </Router>
-    </div>
+    <Routes>
+      <Route path="/" element={<Homepage />} />
+      <Route path="/login" element={<LoginForm />} />
+      <Route path="/signup" element={<SignupForm />} />
+      <Route path="/404" element={<Notfound />} />
+      <Route path="*" element={<Notfound />} />
+    </Routes>
   );
 }
 

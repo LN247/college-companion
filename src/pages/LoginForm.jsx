@@ -3,48 +3,68 @@ import "../Styles/Forms.css";
 import { Form, Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { login } from "../utils/api";
+import { login, googleLogin } from "../utils/api";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import GoogleIcon from "../assets/google-icon.svg";
+
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // handle google login here i.e call the api to create or to create the   authenticate the user
-  //get the jwt and  jwt refresh token
   const login_with_google = useGoogleLogin({
-    // handle the success of the google login
-    // and then redirect to the next page
-    onSuccess: (tokenResponse) => {
-      console.log(tokenResponse);
-      const token = jwtDecode(tokenResponse.credential);
-      console.log(token);
+    onSuccess: async (tokenResponse) => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const result = await googleLogin(tokenResponse.credential);
+        if (result.success) {
+          navigate('/dashboard');
+        } else {
+          setError(result.error || "Failed to login with Google. Please try again.");
+        }
+      } catch (error) {
+        console.error("Google login error:", error);
+        setError("An unexpected error occurred during Google login. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
     },
-
     onError: (error) => {
-      setError("Login Failed");
-      console.log("Login Failed:", error);
+      console.error("Google OAuth error:", error);
+      setError("Failed to initialize Google login. Please try again.");
+      setIsLoading(false);
     },
   });
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    // Basic validation
+    setError("");
+    setIsLoading(true);
 
+    // Basic validation
     if (!email.trim() || !password.trim()) {
-      setError("email and password  fields required");
+      setError("Email and password fields are required");
+      setIsLoading(false);
+      return;
     }
 
-    setError("");
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-
-    // Call the API to login
-    login(data.email, data.password);
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        navigate('/dashboard'); // or wherever you want to redirect after login
+      } else {
+        setError(result.error);
+      }
+    } catch (error) {
+      setError("Login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -98,20 +118,22 @@ function LoginForm() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
             <div className="input-box">
               <label htmlFor="password" className="label">
-                password
+                Password
               </label>
               <input
                 type="password"
                 name="password"
                 className="input"
-                autoComplete="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
@@ -123,15 +145,18 @@ function LoginForm() {
                   className="checkbox"
                   checked={remember}
                   onChange={(e) => setRemember(e.target.checked)}
+                  disabled={isLoading}
                 />
                 <label htmlFor="remember">Remember me</label>
                 <span>
-                  <Link to="/reset password">forgot password ?</Link>{" "}
+                  <Link to="/reset-password">Forgot password?</Link>{" "}
                 </span>
               </div>
             </div>
 
-            <button type="submit">Login</button>
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
+            </button>
           </form>
 
           <div className="login-options">
@@ -139,7 +164,8 @@ function LoginForm() {
             <p className="p">or</p>
             <button
               className="signin-button"
-              onClick={() => navigate("/signup")}
+              onClick={() => navigate("/auth/signup")}
+              disabled={isLoading}
             >
               Signup
             </button>
@@ -147,9 +173,10 @@ function LoginForm() {
             <button
               className="google-button"
               onClick={() => login_with_google()}
+              disabled={isLoading}
             >
-              <img src={GoogleIcon} className="google-icon" />
-              continue with Google
+              <img src={GoogleIcon} className="google-icon" alt="Google" />
+              Continue with Google
             </button>
           </div>
         </div>
