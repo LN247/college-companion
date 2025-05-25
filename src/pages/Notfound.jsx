@@ -7,12 +7,7 @@ function Notfound() {
   return (
     <div className="notfound-container">
       <div className="box1">
-        <img
-          src={NotfoundImage}
-          alt="404 error image"
-          width={100}
-          height="5vh"
-        />
+        <img src={NotfoundImage} alt="404 error image" height="5vh" />
 
         <div className="message-box">
           <h1>404 </h1>
