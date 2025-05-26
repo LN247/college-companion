@@ -8,6 +8,5 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5173,
     open: true, // Automatically open browser
-    host: true, // Listen on all addresses
   },
 });
