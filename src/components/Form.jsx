@@ -50,6 +50,7 @@ function FormComponent({
         setError("");
         const result = await googleLogin(tokenResponse.credential);
         if (result.success) {
+          // create and api call to register the user or login the user
           navigate("/dashboard");
         } else {
           setError(
