@@ -38,3 +38,12 @@ class LoginSerializer(serializers.Serializer):
             return {'user': user}  
         
         raise serializers.ValidationError('Invalid email or password.')
+
+class GoogleAuthSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True)
+    
+    def validate(self, data):
+        token = data.get('token')
+        if not token:
+            raise serializers.ValidationError('Token is required')
+        return data
