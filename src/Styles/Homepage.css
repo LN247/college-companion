@@ -29,7 +29,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #06123D;
+  background: #dfe9ee;
 }
 
 /* Navbar */
@@ -132,64 +132,66 @@
 .main-content {
   margin-top: 80px;
   flex: 1;
-  background: #06123D;
+  background: #FFFFFF;
 }
 
 /* Hero Section */
-.hero-section {
+.homepage-hero {
+  background: #dfe9ee;
+  color: #06123D;
   text-align: center;
-  padding: 5rem 1rem;
-  background: #06123D;
-  color: #FFFFFF;
-}
-
-.hero-section h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  line-height: 1.2;
-  color: #F68712;
-}
-
-.hero-section p {
-  font-size: 1.25rem;
+  padding: 4rem 1rem 3rem 1rem;
+  border-radius: 0 0 2rem 2rem;
   margin-bottom: 2rem;
-  opacity: 0.95;
-  color: #FFFFFF;
 }
 
-.cta-buttons {
+.hero-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 1rem;
+  color: #06123D;
+}
+
+.hero-desc {
+  font-size: 1.25rem;
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+  color: #333333;
+}
+
+.hero-cta {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   justify-content: center;
 }
 
-.cta-button {
-  background-color: #F68712;
+.cta-btn {
+  background: #F68712;
   color: #FFFFFF;
-  padding: 1rem 2.5rem;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 2rem;
+  padding: 0.9rem 2.2rem;
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s;
+  transition: background 0.2s, color 0.2s;
 }
 
-.cta-button.signup {
-  background-color: #FFFFFF;
-  color: #06123D;
+.cta-btn:hover {
+  background: #06123D;
+  color: #FFFFFF;
   border: 2px solid #F68712;
 }
 
-.cta-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(6, 18, 61, 0.1);
-  background: #F68712;
-  color: #FFFFFF;
+.cta-signup {
+  background: #FFFFFF;
+  color: #F68712;
+  border: 2px solid #F68712;
 }
 
-.cta-button.signup:hover {
-  background-color: #F68712;
+.cta-signup:hover {
+  background: #F68712;
   color: #FFFFFF;
 }
 
