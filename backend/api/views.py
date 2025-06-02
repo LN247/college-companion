@@ -129,8 +129,10 @@ class GoogleAuthView(APIView):
                 idinfo = id_token.verify_oauth2_token(
                     token, 
                     requests.Request(),
-                    os.getenv('GOOGLE_CLIENT_ID')  # Make sure to set this in your environment variables
+                    os.getenv('VITE_GOOGLE_CLIENT_ID')  # Make sure to set this in your environment variables
                 )
+
+                
 
                 # Get user info from the token
                 email = idinfo['email']

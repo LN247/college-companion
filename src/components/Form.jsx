@@ -4,7 +4,7 @@ import axios from "axios";
 import "../Styles/Forms.css";
 import validation from "../utils/validation";
 import ErrorMessage from "./Error";
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from "@react-oauth/google";
 import { useGoogleLogin } from "@react-oauth/google";
 import GoogleIcon from "../assets/google-icon.svg";
 
@@ -43,7 +43,6 @@ function FormComponent({
 
     return true;
   }
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,7 +90,6 @@ function FormComponent({
       [e.target.name]: e.target.value,
     });
   };
-
 
   return (
     <div className="container">
@@ -188,30 +186,38 @@ function FormComponent({
             >
               {alternative_method}
             </button>
-         
-  <GoogleLogin  style={{ width: "100%" }}
-    onSuccess={async (credentialResponse) => {
-      const idToken = credentialResponse.credential;
-    
-      console.log("Google ID Token:", idToken);
-      try {
-           const response = await axios.post(
-          "http://localhost:8000/api/google-auth/",
-          { idToken },
-          { withCredentials: true, headers: { "Content-Type": "application/json" } }
-        );
-        // Handle successful login
-        navigate("/dashboard");
-      } catch (error) {
-        setError(error.response?.data?.error || error.message || "Something went wrong");
-      
-    };    }}
-    onError={() => { 
-      setError("Google authentication failed. Please try again.");
-     }}
-  />
-  
-</div>
+
+            <GoogleLogin
+              style={{ width: "100%" }}
+              onSuccess={async (credentialResponse) => {
+                const idToken = credentialResponse.credential;
+
+                console.log("Google ID Token:", idToken);
+                try {
+                  const response = await axios.post(
+                    "http://localhost:8000/api/google-auth/",
+                    { token: idToken },
+                    {
+                      withCredentials: true,
+                      headers: { "Content-Type": "application/json" },
+                    }
+                  );
+
+                  // Handle successful login
+                  navigate("/dashboard");
+                } catch (error) {
+                  setError(
+                    error.response?.data?.error ||
+                      error.message ||
+                      "Something went wrong"
+                  );
+                }
+              }}
+              onError={() => {
+                setError("Google authentication failed. Please try again.");
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
