@@ -23,7 +23,7 @@ function LoginForm() {
         setError("");
         const result = await googleLogin(tokenResponse.credential);
         if (result.success) {
-          navigate('/dashboard');
+          navigate('/modern-dashboard');
         } else {
           setError(result.error || "Failed to login with Google. Please try again.");
         }
@@ -56,7 +56,7 @@ function LoginForm() {
     try {
       const result = await login(email, password);
       if (result.success) {
-        navigate('/dashboard'); // or wherever you want to redirect after login
+        navigate('/modern-dashboard'); // or wherever you want to redirect after login
       } else {
         setError(result.error);
       }

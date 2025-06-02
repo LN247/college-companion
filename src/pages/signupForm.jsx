@@ -25,7 +25,7 @@ function SignupForm() {
         setError("");
         const result = await googleLogin(tokenResponse.credential);
         if (result.success) {
-          navigate('/dashboard');
+          navigate('/modern-dashboard');
         } else {
           setError(result.error || "Failed to sign up with Google. Please try again.");
         }
@@ -102,7 +102,7 @@ function SignupForm() {
         // After successful signup, log the user in
         const loginResult = await login(email, password);
         if (loginResult.success) {
-          navigate('/dashboard');
+          navigate('/modern-dashboard');
         } else {
           setError("Signup successful but login failed. Please try logging in.");
           navigate('/login');
