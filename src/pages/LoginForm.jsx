@@ -23,7 +23,8 @@ function LoginForm() {
         setError("");
         const result = await googleLogin(tokenResponse.credential);
         if (result.success) {
-          navigate('/modern-dashboard');
+          localStorage.setItem('token', result.token);
+          navigate('/dashboard');
         } else {
           setError(result.error || "Failed to login with Google. Please try again.");
         }
@@ -56,7 +57,8 @@ function LoginForm() {
     try {
       const result = await login(email, password);
       if (result.success) {
-        navigate('/modern-dashboard'); // or wherever you want to redirect after login
+        localStorage.setItem('token', result.token);
+        navigate('/dashboard');
       } else {
         setError(result.error);
       }
@@ -164,7 +166,7 @@ function LoginForm() {
             <p className="p">or</p>
             <button
               className="signin-button"
-              onClick={() => navigate("/auth/signup")}
+              onClick={() => navigate("/signup")}
               disabled={isLoading}
             >
               Signup

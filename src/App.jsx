@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import LoginForm from "./pages/LoginForm";
 import SignupForm from "./pages/signupForm";
 import Notfound from "./pages/Notfound";
@@ -27,4 +27,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 

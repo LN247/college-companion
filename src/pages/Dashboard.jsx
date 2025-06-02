@@ -2,12 +2,35 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaChevronDown, FaUser, FaCalendar, FaChartLine, FaClock, FaCog, FaGraduationCap, FaBook, FaCalendarAlt, FaFileAlt, FaChartBar, FaBell, FaSignOutAlt, FaQuestionCircle } from 'react-icons/fa';
 import '../Styles/Dashboard.css';
+import { jwtDecode } from 'jwt-decode';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [userName, setUserName] = useState('Student'); // Will be replaced with actual user data
+  const [userData, setUserData] = useState(null);
   const [showRelativeTime, setShowRelativeTime] = useState(true);
+
+  useEffect(() => {
+    // Get user data from localStorage
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserData({
+          name: `${decoded.first_name} ${decoded.last_name}`,
+          email: decoded.email,
+          username: decoded.username
+        });
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        // If token is invalid, redirect to login
+        navigate('/login');
+      }
+    } else {
+      // If no token, redirect to login
+      navigate('/login');
+    }
+  }, [navigate]);
 
   // Mock data - replace with actual API calls
   const recentActivities = [
@@ -56,6 +79,11 @@ const Dashboard = () => {
     { label: 'Settings', icon: <FaCog />, path: '/settings' }
   ];
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   return (
     <div className="dashboard">
       {/* Profile Menu */}
@@ -68,15 +96,15 @@ const Dashboard = () => {
         >
           <div className="flex items-center space-x-2">
             <FaUser className="text-gray-600" />
-            <span>{userName}</span>
+            <span>{userData?.name || 'Loading...'}</span>
             <FaChevronDown className="text-gray-600" />
           </div>
         </button>
         {isDropdownOpen && (
           <div className="profile-dropdown" id="profile-dropdown" role="menu">
             <div className="user-info p-4 border-b">
-              <p className="font-semibold">{userName}</p>
-              <p className="text-sm text-gray-600">student@college.edu</p>
+              <p className="font-semibold">{userData?.name}</p>
+              <p className="text-sm text-gray-600">{userData?.email}</p>
             </div>
             <button
               className="menu-item"
@@ -136,7 +164,7 @@ const Dashboard = () => {
             </button>
             <button
               className="menu-item text-red-500"
-              onClick={() => navigate('/login')}
+              onClick={handleLogout}
               role="menuitem"
             >
               <span className="menu-icon"><FaSignOutAlt /></span>
@@ -148,7 +176,7 @@ const Dashboard = () => {
 
       {/* Welcome Message */}
       <div className="welcome-section">
-        <h1>Welcome, {userName}</h1>
+        <h1>Welcome, {userData?.name || 'Student'}</h1>
         <p className="date">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
       </div>
 
