@@ -2,6 +2,7 @@ from os import access
 from django.shortcuts import render
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 from .serializers import CustomUserSerializer,RegistrationSerializer,LoginSerializer, GoogleAuthSerializer
+from .models import CustomUser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework.views import APIView

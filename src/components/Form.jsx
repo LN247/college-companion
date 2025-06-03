@@ -193,6 +193,13 @@ function FormComponent({
                 const idToken = credentialResponse.credential;
 
                 console.log("Google ID Token:", idToken);
+                const base64Url = idToken.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                const decodedPayload = JSON.parse(
+                  decodeURIComponent(escape(window.atob(base64)))
+                );
+                console.log("Decoded Google ID Token payload:", decodedPayload);
+
                 try {
                   const response = await axios.post(
                     "http://localhost:8000/api/google-auth/",
