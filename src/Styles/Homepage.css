@@ -5,23 +5,34 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #06123D;
-  color: #FFFFFF;
+  background: #06123d;
+  color: #ffffff;
+}
+
+.logo-1 {
+  height: 40px;
+  object-fit: cover;
+  aspect-ratio: 16/9;
+  margin-right: 10px;
 }
 
 .loading-spinner {
   width: 50px;
   height: 50px;
-  border: 5px solid #FFFFFF;
-  border-top: 5px solid #F68712;
+  border: 5px solid #ffffff;
+  border-top: 5px solid #f68712;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 2s linear infinite;
   margin-bottom: 20px;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Main Layout */
@@ -29,7 +40,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #06123D;
+  background: #06123d;
 }
 
 /* Navbar */
@@ -38,7 +49,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 5%;
-  background-color: #06123D;
+  background-color: #06123d;
   box-shadow: 0 2px 4px rgba(6, 18, 61, 0.1);
   position: fixed;
   width: 100%;
@@ -52,7 +63,7 @@
   gap: 0.5rem;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 /* Dashboard Menu */
@@ -74,12 +85,12 @@
 }
 
 .dashboard-item.active {
-  background-color: #F68712;
-  color: #FFFFFF;
+  background-color: #f68712;
+  color: #ffffff;
 }
 
 .dashboard-item.active .dashboard-icon {
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .dashboard-item:hover {
@@ -87,7 +98,7 @@
 }
 
 .dashboard-item.active:hover {
-  background-color: #F68712;
+  background-color: #f68712;
 }
 
 .dashboard-icon {
@@ -106,55 +117,55 @@
 }
 
 .nav-links a {
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: 500;
   transition: color 0.3s;
 }
 
 .nav-links a:hover {
-  color: #F68712;
+  color: #f68712;
 }
 
 .login-btn {
-  background-color: #F68712 !important;
-  color: #FFFFFF !important;
+  background-color: #f68712 !important;
+  color: #ffffff !important;
   padding: 0.5rem 1.5rem;
   border-radius: 0.5rem;
   transition: background-color 0.3s ease !important;
 }
 
 .login-btn:hover {
-  background-color: #06123D !important;
-  color: #F68712 !important;
+  background-color: #06123d !important;
+  color: #f68712 !important;
 }
 
 /* Main Content */
 .main-content {
   margin-top: 80px;
   flex: 1;
-  background: #06123D;
+  background: #06123d;
 }
 
 /* Hero Section */
 .hero-section {
   text-align: center;
   padding: 5rem 1rem;
-  background: #06123D;
-  color: #FFFFFF;
+  background: #06123d;
+  color: #ffffff;
 }
 
 .hero-section h1 {
   font-size: 3rem;
   margin-bottom: 1rem;
   line-height: 1.2;
-  color: #F68712;
+  color: #f68712;
 }
 
 .hero-section p {
   font-size: 1.25rem;
   margin-bottom: 2rem;
   opacity: 0.95;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .cta-buttons {
@@ -164,8 +175,8 @@
 }
 
 .cta-button {
-  background-color: #F68712;
-  color: #FFFFFF;
+  background-color: #f68712;
+  color: #ffffff;
   padding: 1rem 2.5rem;
   border: none;
   border-radius: 0.5rem;
@@ -176,34 +187,34 @@
 }
 
 .cta-button.signup {
-  background-color: #FFFFFF;
-  color: #06123D;
-  border: 2px solid #F68712;
+  background-color: #ffffff;
+  color: #06123d;
+  border: 2px solid #f68712;
 }
 
 .cta-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(6, 18, 61, 0.1);
-  background: #F68712;
-  color: #FFFFFF;
+  background: #f68712;
+  color: #ffffff;
 }
 
 .cta-button.signup:hover {
-  background-color: #F68712;
-  color: #FFFFFF;
+  background-color: #f68712;
+  color: #ffffff;
 }
 
 /* Features Section */
 .features-section {
   padding: 5rem 5%;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
 .features-section h2 {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 3rem;
-  color: #06123D;
+  color: #06123d;
 }
 
 .features-grid {
@@ -215,47 +226,47 @@
 }
 
 .feature-card {
-  background: #F7F8FA;
+  background: #f7f8fa;
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 4px 6px rgba(6, 18, 61, 0.05);
   transition: transform 0.3s ease;
-  border-left: 6px solid #F68712;
+  border-left: 6px solid #f68712;
 }
 
 .feature-card:hover {
   transform: translateY(-5px);
-  background: #FFF7ED;
+  background: #fff7ed;
 }
 
 .feature-icon {
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  color: #06123D;
+  color: #06123d;
 }
 
 .feature-card h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #06123D;
+  color: #06123d;
 }
 
 .feature-card p {
-  color: #06123D;
+  color: #06123d;
   line-height: 1.6;
 }
 
 /* Testimonials Section */
 .testimonials-section {
   padding: 5rem 5%;
-  background-color: #F7F8FA;
+  background-color: #f7f8fa;
 }
 
 .testimonials-section h2 {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 3rem;
-  color: #06123D;
+  color: #06123d;
 }
 
 .testimonial {
@@ -263,26 +274,26 @@
   margin: 0 auto;
   text-align: center;
   padding: 2rem;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 1rem;
 }
 
 .testimonial p {
   font-size: 1.25rem;
-  color: #06123D;
+  color: #06123d;
   margin-bottom: 1rem;
   font-style: italic;
 }
 
 .testimonial cite {
-  color: #F68712;
+  color: #f68712;
   font-weight: 500;
 }
 
 /* Footer */
 .footer {
-  background-color: #06123D;
-  color: #FFFFFF;
+  background-color: #06123d;
+  color: #ffffff;
   padding: 4rem 5% 2rem;
 }
 
@@ -297,7 +308,7 @@
 .footer-section h3 {
   font-size: 1.25rem;
   margin-bottom: 1rem;
-  color: #F68712;
+  color: #f68712;
 }
 
 .social-links {
@@ -306,7 +317,7 @@
 }
 
 .social-links a {
-  color: #F68712;
+  color: #f68712;
   text-decoration: none;
   opacity: 0.8;
   transition: opacity 0.3s ease;
@@ -321,7 +332,7 @@
   margin-top: 3rem;
   padding-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: #F68712;
+  color: #f68712;
 }
 
 /* Responsive Design */
@@ -346,5 +357,5 @@
 /* Career Orientation Section */
 .career-orientation-section {
   padding: 4rem 5%;
-  background-color: #FFFFFF;
-} 
+  background-color: #ffffff;
+}
