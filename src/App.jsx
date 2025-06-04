@@ -1,26 +1,28 @@
-import { Routes, Route } from "react-router-dom";
+import React from "react";
+import {Routes,Route } from "react-router-dom";
 import LoginForm from "./pages/LoginForm";
 import SignupForm from "./pages/signupForm";
 import Notfound from "./pages/Notfound";
 import Homepage from "./pages/Homepage";
+import UserProfileForm from "./pages/UserProfileForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/dashboard";
 
 function App() {
   return (
     <div>
-      <Routes>
+<Routes>    
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignupForm />} />
-        <Route path="/404" element={<Notfound />} />
+        <Route path="/profile" element={<UserProfileForm />} />
         <Route path="*" element={<Notfound />} />
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
-      </Routes>
+      </Routes>  
     </div>
   );
 }
