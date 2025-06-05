@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaChevronDown, FaUser, FaCalendar, FaChartLine, FaClock, FaCog, FaGraduationCap, FaBook, FaCalendarAlt, FaFileAlt, FaChartBar, FaBell, FaSignOutAlt, FaQuestionCircle } from 'react-icons/fa';
+import { FaChevronDown, FaUser, FaCalendar, FaChartLine, FaClock, FaCog, FaGraduationCap, FaBook, FaCalendarAlt, FaFileAlt, FaChartBar, FaBell, FaSignOutAlt, FaQuestionCircle, FaExclamationCircle } from 'react-icons/fa';
 import '../Styles/Dashboard.css';
 import { jwtDecode } from 'jwt-decode';
 
@@ -9,27 +9,59 @@ const Dashboard = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userData, setUserData] = useState(null);
   const [showRelativeTime, setShowRelativeTime] = useState(true);
+  const [notifications, setNotifications] = useState([]);
+  const [analytics, setAnalytics] = useState({
+    upcomingAssignments: 0,
+    studyHours: 0,
+    completedTasks: 0,
+    upcomingExams: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Get user data from localStorage
-    const token = localStorage.getItem('token');
-    if (token) {
+    const fetchUserData = async () => {
       try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
         const decoded = jwtDecode(token);
         setUserData({
           name: `${decoded.first_name} ${decoded.last_name}`,
           email: decoded.email,
           username: decoded.username
         });
+
+        // Fetch analytics data
+        // TODO: Replace with actual API call
+        setAnalytics({
+          upcomingAssignments: 3,
+          studyHours: 12,
+          completedTasks: 8,
+          upcomingExams: 2
+        });
+
+        // Fetch notifications
+        // TODO: Replace with actual API call
+        const mockNotifications = [
+          { id: 1, message: 'Assignment due in 2 days', type: 'assignment', timestamp: new Date(Date.now() - 3600000) },
+          { id: 2, message: 'New study group invitation', type: 'group', timestamp: new Date(Date.now() - 7200000) },
+          { id: 3, message: 'Exam schedule updated', type: 'exam', timestamp: new Date(Date.now() - 86400000) }
+        ];
+        setNotifications(mockNotifications);
+
+        setIsLoading(false);
       } catch (error) {
-        console.error('Error decoding token:', error);
-        // If token is invalid, redirect to login
-        navigate('/login');
+        console.error('Error fetching dashboard data:', error);
+        setError('Failed to load dashboard data. Please try again later.');
+        setIsLoading(false);
       }
-    } else {
-      // If no token, redirect to login
-      navigate('/login');
-    }
+    };
+
+    fetchUserData();
   }, [navigate]);
 
   // Mock data - replace with actual API calls
@@ -83,6 +115,22 @@ const Dashboard = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
+
+  if (isLoading) {
+    return (
+      <div className="dashboard">
+        <div className="loading-spinner">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard">
+        <div className="error-message">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard">
@@ -268,6 +316,70 @@ const Dashboard = () => {
         <div className="tip-card">
           <p className="tip-text">{tipOfTheDay.tip}</p>
           <p className="tip-author">— {tipOfTheDay.author}</p>
+        </div>
+      </div>
+
+      {/* Analytics Section */}
+      <div className="analytics-section">
+        <h2>Analytics Overview</h2>
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <div className="analytics-icon">
+              <FaFileAlt />
+            </div>
+            <div className="analytics-content">
+              <h3>Upcoming Assignments</h3>
+              <p className="analytics-value">{analytics.upcomingAssignments}</p>
+            </div>
+          </div>
+          <div className="analytics-card">
+            <div className="analytics-icon">
+              <FaClock />
+            </div>
+            <div className="analytics-content">
+              <h3>Study Hours</h3>
+              <p className="analytics-value">{analytics.studyHours}h</p>
+            </div>
+          </div>
+          <div className="analytics-card">
+            <div className="analytics-icon">
+              <FaChartBar />
+            </div>
+            <div className="analytics-content">
+              <h3>Completed Tasks</h3>
+              <p className="analytics-value">{analytics.completedTasks}</p>
+            </div>
+          </div>
+          <div className="analytics-card">
+            <div className="analytics-icon">
+              <FaCalendar />
+            </div>
+            <div className="analytics-content">
+              <h3>Upcoming Exams</h3>
+              <p className="analytics-value">{analytics.upcomingExams}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Notifications Section */}
+      <div className="notifications-section">
+        <div className="section-header">
+          <h2>Notifications</h2>
+          <span className="notification-badge">{notifications.length}</span>
+        </div>
+        <div className="notifications-list">
+          {notifications.map((notification) => (
+            <div key={notification.id} className="notification-item">
+              <div className="notification-icon">
+                <FaExclamationCircle />
+              </div>
+              <div className="notification-content">
+                <p>{notification.message}</p>
+                <span className="timestamp">{formatTimestamp(notification.timestamp)}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
