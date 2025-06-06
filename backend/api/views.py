@@ -11,22 +11,24 @@ from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .models import UserPreferences, Course, StudyBlock,CustomUser,UserProfile
-from .utils.scheduler import generate_timetable
+from .scheduler import generate_timetable
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from task import send_study_notification
 from datetime import datetime, timedelta
 from django.http import JsonResponse
 import json
 import os
+from .task import send_study_notification
 from rest_framework import viewsets
 from .models import Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences
+from django.conf import settings
 from .serializers import (
     SemesterSerializer, CourseSerializer, FixedClassScheduleSerializer,
     StudyBlockSerializer, UserPreferencesSerializer
 )
+
 
 
 
@@ -262,3 +264,68 @@ class UserPreferencesViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GenerateTimetable(APIView):
+    def post(self, request):
+        data = json.loads(request.body)
+        user = request.user
+        
+        # Clear existing data
+        Course.objects.filter(user=user).delete()
+        StudyBlock.objects.filter(user=user).delete()
+        
+        # Create courses
+        courses = []
+        for course_data in data['courses']:
+            course = Course.objects.create(
+                user=user,
+                name=course_data['name'],
+                difficulty=course_data['difficulty'],
+                credits=course_data['credits'],
+                priority=course_data.get('priority', 3)
+            )
+            courses.append(course)
+        
+        # Create/update preferences
+        UserPreferences.objects.update_or_create(
+            user=user,
+            defaults={
+                'off_days': data['preferences']['off_days'],
+                'fixed_study_hours': data['preferences']['fixed_study_hours']
+            }
+        )
+        
+        # Date range (next 2 weeks)
+        start_date = datetime.now().date()
+        end_date = start_date + timedelta(days=14)
+        
+        # Generate timetable
+        study_blocks = generate_timetable(user, courses, start_date, end_date)
+        
+        # Save to database
+        for block in study_blocks:
+            StudyBlock.objects.create(
+                user=user,
+                course=block['course'],
+                date=block['date'],
+                start_time=block['start_time'],
+                end_time=block['end_time']
+            )
+
+
+            notification_time = datetime.combine(
+            block['date'], 
+            block['start_time']
+            ) - timedelta(minutes=settings.STUDY_NOTIFICATION_ADVANCE_MINUTES)
+    
+    # Schedule Celery task
+            send_study_notification.apply_async(
+            args=[block.id], 
+            eta=notification_time
+            )
+
+        return JsonResponse({'status': 'success', 'blocks_created': len(study_blocks)}, status=status.HTTP_200_OK)

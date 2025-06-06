@@ -1,7 +1,7 @@
 # utils/scheduler.py
 from datetime import datetime, timedelta, time, date
-from backend.api.models import UserPreferences, Course, StudyBlock,FixedClassSchedule
-from backend.api.models import CustomUser
+from .models import UserPreferences, Course, StudyBlock,FixedClassSchedule
+from .models import CustomUser
 import json
 
 
