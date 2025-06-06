@@ -12,7 +12,12 @@ College Companion is designed to help students streamline their academic and soc
 📢 Reminders & Notifications – Stay on top of assignments and exams.
 
 🎓 Career Guidance – Get insights on internships and job opportunities.
-.
+
+**Required Code Languages:**
+- JavaScript (React)
+- CSS
+- Python (Django)
+- SQL (for database scripts, optional)
 
 🔧 Installation
 To set up College Companion on your system:

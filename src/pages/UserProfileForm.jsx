@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import '../Styles/UserProfileForm.css'; // Adjust the path as necessary
+import React, { useState } from "react";
+import "../Styles/UserProfileForm.css"; // Adjust the path as necessary
 
 function UserProfileForm() {
   const [formData, setFormData] = useState({
-    username: '',
-    Major: '',
-    minor: '',
-    level: '',
-    graduationYear: '',
-    bio: '',
+    username: "",
+    Major: "",
+    minor: "",
+    level: "",
+    graduationYear: "",
+    bio: "",
     profilePicture: null,
   });
 
@@ -36,7 +36,10 @@ function UserProfileForm() {
         <div className="profile-pic-wrapper">
           <label htmlFor="profilePictureInput" className="profile-pic-label">
             <img
-              src={preview || 'https://placehold.co/600x400.png?text=Profile+Picture'}
+              src={
+                preview ||
+                "https://placehold.co/600x400.png?text=Profile+Picture"
+              }
               alt="Profile"
               className="profile-pic"
             />
@@ -55,6 +58,7 @@ function UserProfileForm() {
         <h2>Signup Here</h2>
 
         <input
+          className="input-1"
           type="text"
           name="username"
           placeholder="Username"
@@ -64,6 +68,7 @@ function UserProfileForm() {
         />
 
         <input
+          className="input-1"
           type="text"
           name="Major"
           placeholder=" Major"
@@ -73,6 +78,7 @@ function UserProfileForm() {
         />
 
         <input
+          className="input-1"
           type="text"
           name="minor"
           placeholder="Minor (optional)"
@@ -81,6 +87,7 @@ function UserProfileForm() {
           required
         />
         <input
+          className="input-1"
           type="number"
           name="level"
           placeholder="Level"
@@ -90,6 +97,7 @@ function UserProfileForm() {
         />
 
         <input
+          className="input-1"
           type="number"
           name="graduationYear"
           placeholder="Graduation Year"
@@ -98,6 +106,7 @@ function UserProfileForm() {
         />
 
         <textarea
+          className="input-1"
           name="bio"
           placeholder="Tell us about yourself"
           value={formData.bio}

@@ -1,0 +1,116 @@
+/* Base Button Styles */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem; /* roughly equal to Tailwind’s gap-2 */
+  white-space: nowrap;
+  border-radius: 0.375rem; /* rounded-md */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  transition: background-color 0.3s, color 0.3s;
+  outline: none;
+  border: none;
+  /* Additional styles to mimic focus rings, etc. */
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
+}
+
+.button:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Force inline SVG icons to be non-interactive and to size correctly */
+.button svg {
+  pointer-events: none;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* Variants */
+
+/* Default Variant */
+.button--default {
+  background-color: #f68712;
+  color: #ffffff;
+}
+.button--default:hover {
+  background-color: rgba(246, 135, 18, 0.9);
+}
+
+/* Destructive Variant */
+.button--destructive {
+  background-color: #e3342f; /* example destructive red */
+  color: #ffffff;
+}
+.button--destructive:hover {
+  background-color: rgba(227, 52, 47, 0.9);
+}
+
+/* Outline Variant */
+.button--outline {
+  background-color: #ffffff;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+}
+.button--outline:hover {
+  background-color: #f3f4f6;
+}
+
+/* Secondary Variant */
+.button--secondary {
+  background-color: #6b7280; /* example secondary color */
+  color: #ffffff;
+}
+.button--secondary:hover {
+  background-color: rgba(107, 114, 128, 0.8);
+}
+
+/* Ghost Variant */
+.button--ghost {
+  background-color: transparent;
+  color: inherit;
+}
+.button--ghost:hover {
+  background-color: #f3f4f6;
+}
+
+/* Link Variant */
+.button--link {
+  background-color: transparent;
+  color: #f68712;
+  text-decoration: underline;
+}
+.button--link:hover {
+  text-decoration: underline;
+}
+
+/* Size Variants */
+/* We use separate classes prefixed with "button-size-" for clarity. */
+
+.button-size-default {
+  height: 2.5rem; /* h-10 (40px) */
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+}
+
+.button-size-sm {
+  height: 2.25rem; /* h-9 (36px) */
+  padding: 0.375rem 0.75rem; /* py-1.5 px-3 */
+}
+
+.button-size-lg {
+  height: 2.75rem; /* h-11 (44px) */
+  padding: 0.5rem 2rem; /* py-2 px-8 */
+}
+
+.button-size-icon {
+  height: 2.5rem; /* h-10 (40px) */
+  width: 2.5rem; /* w-10 (40px) */
+  padding: 0;
+  justify-content: center;
+}

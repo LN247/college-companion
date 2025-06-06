@@ -39,6 +39,8 @@ class LoginSerializer(serializers.Serializer):
         
         raise serializers.ValidationError('Invalid email or password.')
 
+
+
 class GoogleAuthSerializer(serializers.Serializer):
     token = serializers.CharField(required=True)
     
