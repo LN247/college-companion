@@ -185,6 +185,7 @@ class UserPreferences(models.Model):
 
 # Signal to create UserPreferences when new user is created
 
+
 @receiver(post_save, sender=CustomUser)
 def create_user_preferences(sender, instance, created, **kwargs):
     if created:

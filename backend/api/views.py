@@ -1,5 +1,6 @@
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 from .serializers import CustomUserSerializer,RegistrationSerializer,LoginSerializer, GoogleAuthSerializer
+from .models import CustomUser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
@@ -134,8 +135,10 @@ class GoogleAuthView(APIView):
                 idinfo = id_token.verify_oauth2_token(
                     token, 
                     requests.Request(),
-                    os.getenv('GOOGLE_CLIENT_ID')  
+                    os.getenv('VITE_GOOGLE_CLIENT_ID')  # Make sure to set this in your environment variables
                 )
+
+                
 
                 # Get user info from the token
                 email = idinfo['email']

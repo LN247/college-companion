@@ -12,7 +12,6 @@ import HelpCenter from "./pages/HelpCenter";
 import Homepage from "./pages/Homepage";
 import UserProfileForm from "./pages/UserProfileForm";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Dashboard from "./pages/dashboard";
 
 function App() {
   return (
