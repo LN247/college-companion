@@ -1,8 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaChevronDown, FaUser, FaCalendar, FaChartLine, FaClock, FaCog, FaGraduationCap, FaBook, FaCalendarAlt, FaFileAlt, FaChartBar, FaBell, FaSignOutAlt, FaQuestionCircle, FaExclamationCircle } from 'react-icons/fa';
-import '../Styles/Dashboard.css';
-import { jwtDecode } from 'jwt-decode';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FaChevronDown,
+  FaUser,
+  FaCalendar,
+  FaChartLine,
+  FaClock,
+  FaCog,
+  FaGraduationCap,
+  FaBook,
+  FaCalendarAlt,
+  FaFileAlt,
+  FaChartBar,
+  FaBell,
+  FaSignOutAlt,
+  FaQuestionCircle,
+  FaExclamationCircle,
+} from "react-icons/fa";
+import "../Styles/Dashboard.css";
+import { jwtDecode } from "jwt-decode";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -66,22 +82,42 @@ const Dashboard = () => {
 
   // Mock data - replace with actual API calls
   const recentActivities = [
-    { action: 'Created a study plan', timestamp: new Date(Date.now() - 7200000), type: 'plan' },
-    { action: 'Updated timetable', timestamp: new Date(Date.now() - 86400000), type: 'timetable' },
-    { action: 'Completed assignment', timestamp: new Date(Date.now() - 172800000), type: 'assignment' },
-    { action: 'Joined study group', timestamp: new Date(Date.now() - 259200000), type: 'group' },
-    { action: 'Set exam reminder', timestamp: new Date(Date.now() - 345600000), type: 'reminder' }
+    {
+      action: "Created a study plan",
+      timestamp: new Date(Date.now() - 7200000),
+      type: "plan",
+    },
+    {
+      action: "Updated timetable",
+      timestamp: new Date(Date.now() - 86400000),
+      type: "timetable",
+    },
+    {
+      action: "Completed assignment",
+      timestamp: new Date(Date.now() - 172800000),
+      type: "assignment",
+    },
+    {
+      action: "Joined study group",
+      timestamp: new Date(Date.now() - 259200000),
+      type: "group",
+    },
+    {
+      action: "Set exam reminder",
+      timestamp: new Date(Date.now() - 345600000),
+      type: "reminder",
+    },
   ];
 
   const tipOfTheDay = {
     tip: "Break your study sessions into 25-minute intervals with 5-minute breaks for better focus.",
-    author: "Pomodoro Technique"
+    author: "Pomodoro Technique",
   };
 
   const formatTimestamp = (date) => {
     if (showRelativeTime) {
       const seconds = Math.floor((new Date() - date) / 1000);
-      if (seconds < 60) return 'just now';
+      if (seconds < 60) return "just now";
       const minutes = Math.floor(seconds / 60);
       if (minutes < 60) return `${minutes}m ago`;
       const hours = Math.floor(minutes / 60);
@@ -93,27 +129,47 @@ const Dashboard = () => {
   };
 
   const menuItems = [
-    { label: 'College Life', icon: <FaGraduationCap />, path: '/college-life', available: true },
-    { label: 'Semester Plan', icon: <FaCalendar />, path: '/semester-plan', available: true },
-    { label: 'Progress', icon: <FaChartLine />, path: '/progress', available: true },
-    { label: 'Timetable', icon: <FaClock />, path: '/timetable', available: true },
-    { label: 'Profile', icon: <FaUser />, path: '/profile', available: true },
-    { label: 'Settings', icon: <FaCog />, path: '/settings', available: true },
-    { label: 'Help Center', icon: <FaUser />, path: '/help', available: false }
+    {
+      label: "College Life",
+      icon: <FaGraduationCap />,
+      path: "/college-life",
+      available: true,
+    },
+    {
+      label: "Semester Plan",
+      icon: <FaCalendar />,
+      path: "/semester-plan",
+      available: true,
+    },
+    {
+      label: "Progress",
+      icon: <FaChartLine />,
+      path: "/progress",
+      available: true,
+    },
+    {
+      label: "Timetable",
+      icon: <FaClock />,
+      path: "/timetable",
+      available: true,
+    },
+    { label: "Profile", icon: <FaUser />, path: "/profile", available: true },
+    { label: "Settings", icon: <FaCog />, path: "/settings", available: true },
+    { label: "Help Center", icon: <FaUser />, path: "/help", available: false },
   ];
 
   const featureIcons = [
-    { label: 'College Life', icon: <FaGraduationCap />, path: '/college-life' },
-    { label: 'Semester Plan', icon: <FaCalendar />, path: '/semester-plan' },
-    { label: 'Progress', icon: <FaChartLine />, path: '/progress' },
-    { label: 'Timetable', icon: <FaClock />, path: '/timetable' },
-    { label: 'Profile', icon: <FaUser />, path: '/profile' },
-    { label: 'Settings', icon: <FaCog />, path: '/settings' }
+    { label: "College Life", icon: <FaGraduationCap />, path: "/college-life" },
+    { label: "Semester Plan", icon: <FaCalendar />, path: "/semester-plan" },
+    { label: "Progress", icon: <FaChartLine />, path: "/progress" },
+    { label: "Timetable", icon: <FaClock />, path: "/timetable" },
+    { label: "Profile", icon: <FaUser />, path: "/profile" },
+    { label: "Settings", icon: <FaCog />, path: "/settings" },
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
   if (isLoading) {
@@ -136,7 +192,7 @@ const Dashboard = () => {
     <div className="dashboard">
       {/* Profile Menu */}
       <div className="profile-menu">
-        <button 
+        <button
           className="profile-trigger"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           aria-expanded={isDropdownOpen}
@@ -144,7 +200,7 @@ const Dashboard = () => {
         >
           <div className="flex items-center space-x-2">
             <FaUser className="text-gray-600" />
-            <span>{userData?.name || 'Loading...'}</span>
+            <span>{userData?.name || "Loading..."}</span>
             <FaChevronDown className="text-gray-600" />
           </div>
         </button>
@@ -156,58 +212,72 @@ const Dashboard = () => {
             </div>
             <button
               className="menu-item"
-              onClick={() => navigate('/profile')}
+              onClick={() => navigate("/profile")}
               role="menuitem"
             >
-              <span className="menu-icon"><FaUser /></span>
+              <span className="menu-icon">
+                <FaUser />
+              </span>
               View Profile
             </button>
             <button
               className="menu-item"
-              onClick={() => navigate('/college-life')}
+              onClick={() => navigate("/college-life")}
               role="menuitem"
             >
-              <span className="menu-icon"><FaGraduationCap /></span>
+              <span className="menu-icon">
+                <FaGraduationCap />
+              </span>
               College Life
             </button>
             <button
               className="menu-item"
-              onClick={() => navigate('/semester-plan')}
+              onClick={() => navigate("/semester-plan")}
               role="menuitem"
             >
-              <span className="menu-icon"><FaCalendar /></span>
+              <span className="menu-icon">
+                <FaCalendar />
+              </span>
               Semester Plan
             </button>
             <button
               className="menu-item"
-              onClick={() => navigate('/progress')}
+              onClick={() => navigate("/progress")}
               role="menuitem"
             >
-              <span className="menu-icon"><FaChartLine /></span>
+              <span className="menu-icon">
+                <FaChartLine />
+              </span>
               Progress
             </button>
             <button
               className="menu-item"
-              onClick={() => navigate('/timetable')}
+              onClick={() => navigate("/timetable")}
               role="menuitem"
             >
-              <span className="menu-icon"><FaClock /></span>
+              <span className="menu-icon">
+                <FaClock />
+              </span>
               Timetable
             </button>
             <button
               className="menu-item"
-              onClick={() => navigate('/settings')}
+              onClick={() => navigate("/settings")}
               role="menuitem"
             >
-              <span className="menu-icon"><FaCog /></span>
+              <span className="menu-icon">
+                <FaCog />
+              </span>
               Settings
             </button>
             <button
               className="menu-item"
-              onClick={() => navigate('/help')}
+              onClick={() => navigate("/help")}
               role="menuitem"
             >
-              <span className="menu-icon"><FaQuestionCircle /></span>
+              <span className="menu-icon">
+                <FaQuestionCircle />
+              </span>
               Help Center
             </button>
             <button
@@ -215,7 +285,9 @@ const Dashboard = () => {
               onClick={handleLogout}
               role="menuitem"
             >
-              <span className="menu-icon"><FaSignOutAlt /></span>
+              <span className="menu-icon">
+                <FaSignOutAlt />
+              </span>
               Logout
             </button>
           </div>
@@ -224,86 +296,84 @@ const Dashboard = () => {
 
       {/* Welcome Message */}
       <div className="welcome-section">
-        <h1>Welcome, {userData?.name || 'Student'}</h1>
-        <p className="date">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <h1>Welcome, {userData?.name || "Student"}</h1>
+        <p className="date">
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
       </div>
 
       {/* Feature Icons Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <div 
-          className="feature-icon"
-          onClick={() => navigate('/college-life')}
-        >
-          <div className="icon-wrapper">
-            <FaGraduationCap />
+        {featureIcons.map((item, index) => (
+          <div
+            key={index}
+            className="feature-icon"
+            onClick={() => navigate(item.path)}
+          >
+            <div className="icon-wrapper">{item.icon}</div>
+            <span>{item.label}</span>
           </div>
-          <span>College Life</span>
-        </div>
-        <div 
-          className="feature-icon"
-          onClick={() => navigate('/semester-plan')}
-        >
-          <div className="icon-wrapper">
-            <FaCalendarAlt />
+        ))}
+      </div>
+
+      {/* Analytics Section */}
+      <div className="analytics-section">
+        <h2>Your Progress</h2>
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <FaFileAlt className="analytics-icon" />
+            <div className="analytics-info">
+              <h3>Upcoming Assignments</h3>
+              <p>{analytics.upcomingAssignments}</p>
+            </div>
           </div>
-          <span>Semester Plan</span>
-        </div>
-        <div 
-          className="feature-icon"
-          onClick={() => navigate('/progress')}
-        >
-          <div className="icon-wrapper">
-            <FaChartLine />
+          <div className="analytics-card">
+            <FaClock className="analytics-icon" />
+            <div className="analytics-info">
+              <h3>Study Hours</h3>
+              <p>{analytics.studyHours}</p>
+            </div>
           </div>
-          <span>Progress</span>
-        </div>
-        <div 
-          className="feature-icon"
-          onClick={() => navigate('/timetable')}
-        >
-          <div className="icon-wrapper">
-            <FaClock />
+          <div className="analytics-card">
+            <FaChartBar className="analytics-icon" />
+            <div className="analytics-info">
+              <h3>Completed Tasks</h3>
+              <p>{analytics.completedTasks}</p>
+            </div>
           </div>
-          <span>Timetable</span>
-        </div>
-        <div 
-          className="feature-icon"
-          onClick={() => navigate('/notifications')}
-        >
-          <div className="icon-wrapper">
-            <FaBell />
+          <div className="analytics-card">
+            <FaCalendarAlt className="analytics-icon" />
+            <div className="analytics-info">
+              <h3>Upcoming Exams</h3>
+              <p>{analytics.upcomingExams}</p>
+            </div>
           </div>
-          <span>Notifications</span>
-        </div>
-        <div 
-          className="feature-icon"
-          onClick={() => navigate('/help')}
-        >
-          <div className="icon-wrapper">
-            <FaQuestionCircle />
-          </div>
-          <span>Help Center</span>
         </div>
       </div>
 
-      {/* Activity Feed */}
-      <div className="activity-section">
-        <div className="section-header">
-          <h2>Recent Activity</h2>
-          <button 
-            className="time-toggle"
-            onClick={() => setShowRelativeTime(!showRelativeTime)}
-          >
-            {showRelativeTime ? 'Show Absolute Time' : 'Show Relative Time'}
-          </button>
-        </div>
-        <div className="activity-list">
+      {/* Recent Activities */}
+      <div className="recent-activities">
+        <h2>Recent Activities</h2>
+        <div className="activities-list">
           {recentActivities.map((activity, index) => (
             <div key={index} className="activity-item">
-              <div className="activity-icon">{activity.type === 'plan' ? <FaCalendar /> : <FaClock />}</div>
-              <div className="activity-content">
-                <p>{activity.action}</p>
-                <span className="timestamp">{formatTimestamp(activity.timestamp)}</span>
+              <div className="activity-icon">
+                {activity.type === "plan" && <FaBook />}
+                {activity.type === "timetable" && <FaCalendar />}
+                {activity.type === "assignment" && <FaFileAlt />}
+                {activity.type === "group" && <FaUser />}
+                {activity.type === "reminder" && <FaBell />}
+              </div>
+              <div className="activity-info">
+                <p className="activity-text">{activity.action}</p>
+                <span className="activity-time">
+                  {formatTimestamp(activity.timestamp)}
+                </span>
               </div>
             </div>
           ))}
@@ -315,71 +385,7 @@ const Dashboard = () => {
         <h2>Tip of the Day</h2>
         <div className="tip-card">
           <p className="tip-text">{tipOfTheDay.tip}</p>
-          <p className="tip-author">— {tipOfTheDay.author}</p>
-        </div>
-      </div>
-
-      {/* Analytics Section */}
-      <div className="analytics-section">
-        <h2>Analytics Overview</h2>
-        <div className="analytics-grid">
-          <div className="analytics-card">
-            <div className="analytics-icon">
-              <FaFileAlt />
-            </div>
-            <div className="analytics-content">
-              <h3>Upcoming Assignments</h3>
-              <p className="analytics-value">{analytics.upcomingAssignments}</p>
-            </div>
-          </div>
-          <div className="analytics-card">
-            <div className="analytics-icon">
-              <FaClock />
-            </div>
-            <div className="analytics-content">
-              <h3>Study Hours</h3>
-              <p className="analytics-value">{analytics.studyHours}h</p>
-            </div>
-          </div>
-          <div className="analytics-card">
-            <div className="analytics-icon">
-              <FaChartBar />
-            </div>
-            <div className="analytics-content">
-              <h3>Completed Tasks</h3>
-              <p className="analytics-value">{analytics.completedTasks}</p>
-            </div>
-          </div>
-          <div className="analytics-card">
-            <div className="analytics-icon">
-              <FaCalendar />
-            </div>
-            <div className="analytics-content">
-              <h3>Upcoming Exams</h3>
-              <p className="analytics-value">{analytics.upcomingExams}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Notifications Section */}
-      <div className="notifications-section">
-        <div className="section-header">
-          <h2>Notifications</h2>
-          <span className="notification-badge">{notifications.length}</span>
-        </div>
-        <div className="notifications-list">
-          {notifications.map((notification) => (
-            <div key={notification.id} className="notification-item">
-              <div className="notification-icon">
-                <FaExclamationCircle />
-              </div>
-              <div className="notification-content">
-                <p>{notification.message}</p>
-                <span className="timestamp">{formatTimestamp(notification.timestamp)}</span>
-              </div>
-            </div>
-          ))}
+          <p className="tip-author">- {tipOfTheDay.author}</p>
         </div>
       </div>
     </div>

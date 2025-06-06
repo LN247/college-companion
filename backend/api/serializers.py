@@ -1,36 +1,51 @@
-from django.contrib.auth.models import User
-from rest_framework import serializers, status
-from rest_framework.response import Response
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth import get_user_model
-from .models import  UserProfile
+from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
+from django.contrib.auth import  authenticate
+from .models import CustomUser
 
-
-
-
-"""
-This module contains serializers for user authentication and registration.
-It includes:
-1. CustomTokenObtainPairSerializer: A custom serializer for obtaining JWT tokens.   
-2. UserCreateSerializer: A serializer for creating new users.
-3. UserUpdateSerializer: A serializer for updating user information.
-"""
-
-
-
-
-
-"""
-custom serializer for obtaining JWT tokens
-IT overrides the default TokenObtainPairSerializer to include custom validation logic
-and to add additional fields to the token payload."""
-
-
-
-
-
-class UserProfileSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(ModelSerializer):
+    
     class Meta:
-        model = UserProfile
-        fields = ('student_id', 'major', 'year_level', 'gpa', 'profile_picture', 'bio')
+        model = CustomUser
+        fields = ( 'id','email')
+
+
+
+class RegistrationSerializer(ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=('email','password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = CustomUser(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user    
+    
+
+
+
+class LoginSerializer(serializers.Serializer):
+
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True)
+    
+    def validate(self, data):
+        user = authenticate(**data)
+        if user:
+            return {'user': user}  
+        
+        raise serializers.ValidationError('Invalid email or password.')
+
+
+
+class GoogleAuthSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True)
+    
+    def validate(self, data):
+        token = data.get('token')
+        if not token:
+            raise serializers.ValidationError('Token is required')
+        return data

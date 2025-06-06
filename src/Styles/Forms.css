@@ -7,7 +7,8 @@
   height: 100%;
   display: flex;
   flex-direction: row;
-  background-color: #06123D;
+  background-color: #ffff;
+  background-color: #dfe9ee;
 }
 .welcome-box {
   display: flex;
@@ -23,8 +24,8 @@
   line-height: 1.5;
   text-align: left;
   font-weight: 125;
-  color: #F68712;
-  font-size: 40px;
+  color: #446496;
+  font-size: 48px;
   position: relative;
 }
 
@@ -40,7 +41,7 @@
 .message > h1 {
   font-family: Bebas Neue;
   font-weight: bold;
-  color: #F68712;
+  color: #ffff;
 }
 .remember-me {
   width: inherit;
@@ -62,31 +63,33 @@
   width: 50%;
   height: 100%;
   flex-direction: column;
-  color: #06123D;
+  color: black;
   padding: 20px;
+
   justify-content: space-between;
   padding-top: 2rem;
-  background: #FFFFFF;
-  border-radius: 0 10px 10px 0;
 }
 
 .input-box {
   width: inherit;
   margin-bottom: 2rem;
+
   display: grid;
   padding-top: 5px;
 }
 
 .label {
   margin-bottom: 8px;
-  font-size: medium;
-  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-  color: #06123D;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
 .left-box {
   width: 50%;
-  border-right: 3px solid #F68712;
+
+  border-right: 3px solid black;
   background-image: url("../assets/background.webp");
   background-repeat: no-repeat;
   background-size: cover;
@@ -108,6 +111,7 @@ img {
 form {
   display: grid;
   width: 96%;
+
   height: 100%;
   margin-left: 2px;
   margin-bottom: 15px;
@@ -116,14 +120,16 @@ form {
 
 .login-message {
   position: relative;
+
   align-self: center;
 }
 .login-message > h2 {
   font-family: "Roboto", cursive;
   text-align: center;
-  font-weight: 500;
-  color: #06123D;
-  font-size: 40px;
+  font-weight: bold;
+  color: #000000;
+  font-size: 48px;
+  font-weight: bold;
   display: block;
   margin-bottom: 60px;
 }
@@ -132,17 +138,17 @@ form {
   width: 90%;
   height: 40px;
   padding: 6px;
-  color: #06123D;
-  background-color: #FFFFFF;
+  color: #000000;
+  background-color: #ffff;
   border-radius: 5px;
-  border: 1px solid #F68712;
+  border: 1px solid #999;
   outline: none;
   font-size: 18px;
   font-weight: 700;
   font-family: "roboto";
 }
 .input:focus {
-  outline: 2.5px solid #F68712;
+  outline: 2.5px solid #035083;
 }
 
 button[type="submit"] {
@@ -150,48 +156,42 @@ button[type="submit"] {
   height: 40px;
   border-radius: 5px;
   border: none;
-  background-color: #F68712;
-  color: #FFFFFF;
+  background-color: #62423a;
+  color: white;
   font-size: 16px;
   cursor: pointer;
   margin-top: 4rem;
   font-weight: bold;
   margin-bottom: 5px;
   margin-left: 5px;
-  box-shadow: rgba(6, 18, 61, 0.15) 0px 2px 5px -1px,
-    rgba(0, 0, 0, 0.1) 0px 1px 3px -1px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
   transition: 0.4s;
 }
 button[type="submit"]:hover {
   transition: 0.4s;
-  border: 3px dashed #F68712;
-  background-color: #06123D;
-  color: #F68712;
+  border: 3px dashed #62423a;
+  background-color: #fff;
+  color: #62423a;
 }
 button > span:last-child {
   display: none;
 }
 button[type="submit"]:active {
-  background-color: #F68712;
+  background-color: #87dbd0;
 }
 .signin-button {
   width: 80%;
   height: 40px;
   border-radius: 5px;
   border: none;
-  background-color: #06123D;
-  color: #FFFFFF;
+  background-color: rgb(106 143 140);
+  color: white;
   font-size: 16px;
   cursor: pointer;
   margin-top: 5px;
   font-weight: bold;
   margin-bottom: 35px;
-  border: 2px solid #F68712;
-  transition: background 0.3s, color 0.3s;
-}
-.signin-button:hover {
-  background-color: #F68712;
-  color: #06123D;
 }
 .button-box {
   display: flex;
@@ -209,11 +209,11 @@ button[type="submit"]:active {
   margin-left: 20px;
   align-items: center;
   border-radius: 10px;
-  background-color: #FFFFFF;
-  box-shadow: rgba(6, 18, 61, 0.10) 0px 3px 8px;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 .line {
-  border-top: 1px solid #F68712;
+  border-top: 1px solid rgb(51, 49, 49);
   width: 90%;
   display: flex;
   bottom: 0;
@@ -222,8 +222,8 @@ button[type="submit"]:active {
   margin-top: 35px;
 }
 .p {
-  background-color: #FFFFFF;
-  color: #06123D;
+  background-color: white;
+  color: black;
   align-self: center;
   font-size: 15px;
   position: relative;
@@ -237,11 +237,11 @@ button:active {
   display: flex;
   justify-content: center;
   text-align: center;
-  color: #06123D;
+  color: black;
   font-size: 20px;
-  background-color: #FFF7ED;
+  background-color: rgb(231, 142, 142);
   margin-bottom: 10px;
-  border-radius: 1px solid #F68712;
+  border-radius: 1px solid rgb(167, 8, 8);
   font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 }
 
@@ -250,12 +250,11 @@ button:active {
   height: 20px;
   margin-right: 10px;
   padding-right: 50px;
-  background-color: #FFFFFF;
+  background-color: #fff;
   justify-content: space-between;
-  border: 1px solid #F68712;
 }
 .checkbox:checked {
-  background-color: #F68712;
+  background-color: black;
 }
 
 .google-icon {
@@ -267,18 +266,13 @@ button:active {
 .google-button {
   width: 80%;
   height: 5vh;
-  background-color: #F68712;
-  color: #FFFFFF;
+  background-color: #162537;
+  color: white;
   font-weight: bold;
-  border: 1px solid #06123D;
+  border: 1px solid black;
   border-radius: 5px;
   cursor: pointer;
   font-size: 15px;
-  transition: background 0.3s, color 0.3s;
-}
-.google-button:hover {
-  background-color: #06123D;
-  color: #F68712;
 }
 .login-options {
   width: 100%;
