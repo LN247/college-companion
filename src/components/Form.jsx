@@ -4,7 +4,8 @@ import axios from "axios";
 import "../Styles/Forms.css";
 import validation from "../utils/validation";
 import ErrorMessage from "./Error";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from '@react-oauth/google';
+
 
 function FormComponent({
   type = "login",

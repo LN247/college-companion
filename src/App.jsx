@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import LoginForm from "./pages/LoginForm";
-import SignupForm from "./pages/signupForm";
+import SignupForm from "./pages/SignupForm";
 import Notfound from "./pages/Notfound";
 import Dashboard from "./pages/Dashboard";
 import CollegeLife from "./pages/CollegeLife";

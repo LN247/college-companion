@@ -1,153 +1,364 @@
-import React, { useState } from 'react';
-import { FaCalendarAlt, FaBook, FaGraduationCap, FaUsers, FaFlag } from 'react-icons/fa';
-import '../Styles/SemesterPlan.css';
+import React, { useState, useEffect } from 'react';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import format from 'date-fns/format';
+import parse from 'date-fns/parse';
+import startOfWeek from 'date-fns/startOfWeek';
+import getDay from 'date-fns/getDay';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { addHours } from 'date-fns';
+import GoogleCalendarIntegration from '../components/GoogleCalendarIntegration';
 
-const SemesterPlan = () => {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+const locales = {
+  'en-US': require('date-fns/locale/en-US')
+};
 
-  // Mock data - replace with actual API data
-  const semesterEvents = [
-    {
-      id: 1,
-      title: 'Orientation Week',
-      date: '2024-09-01',
-      type: 'academic',
-      description: 'Welcome week for new students'
-    },
-    {
-      id: 2,
-      title: 'Cultural Day',
-      date: '2024-09-15',
-      type: 'event',
-      description: 'Annual cultural celebration'
-    },
-    {
-      id: 3,
-      title: 'Midterm Exams',
-      date: '2024-10-15',
-      type: 'academic',
-      description: 'First semester midterm examinations'
-    },
-    {
-      id: 4,
-      title: 'Mountain Day',
-      date: '2024-11-03',
-      type: 'event',
-      description: 'Traditional mountain climbing event'
-    }
-  ];
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
 
-  const semesterGoals = [
-    {
-      id: 1,
-      title: 'Academic Goals',
-      items: [
-        'Maintain GPA above 3.5',
-        'Complete all assignments on time',
-        'Participate in class discussions'
-      ]
-    },
-    {
-      id: 2,
-      title: 'Social Goals',
-      items: [
-        'Join at least 2 clubs',
-        'Attend campus events',
-        'Network with professors'
-      ]
-    },
-    {
-      id: 3,
-      title: 'Personal Goals',
-      items: [
-        'Exercise 3 times a week',
-        'Learn a new skill',
-        'Maintain work-life balance'
-      ]
-    }
-  ];
+function SemesterPlanner() {
+  const [timetable, setTimetable] = useState(() => {
+    const saved = localStorage.getItem('semesterTimetable');
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [goals, setGoals] = useState(() => {
+    const saved = localStorage.getItem('semesterGoals');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [assignments, setAssignments] = useState(() => {
+    const saved = localStorage.getItem('assignments');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [courses, setCourses] = useState(() => {
+    const saved = localStorage.getItem('courses');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [events, setEvents] = useState(() => {
+    const saved = localStorage.getItem('events');
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  const getEventIcon = (type) => {
-    switch (type) {
-      case 'academic':
-        return <FaBook className="text-blue-500" />;
-      case 'event':
-        return <FaUsers className="text-green-500" />;
-      default:
-        return <FaCalendarAlt className="text-gray-500" />;
+  const [goalInput, setGoalInput] = useState('');
+  const [goalPlan, setGoalPlan] = useState('');
+  const [semesterStart, setSemesterStart] = useState('');
+  const [semesterEnd, setSemesterEnd] = useState('');
+  const [assignmentInput, setAssignmentInput] = useState('');
+  const [assignmentDue, setAssignmentDue] = useState('');
+  const [assignmentCourse, setAssignmentCourse] = useState('');
+  const [assignmentPriority, setAssignmentPriority] = useState('medium');
+  const [eventTitle, setEventTitle] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [courseInput, setCourseInput] = useState('');
+  const [creditHours, setCreditHours] = useState('');
+  const [studyHours, setStudyHours] = useState('');
+  const [courseColor, setCourseColor] = useState('#f68712');
+
+  const [calendarEvents, setCalendarEvents] = useState(() => {
+    const saved = localStorage.getItem('calendarEvents');
+    return saved ? JSON.parse(saved).map(event => ({
+      ...event,
+      start: new Date(event.start),
+      end: new Date(event.end)
+    })) : [];
+  });
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [newEvent, setNewEvent] = useState({
+    title: '',
+    start: new Date(),
+    end: addHours(new Date(), 1),
+    description: '',
+    type: 'class', // class, assignment, study, other
+    course: '',
+    location: ''
+  });
+
+  const [googleEvents, setGoogleEvents] = useState([]);
+
+  // Update calendarEvents to include Google Calendar events
+  const allEvents = [...calendarEvents, ...googleEvents];
+
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const timeSlots = Array.from({ length: 14 }, (_, i) => i + 8); // 8 AM to 9 PM
+
+  useEffect(() => {
+    localStorage.setItem('semesterTimetable', JSON.stringify(timetable));
+    localStorage.setItem('semesterGoals', JSON.stringify(goals));
+    localStorage.setItem('assignments', JSON.stringify(assignments));
+    localStorage.setItem('courses', JSON.stringify(courses));
+    localStorage.setItem('events', JSON.stringify(events));
+    localStorage.setItem('calendarEvents', JSON.stringify(calendarEvents));
+  }, [timetable, goals, assignments, courses, events, calendarEvents]);
+
+  const handleTimetableChange = (day, field, value) => {
+    setTimetable((prev) => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleAddGoal = () => {
+    if (goalInput && goalPlan) {
+      setGoals([...goals, { goal: goalInput, plan: goalPlan, completed: false, stepsCompleted: false }]);
+      setGoalInput('');
+      setGoalPlan('');
     }
   };
 
+  const toggleGoalCompleted = (index, field) => {
+    const updatedGoals = [...goals];
+    updatedGoals[index][field] = !updatedGoals[index][field];
+    setGoals(updatedGoals);
+  };
+
+  const handleSaveTimetable = () => {
+    localStorage.setItem('semesterTimetable', JSON.stringify(timetable));
+    alert('Timetable saved!');
+  };
+
+  const handleAddCourse = () => {
+    if (courseInput && creditHours) {
+      const recommendedStudyHours = parseInt(creditHours) * 2; // 2 hours of study per credit hour
+      const newCourse = {
+        name: courseInput,
+        creditHours: parseInt(creditHours),
+        recommendedStudyHours,
+        actualStudyHours: parseInt(studyHours) || 0,
+        color: courseColor,
+        assignments: [],
+        progress: 0
+      };
+      setCourses([...courses, newCourse]);
+      setCourseInput('');
+      setCreditHours('');
+      setStudyHours('');
+    }
+  };
+
+  const handleAddAssignment = () => {
+    if (assignmentInput && assignmentDue && assignmentCourse) {
+      const newAssignment = {
+        name: assignmentInput,
+        due: assignmentDue,
+        course: assignmentCourse,
+        priority: assignmentPriority,
+        completed: false,
+        progress: 0
+      };
+      setAssignments([...assignments, newAssignment]);
+      
+      // Update course assignments
+      const updatedCourses = courses.map(course => {
+        if (course.name === assignmentCourse) {
+          return {
+            ...course,
+            assignments: [...course.assignments, newAssignment]
+          };
+        }
+        return course;
+      });
+      setCourses(updatedCourses);
+
+      setAssignmentInput('');
+      setAssignmentDue('');
+      setAssignmentPriority('medium');
+    }
+  };
+
+  const updateAssignmentProgress = (index, progress) => {
+    const updatedAssignments = assignments.map((assignment, i) => {
+      if (i === index) {
+        return { ...assignment, progress: parseInt(progress) };
+      }
+      return assignment;
+    });
+    setAssignments(updatedAssignments);
+
+    // Update course progress
+    const updatedCourses = courses.map(course => {
+      const courseAssignments = updatedAssignments.filter(a => a.course === course.name);
+      const totalProgress = courseAssignments.reduce((sum, a) => sum + a.progress, 0);
+      const averageProgress = courseAssignments.length ? totalProgress / courseAssignments.length : 0;
+      return {
+        ...course,
+        progress: averageProgress
+      };
+    });
+    setCourses(updatedCourses);
+  };
+
+  const updateStudyHours = (courseName, hours) => {
+    const updatedCourses = courses.map(course => {
+      if (course.name === courseName) {
+        return {
+          ...course,
+          actualStudyHours: parseInt(hours)
+        };
+      }
+      return course;
+    });
+    setCourses(updatedCourses);
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high': return '#dc3545';
+      case 'medium': return '#ffc107';
+      case 'low': return '#28a745';
+      default: return '#6c757d';
+    }
+  };
+
+  const calculateWorkload = (course) => {
+    const assignmentCount = course.assignments.length;
+    const upcomingAssignments = course.assignments.filter(a => 
+      new Date(a.due) > new Date() && new Date(a.due) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    ).length;
+    const studyHourDeficit = course.recommendedStudyHours - course.actualStudyHours;
+
+    if (upcomingAssignments >= 2 || studyHourDeficit > 5) return 'High';
+    if (upcomingAssignments === 1 || studyHourDeficit > 0) return 'Medium';
+    return 'Low';
+  };
+
+  const handleSelectSlot = ({ start, end }) => {
+    setNewEvent({
+      title: '',
+      start,
+      end,
+      description: '',
+      type: 'class',
+      course: '',
+      location: ''
+    });
+    setSelectedEvent(null);
+    setShowEventModal(true);
+  };
+
+  const handleSelectEvent = (event) => {
+    setSelectedEvent(event);
+    setNewEvent(event);
+    setShowEventModal(true);
+  };
+
+  const handleSaveEvent = () => {
+    if (selectedEvent) {
+      // Update existing event
+      setCalendarEvents(calendarEvents.map(event =>
+        event === selectedEvent ? newEvent : event
+      ));
+    } else {
+      // Add new event
+      setCalendarEvents([...calendarEvents, newEvent]);
+    }
+    setShowEventModal(false);
+    setSelectedEvent(null);
+    setNewEvent({
+      title: '',
+      start: new Date(),
+      end: addHours(new Date(), 1),
+      description: '',
+      type: 'class',
+      course: '',
+      location: ''
+    });
+  };
+
+  const handleDeleteEvent = () => {
+    if (selectedEvent) {
+      setCalendarEvents(calendarEvents.filter(event => event !== selectedEvent));
+    }
+    setShowEventModal(false);
+    setSelectedEvent(null);
+  };
+
+  const handleGoogleEventsLoaded = (events) => {
+    setGoogleEvents(events);
+  };
+
+  const eventStyleGetter = (event) => {
+    if (event.source === 'google') {
+      return {
+        style: {
+          backgroundColor: '#4285f4',
+          borderRadius: '4px',
+          opacity: 0.8,
+          color: 'white',
+          border: '0px',
+          display: 'block'
+        }
+      };
+    }
+
+    let backgroundColor = '#f68712';
+    switch (event.type) {
+      case 'class':
+        backgroundColor = '#06123D';
+        break;
+      case 'assignment':
+        backgroundColor = '#F68712';
+        break;
+      case 'study':
+        backgroundColor = '#4285f4';
+        break;
+      case 'exam':
+        backgroundColor = '#ea4335';
+        break;
+      default:
+        backgroundColor = '#f68712';
+    }
+    return {
+      style: {
+        backgroundColor,
+        borderRadius: '4px',
+        opacity: 0.8,
+        color: 'white',
+        border: '0px',
+        display: 'block'
+      }
+    };
+  };
+
   return (
-    <div className="semester-plan">
-      <div className="container mx-auto px-4 py-8">
-        {/* Semester Overview */}
-        <div className="semester-overview mb-8">
-          <h2 className="text-2xl font-bold mb-4">Fall Semester 2024</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">Academic Calendar</h3>
-              <ul className="space-y-4">
-                {semesterEvents.map(event => (
-                  <li key={event.id} className="flex items-start space-x-3">
-                    {getEventIcon(event.type)}
-                    <div>
-                      <p className="font-medium">{event.title}</p>
-                      <p className="text-sm text-gray-600">{event.date}</p>
-                      <p className="text-sm text-gray-500">{event.description}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">Semester Goals</h3>
-              {semesterGoals.map(goal => (
-                <div key={goal.id} className="mb-6">
-                  <h4 className="font-medium mb-2">{goal.title}</h4>
-                  <ul className="list-disc list-inside space-y-2">
-                    {goal.items.map((item, index) => (
-                      <li key={index} className="text-gray-600">{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-              <div className="space-y-4">
-                <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-                  Add New Event
-                </button>
-                <button className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
-                  Update Goals
-                </button>
-                <button className="w-full bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">
-                  Export Calendar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Calendar Integration */}
-        <div className="calendar-integration">
-          <h2 className="text-2xl font-bold mb-4">Calendar Integration</h2>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-gray-600 mb-4">
-              Connect your school calendar to automatically sync important dates and events.
-            </p>
-            <button className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-              Connect Calendar
-            </button>
+    <div style={{ minHeight: '100vh', padding: '0', backgroundColor: '#06123D', color: '#FFFFFF' }}>
+      <div style={{ maxWidth: '100%', margin: '0 auto' }}>
+        <div style={{ 
+          backgroundColor: '#FFFFFF', 
+          color: '#000000', 
+          padding: '1rem', 
+          borderRadius: '12px', 
+          marginBottom: '0',
+          minHeight: 'calc(100vh - 2rem)'
+        }}>
+          <div style={{ height: 'calc(100vh - 4rem)' }}>
+            <GoogleCalendarIntegration onEventsLoaded={handleGoogleEventsLoaded} />
+            <Calendar
+              localizer={localizer}
+              events={allEvents}
+              startAccessor="start"
+              endAccessor="end"
+              selectable
+              onSelectSlot={handleSelectSlot}
+              onSelectEvent={handleSelectEvent}
+              eventPropGetter={eventStyleGetter}
+              views={['month', 'week', 'day', 'agenda']}
+              defaultView='month'
+              step={60}
+              showMultiDayTimes
+              style={{ height: '100%' }}
+            />
           </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default SemesterPlan; 
+export default SemesterPlanner; 
