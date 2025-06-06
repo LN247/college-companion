@@ -1,6 +1,20 @@
-from django.urls import path
-from .views import UserInfoView,RegistrationView,LoginView,LogoutView,CookieTokenRefreshView,GoogleAuthView,GenerateTimetable,save_fcm_token
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import (
+    UserInfoView, RegistrationView, LoginView, LogoutView,
+    CookieTokenRefreshView, GoogleAuthView,GenerateTimetable,save_fcm_token,
+    SemesterViewSet, CourseViewSet, FixedClassScheduleViewSet,
+    StudyBlockViewSet, UserPreferencesViewSet
+)
 
+
+
+router = DefaultRouter()
+router.register(r'semesters', SemesterViewSet, basename='semester')
+router.register(r'courses', CourseViewSet, basename='course')
+router.register(r'fixed-schedules', FixedClassScheduleViewSet, basename='fixed-schedule')
+router.register(r'study-blocks', StudyBlockViewSet, basename='study-block')
+router.register(r'preferences', UserPreferencesViewSet, basename='preferences')
 
 urlpatterns = [
  path('user-info/',UserInfoView.as_view(),name='user-info'),
