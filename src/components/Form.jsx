@@ -5,8 +5,7 @@ import "../Styles/Forms.css";
 import validation from "../utils/validation";
 import ErrorMessage from "./Error";
 import { GoogleLogin } from '@react-oauth/google';
-import { useGoogleLogin } from "@react-oauth/google";
-import GoogleIcon from "../assets/google-icon.svg";
+
 
 function FormComponent({
   type = "login",

@@ -11,26 +11,8 @@ const Dashboard = () => {
   const [showRelativeTime, setShowRelativeTime] = useState(true);
 
   useEffect(() => {
-    // Get user data from localStorage
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setUserData({
-          name: `${decoded.first_name} ${decoded.last_name}`,
-          email: decoded.email,
-          username: decoded.username
-        });
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        // If token is invalid, redirect to login
-        navigate('/login');
-      }
-    } else {
-      // If no token, redirect to login
-      navigate('/login');
-    }
-  }, [navigate]);
+   
+  }, []);
 
   // Mock data - replace with actual API calls
   const recentActivities = [

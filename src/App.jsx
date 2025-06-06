@@ -22,16 +22,19 @@ function App() {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/profile" element={<UserProfileForm />} />
+        <Route path="/dashboard" element={<Dashboard />} />
 
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+       
+        
+          
           <Route path="/college-life" element={<CollegeLife />} />
           <Route path="/semester-plan" element={<SemesterPlan />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/help" element={<HelpCenter />} />
-        </Route>
+
+
+       
 
         {/* 404 Route */}
         <Route path="*" element={<Notfound />} />
