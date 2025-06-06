@@ -36,5 +36,5 @@ myenv/
 
 
 #firebase service account 
-serviceAccountKey
+serviceAccountKey.json
 *.key

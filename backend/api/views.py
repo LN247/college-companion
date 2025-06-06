@@ -6,9 +6,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .models import UserPreferences, Course, StudyBlock,CustomUser
+from .models import UserPreferences, Course, StudyBlock,CustomUser,UserProfile
 from .utils.scheduler import generate_timetable
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken
@@ -256,3 +258,19 @@ class GenerateTimetable(APIView):
             )
 
         return JsonResponse({'status': 'success', 'blocks_created': len(study_blocks)}, status=status.HTTP_200_OK)
+    
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def save_fcm_token(request):
+    token = request.data.get('token')
+    if not token:
+        return Response({'error': 'Token missing'}, status=400)
+    
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    profile.fcm_token = token
+    profile.save()
+    
+    return Response({'status': 'success', 'message': 'FCM token saved'})

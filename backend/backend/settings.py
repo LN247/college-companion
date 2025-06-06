@@ -206,3 +206,25 @@ CELERY_RESULT_EXPIRES = 3600
 
 # Notification settings
 STUDY_NOTIFICATION_ADVANCE_MINUTES = 10
+
+
+
+# Firebase Cloud Messaging settings
+
+import os
+from pathlib import Path
+
+# Load credentials from file
+BASE_DIR = Path(__file__).resolve().parent.parent
+FIREBASE_CREDENTIAL_PATH = BASE_DIR / "serviceAccountKey.json"
+
+
+if not FIREBASE_CREDENTIAL_PATH.exists():
+    raise FileNotFoundError("Firebase service account file missing")
+
+# Initialize Firebase
+import firebase_admin
+from firebase_admin import credentials
+
+cred = credentials.Certificate(str(FIREBASE_CREDENTIAL_PATH))
+firebase_admin.initialize_app(cred)

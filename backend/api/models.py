@@ -51,6 +51,7 @@ class UserProfile(models.Model):
     level = models.CharField(max_length=20, default='Undergraduate', )
     profile_picture = models.FilePathField(path='profile_pictures/', blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
+    fcm_token = models.CharField(max_length=200, blank=True)
 
 
 @receiver(post_save, sender=CustomUser)
@@ -59,6 +60,13 @@ def create_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance, username=instance.username)
     else:
         instance.profile.save()
+
+
+@receiver(post_save, sender=CustomUser)
+def save_user_profile(sender, instance, **kwargs):
+    instance.userprofile.save()
+
+
 
 class Semester(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='semesters')
@@ -153,7 +161,7 @@ class UserPreferences(models.Model):
         help_text="Preferred study hours per day"
     )
     off_days = models.CharField(
-        max_length=27,  # Max: "MON,TUE,WED,THU,FRI,SAT,SUN"
+        max_length=27,  
         blank=True,
         help_text="Comma-separated days the user doesn't study (e.g., 'SAT,SUN')"
     )
