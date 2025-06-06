@@ -1,3 +1,4 @@
+import React from "react";
 import { Routes, Route } from "react-router-dom";
 import LoginForm from "./pages/LoginForm";
 import SignupForm from "./pages/signupForm";
@@ -9,6 +10,9 @@ import Progress from "./pages/Progress";
 import Settings from "./pages/Settings";
 import HelpCenter from "./pages/HelpCenter";
 import Homepage from "./pages/Homepage";
+import UserProfileForm from "./pages/UserProfileForm";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Dashboard from "./pages/dashboard";
 
 function App() {
   return (
