@@ -7,15 +7,15 @@ importScripts(
 
 // Initialize the Firebase app in the service worker
 const firebaseConfig = {
-  apiKey: VITE_FIREBASE_API_KEY,
-  authDomain: VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: VITE_FIREBASE_PROJECT_ID,
-  storageBucket: VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: VITE_FIREBASE_APP_ID,
-  measurementId: VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: "VITE_FIREBASE_API_KEY",
+  authDomain: "VITE_FIREBASE_AUTH0_DOMAIN",
+  projectId: "VITE_FIREBASE_PROJECT_ID",
+  storageBucket: "VITE_FIREBASE_STORAGE_BUCKET",
+  messagingSenderId: "VITE_FIREBASE_MESSAGING_SENDER_ID",
+  appId: "VITE_FIREBASE_APP_ID",
+  measurementId: "VITE_FIREBASE_MEASUREMENT_ID",
 };
-
+firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 // Background message handler

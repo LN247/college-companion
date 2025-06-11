@@ -7,7 +7,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .models import UserPreferences, Course, StudyBlock,CustomUser,UserProfile
@@ -43,13 +42,15 @@ class UserInfoView(RetrieveUpdateAPIView):
 
 class RegistrationView(CreateAPIView):
      permission_classes = [AllowAny]
+     authentication_classes = [] 
      serializer_class=RegistrationSerializer
 
 
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
-
+    authentication_classes = [] 
+    
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
 

@@ -82,8 +82,8 @@
   width: 100%;
   position: relative;
  
-  margin: 0 auto;
-  padding: 80px 16px;
+  margin-top: 0px;
+  padding: 10px 6px;
 }
 
 .hero-grid {
@@ -101,6 +101,7 @@
 
 /* Left column – Content styling */
 .hero-content {
+  margin-top: 0px;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -126,11 +127,17 @@
 .hero-heading {
   font-family: 'Montserrat', sans-serif;
    font-weight: bold;
-   font-size: 4rem;
+   font-size: 3rem;
   font-weight: bold;
   line-height: 1.2;
+  margin-bottom: 30px;
 }
-
+@media (max-width:730px) {
+  .hero-heading {
+    font-size: 1.8rem;
+  }
+ 
+}
 .heading-primary {
   color: #fff; /
 }
@@ -154,6 +161,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+
 }
 
 @media (min-width: 640px) {
@@ -164,7 +172,7 @@
 
 .hero-button {
   width: 250px;
-  height: 200px;
+  height: 65px;
   padding: 1rem 2rem;
   font-size: 1.125rem;
   font-weight: 600;
@@ -243,7 +251,14 @@
   padding: 3rem;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
-
+@media screen and (max-width: 768px) {
+  .visual-container {
+   
+    margin-left: 10px;
+    padding: 2rem;
+  }
+  
+}
 .mock-header {
   display: flex;
   gap: 0.75rem;

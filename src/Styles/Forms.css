@@ -134,7 +134,7 @@ form {
   margin-bottom: 60px;
 }
 
-.input {
+.input-field {
   width: 90%;
   height: 40px;
   padding: 6px;
@@ -151,7 +151,7 @@ form {
   outline: 2.5px solid #035083;
 }
 
-button[type="submit"] {
+.submit {
   width: 90%;
   height: 40px;
   border-radius: 5px;
@@ -168,7 +168,7 @@ button[type="submit"] {
     rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
   transition: 0.4s;
 }
-button[type="submit"]:hover {
+.submit:hover {
   transition: 0.4s;
   border: 3px dashed #62423a;
   background-color: #fff;

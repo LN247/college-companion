@@ -31,12 +31,10 @@ DAY_CHOICES = [
 
 #defining a custom class user to fit app requirements 
 class CustomUser(AbstractUser):
-    USERNAME_FIELD= 'email'
-    email= models.EmailField(unique=True)
-    REQUIRED_FIELDS=[]
-
-    
-    
+    username = models.CharField(max_length=150, unique=False, null=True, blank=True)
+    email = models.EmailField(unique=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
     
     
 
@@ -64,7 +62,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
-    instance.userprofile.save()
+    instance.profile.save()
 
 
 
@@ -109,7 +107,7 @@ class Course(models.Model):
         choices=DIFFICULTY_CHOICES, 
         default=2
     )
-    color = models.CharField(max_length=7, default='#1E88E5')  # Hex color for UI
+
     
     
 
@@ -121,12 +119,8 @@ class FixedClassSchedule(models.Model):
     day = models.CharField(max_length=3, choices=DAY_CHOICES)
     start_time = models.TimeField()
     end_time = models.TimeField()
-    class_type = models.CharField(  
-        max_length=20, 
-        default='Lecture',
-        blank=True
-    )
-    
+    location = models.CharField(max_length=100, blank=True, null=True)
+
     class Meta:
         unique_together = ['user', 'course', 'day', 'start_time']
         ordering = ['day', 'start_time']

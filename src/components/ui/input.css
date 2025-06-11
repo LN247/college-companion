@@ -1,0 +1,27 @@
+.input-field {
+  display: flex;
+  height: 40px;
+  width: 90%;
+  padding: 8px 12px;
+  border: 2px solid #ddd;
+  color: #000;
+  border-radius: 6px;
+  font-size: 1.25rem;
+  background: white;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.input-field::placeholder {
+  color: #aaa;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #0d3dc2;
+  box-shadow: 0 0 5px rgba(246, 135, 18, 0.5);
+}
+
+.input-field:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
