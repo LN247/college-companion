@@ -96,8 +96,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
-
+    'chat',
+    'rest_framework',
+    'channels',
+    'channels_redis',  # Uncomment if using Redis for channel layers
 ]
+
+
 
 
 
@@ -192,3 +197,28 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS=True
 
 AUTH_USER_MODEL='api.CustomUser'
+
+
+
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
+# OR for production:
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://your-react-app-domain.com",
+]
+
+# Channels configuration
+ASGI_APPLICATION = 'college_companion.asgi.application'
+
+# Configure channel layers (using Redis in production)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",  # For development
+        # "BACKEND": "channels_redis.core.RedisChannelLayer",  # For production
+        # "CONFIG": {
+        #     "hosts": [("redis://127.0.0.1:6379")],
+        # },
+    },
+}

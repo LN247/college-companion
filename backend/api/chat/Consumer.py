@@ -1,9 +1,9 @@
 import json
-from .models import  CustomUser
+from ..models import  CustomUser
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import AnonymousUser
-from .models import Group, GroupMembership, Message, MessageContent, Reaction
+from ..models import Group, GroupMembership, Message, MessageContent, Reaction
 from django.utils import timezone
 import os
 

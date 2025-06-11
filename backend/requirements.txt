@@ -8,3 +8,10 @@ numpy==1.26.4
 pytesseract==0.3.10
 Pillow==10.2.0
 requests==2.31.0
+channels channels-redis
+pillow 
+gunicorn  
+whitenoise 
+dj-database-url  
+ sentry-sdk  
+python-magic  
