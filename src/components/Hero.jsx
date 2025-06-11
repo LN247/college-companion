@@ -9,8 +9,13 @@ import {
   UserPlus,
 } from "lucide-react";
 import "../Styles/Hero.css";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  // Import useNavigate from react-router-dom
+
+  const navigate = useNavigate();
+
   return (
     <section className="hero">
       <div className="hero-background">
@@ -35,12 +40,19 @@ const Hero = () => {
             </p>
 
             <div className="hero-buttons">
-              <Button className="hero-button primary">
+              <Button
+                className="hero-button primary"
+                onClick={() => navigate("/signup")}
+              >
                 <UserPlus className="icon" />
                 Sign Up Free
                 <ArrowRight className="icon arrow" />
               </Button>
-              <Button variant="outline" className="hero-button secondary">
+              <Button
+                variant="outline"
+                className="hero-button secondary"
+                onClick={() => navigate("/login")}
+              >
                 <LogIn className="icon" />
                 Login
               </Button>
@@ -64,6 +76,9 @@ const Hero = () => {
 
           {/* Right column – Visual (Mock app interface) */}
           <div className="hero-visual">
+            <div className="typing-effect-container">
+              <h6 className="typing-effect">Build your future </h6>
+            </div>
             <div className="visual-container">
               <div className="visual-mock">
                 <div className="mock-header">

@@ -1,77 +1,70 @@
-📚 College Companion App
-Welcome to College Companion, your ultimate tool for managing college life efficiently! 🚀
+# Getting Started with Create React App
 
-📖 Overview
-College Companion is designed to help students streamline their academic and social life by providing essential tools like timetable management, study resources, and collaboration features.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-✨ Features
-📅 Timetable Manager – Keep track of your class schedules and deadlines.
+## Available Scripts
 
-🗣️ Collaboration Tools – Connect with classmates for discussions and projects.
+In the project directory, you can run:
 
-📢 Reminders & Notifications – Stay on top of assignments and exams.
+### `npm start`
 
-🎓 Career Guidance – Get insights on internships and job opportunities.
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-**Required Code Languages:**
-- JavaScript (React)
-- CSS
-- Python (Django)
-- SQL (for database scripts, optional)
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-🔧 Installation
-To set up College Companion on your system:
+### `npm test`
 
-Clone the repository:
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-git clone https://github.com/LN247/college-companion.git
+### `npm run build`
 
-Navigate to the project folder:
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-cd C:\Users\ngind\Desktop\ColCom\college-companion
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-Install dependencies:
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-npm install
-npm install vite
+### `npm run eject`
 
-npm install @vitejs/plugin-react
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-npm install react-router-dom
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-npm install @react-oauth/google
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-npm install jwt-decode
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-Start the application:
+## Learn More
 
-npm run dev
-🎨 Tech Stack
-Frontend: React.js, CSS
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-Backend: python,Django
+To learn React, check out the [React documentation](https://reactjs.org/).
 
-Database: postgreSQL
+### Code Splitting
 
-Authentication: Google OAuth
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-🛠️ Contributing
-We welcome contributions! Follow these steps:
+### Analyzing the Bundle Size
 
-Fork the repository.
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-Create a new branch (git checkout -b feature-name).
+### Making a Progressive Web App
 
-Make your changes and commit (git commit -m "Added feature XYZ").
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-Push to your branch (git push origin feature-name).
+### Advanced Configuration
 
-Open a Pull Request.
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-📜 License
-This project is licensed under the MIT License. Feel free to use and modify it!
+### Deployment
 
-📬 Contact
-For any questions or feedback, reach out preciouskhan1709@gmail.com, otangdesmond273@gmail.com,juniortebo50@gmail.com .
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-Would you like to add more details like screenshots or contributor guidelines? 🚀
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
