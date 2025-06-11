@@ -1,0 +1,52 @@
+/* Root container */
+.slider {
+  position: relative;
+  display: flex;
+  width: 100%;
+  touch-action: none;
+  user-select: none;
+  align-items: center;
+}
+
+/* Track element */
+.slider-track {
+  position: relative;
+  height: 0.5rem;
+  width: 100%;
+  flex-grow: 1;
+  overflow: hidden;
+  border-radius: 9999px;
+  background-color: hsl(var(--slider-track-bg));
+}
+
+/* Range indicator */
+.slider-range {
+  position: absolute;
+  height: 100%;
+  background-color: hsl(var(--slider-range-bg));
+}
+
+/* Thumb handle */
+.slider-thumb {
+  display: block;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--slider-thumb-border));
+  background-color: hsl(var(--slider-thumb-bg));
+  transition: background-color 0.2s ease;
+  outline: none;
+}
+
+/* Focus styles */
+.slider-thumb:focus-visible {
+  outline: 2px solid hsl(var(--slider-focus-ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsl(var(--slider-focus-ring) / 0.2);
+}
+
+/* Disabled state */
+.slider:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}

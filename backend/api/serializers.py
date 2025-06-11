@@ -14,7 +14,7 @@ class CustomUserSerializer(ModelSerializer):
 class RegistrationSerializer(ModelSerializer):
     class Meta:
         model=CustomUser
-        fields=('email','password')
+        fields=( 'username' ,'email','password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -38,6 +38,8 @@ class LoginSerializer(serializers.Serializer):
             return {'user': user}  
         
         raise serializers.ValidationError('Invalid email or password.')
+
+
 
 class GoogleAuthSerializer(serializers.Serializer):
     token = serializers.CharField(required=True)
