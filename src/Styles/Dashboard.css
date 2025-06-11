@@ -1,8 +1,106 @@
 .dashboard {
   min-height: 100vh;
-  background: #FFFFFF;
+  background: #ffffff;
   padding: 2rem;
   position: relative;
+}
+
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.appBar {
+  background-color: #0a1a4f !important;
+  padding: 0 20px;
+}
+
+.title {
+  flex-grow: 1;
+  font-weight: 600 !important;
+  color: white;
+}
+
+.countdown {
+  display: flex;
+  align-items: center;
+  margin-right: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 5px 15px;
+  border-radius: 20px;
+}
+
+.countdown span {
+  margin: 0 5px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  background: #f68712;
+  border-radius: 4px;
+  padding: 2px 8px;
+  min-width: 35px;
+  text-align: center;
+}
+
+.countdown caption {
+  margin-left: 10px;
+}
+
+.profileButton {
+  font-size: 1.8rem !important;
+  color: white !important;
+}
+
+.mobileDrawer {
+  width: 250px;
+  background-color: #0a1a4f;
+  height: 100%;
+  padding: 20px 0;
+  color: white;
+}
+
+.closeButton {
+  color: white !important;
+  margin-left: auto !important;
+  margin-right: 10px !important;
+}
+
+.menuIcon {
+  color: white !important;
+  min-width: 40px !important;
+}
+
+.desktopMenu {
+  display: flex;
+  background-color: #0a1a4f;
+  padding: 15px 30px;
+  justify-content: space-around;
+}
+
+.menuItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 5px 15px;
+  border-radius: 5px;
+}
+
+.menuItem:hover {
+  background-color: #f68712;
+}
+
+.menuItem span {
+  margin-top: 5px;
+  font-size: 0.85rem;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 30px;
+  background-color: #f5f7fa;
 }
 
 /* Global Menu */
@@ -12,8 +110,8 @@
 }
 
 .menu-trigger {
-  background: #06123D;
-  color: #FFFFFF;
+  background: #06123d;
+  color: #ffffff;
   border: none;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;
@@ -34,7 +132,7 @@
   position: absolute;
   top: 100%;
   left: 0;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(6, 18, 61, 0.1);
   padding: 0.5rem;
@@ -52,7 +150,7 @@
   background: none;
   cursor: pointer;
   transition: background-color 0.2s;
-  color: #06123D;
+  color: #06123d;
 }
 
 .menu-item:hover {
@@ -66,7 +164,7 @@
 
 .menu-icon {
   margin-right: 12px;
-  color: #F68712;
+  color: #f68712;
   width: 20px;
   text-align: center;
 }
@@ -74,7 +172,7 @@
 .coming-soon {
   margin-left: auto;
   font-size: 0.8rem;
-  color: #F68712;
+  color: #f68712;
   font-style: italic;
 }
 
@@ -84,7 +182,7 @@
 }
 
 .welcome-section h1 {
-  color: #06123D;
+  color: #06123d;
   font-size: 2rem;
   margin-bottom: 0.5rem;
 }
@@ -103,8 +201,8 @@
 }
 
 .feature-icon {
-  background: #FFFFFF;
-  border: 2px solid #F68712;
+  background: #ffffff;
+  border: 2px solid #f68712;
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;
@@ -118,12 +216,12 @@
 .feature-icon:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 12px rgba(246, 135, 18, 0.15);
-  border-color: #06123D;
+  border-color: #06123d;
 }
 
 .icon-wrapper {
-  background: #FFF7ED;
-  color: #F68712;
+  background: #fff7ed;
+  color: #f68712;
   width: 48px;
   height: 48px;
   border-radius: 12px;
@@ -135,12 +233,12 @@
 }
 
 .feature-icon:hover .icon-wrapper {
-  background: #06123D;
-  color: #FFFFFF;
+  background: #06123d;
+  color: #ffffff;
 }
 
 .feature-icon span {
-  color: #06123D;
+  color: #06123d;
   font-weight: 600;
   font-size: 0.9rem;
   transition: color 0.3s ease;
@@ -148,12 +246,12 @@
 }
 
 .feature-icon:hover span {
-  color: #F68712;
+  color: #f68712;
 }
 
 /* Activity Section */
 .activity-section {
-  background: #F7F8FA;
+  background: #f7f8fa;
   border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -167,14 +265,14 @@
 }
 
 .section-header h2 {
-  color: #06123D;
+  color: #06123d;
   font-size: 1.5rem;
 }
 
 .time-toggle {
   background: none;
   border: none;
-  color: #F68712;
+  color: #f68712;
   font-size: 0.9rem;
   cursor: pointer;
   padding: 0.5rem;
@@ -191,7 +289,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 8px;
   transition: transform 0.2s;
 }
@@ -201,8 +299,8 @@
 }
 
 .activity-icon {
-  background: #FFF7ED;
-  color: #F68712;
+  background: #fff7ed;
+  color: #f68712;
   width: 36px;
   height: 36px;
   border-radius: 8px;
@@ -216,7 +314,7 @@
 }
 
 .activity-content p {
-  color: #06123D;
+  color: #06123d;
   margin: 0;
   font-weight: 500;
 }
@@ -228,10 +326,10 @@
 
 /* Tip Section */
 .tip-section {
-  background: #06123D;
+  background: #06123d;
   border-radius: 16px;
   padding: 1.5rem;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .tip-section h2 {
@@ -252,7 +350,7 @@
 }
 
 .tip-author {
-  color: #F68712;
+  color: #f68712;
   font-style: italic;
   text-align: right;
 }
@@ -301,10 +399,32 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #06123D;
+  color: #06123d;
 }
 
 .profile-trigger:hover {
   background-color: #f7f8fa;
   border-radius: 4px;
-} 
+}
+
+@media (max-width: 900px) {
+  .countdown {
+    margin-right: 15px;
+  }
+
+  .countdown span {
+    font-size: 0.9rem;
+    min-width: 30px;
+    padding: 2px 5px;
+  }
+}
+
+@media (max-width: 600px) {
+  .mainContent {
+    padding: 20px 15px;
+  }
+
+  .countdown {
+    display: none;
+  }
+}
