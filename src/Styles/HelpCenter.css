@@ -1,0 +1,11 @@
+.help-center { background: #f7f8fa; min-height: 100vh; }
+.help-center h2, .help-center h3 { color: #06123D; }
+.bg-white { border-left: 4px solid #F68712; }
+.text-blue-500 { color: #06123D !important; }
+.text-green-500 { color: #F68712 !important; }
+.text-purple-500 { color: #F68712 !important; }
+.text-gray-500 { color: #06123D99 !important; }
+.text-gray-600 { color: #06123Dcc !important; }
+button.bg-blue-500 { background: #06123D; color: #fff; }
+button.bg-blue-500:hover { background: #F68712; color: #fff; }
+@media (max-width: 600px) { .container { padding: 0 0.5rem; } .bg-white { padding: 1rem; } } 

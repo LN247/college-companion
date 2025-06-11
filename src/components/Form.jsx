@@ -4,8 +4,8 @@ import axios from "axios";
 import "../Styles/Forms.css";
 import validation from "../utils/validation";
 import ErrorMessage from "./Error";
-import { useGoogleLogin } from "@react-oauth/google";
-import GoogleIcon from "../assets/google-icon.svg";
+import { GoogleLogin } from '@react-oauth/google';
+
 
 function FormComponent({
   type = "login",
@@ -43,34 +43,6 @@ function FormComponent({
     return true;
   }
 
-  const GoogleAuth = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        setIsLoading(true);
-        setError("");
-        const result = await googleLogin(tokenResponse.credential);
-        if (result.success) {
-          navigate("/dashboard");
-        } else {
-          setError(
-            result.error || "Failed to sign up with Google. Please try again."
-          );
-        }
-      } catch (error) {
-        console.error("Google signup error:", error);
-        setError(
-          "An unexpected error occurred during Google signup. Please try again."
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    onError: (error) => {
-      console.error("Google OAuth error:", error);
-      setError("Failed to initialize Google signup. Please try again.");
-      setLoading(false);
-    },
-  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,9 +91,6 @@ function FormComponent({
     });
   };
 
-  const login_with_google = () => {
-    // Implement Google OAuth logic
-  };
 
   return (
     <div className="container">
@@ -218,16 +187,30 @@ function FormComponent({
             >
               {alternative_method}
             </button>
-
-            <button
-              className="google-button"
-              onClick={() => GoogleAuth()}
-              disabled={loading}
-            >
-              <img src={GoogleIcon} className="google-icon" alt="Google" />
-              Continue with Google
-            </button>
-          </div>
+         
+  <GoogleLogin  style={{ width: "100%" }}
+    onSuccess={async (credentialResponse) => {
+      const idToken = credentialResponse.credential;
+    
+      console.log("Google ID Token:", idToken);
+      try {
+           const response = await axios.post(
+          "http://localhost:8000/api/google-auth/",
+          { idToken },
+          { withCredentials: true, headers: { "Content-Type": "application/json" } }
+        );
+        // Handle successful login
+        navigate("/dashboard");
+      } catch (error) {
+        setError(error.response?.data?.error || error.message || "Something went wrong");
+      
+    };    }}
+    onError={() => { 
+      setError("Google authentication failed. Please try again.");
+     }}
+  />
+  
+</div>
         </div>
       </div>
     </div>
