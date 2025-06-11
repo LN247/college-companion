@@ -1,0 +1,144 @@
+/* Base container styles */
+.multistep-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+  padding: 1.5rem;
+}
+
+.multistep-content {
+  max-width: 56rem;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Header styles */
+.multistep-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.multistep-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  margin: 0;
+}
+
+.multistep-subtitle {
+  color: #64748b;
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+/* Form card styles */
+.form-card {
+  border: none;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+}
+
+.step-title {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.completed-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #10b981;
+}
+
+.pending-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #94a3b8;
+}
+
+/* Navigation buttons */
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+}
+
+.prev-button {
+  background-color: white;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.prev-button:hover {
+  background-color: #f1f5f9;
+}
+
+.next-button {
+  background-color: #2563eb;
+  color: white;
+}
+
+.next-button:hover {
+  background-color: #1d4ed8;
+}
+
+.next-button:disabled {
+  background-color: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.nav-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Completion message */
+.completion-card {
+  border: none;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.completion-content {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.success-icon {
+  width: 3rem;
+  height: 3rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.success-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.success-message {
+  color: #d1fae5;
+  margin: 0;
+}

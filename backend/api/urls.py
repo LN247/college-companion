@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     UserInfoView, RegistrationView, LoginView, LogoutView,
-    CookieTokenRefreshView, GoogleAuthView,
+    CookieTokenRefreshView, GoogleAuthView,GenerateTimetable,save_fcm_token,
     SemesterViewSet, CourseViewSet, FixedClassScheduleViewSet,
     StudyBlockViewSet, UserPreferencesViewSet,  GroupViewSet,
     MessageViewSet,
@@ -33,12 +33,14 @@ urlpatterns = [
     path('groups/', GroupViewSet.as_view({'get': 'list', 'post': 'create'}), name='group-list-create'),
     path('groups/<int:pk>/', GroupViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='group-detail'),
 
-    path('user/info/', UserInfoView.as_view(), name='user-info'),
-    path('auth/register/', RegistrationView.as_view(), name='register'),
-    path('auth/login/', LoginView.as_view(), name='login'),
-    path('auth/logout/', LogoutView.as_view(), name='logout'),
-    path('auth/token/refresh/', CookieTokenRefreshView.as_view(), name='token-refresh'),
-    path('auth/google/', GoogleAuthView.as_view(), name='google-auth'),
+    path('user-info/', UserInfoView.as_view(), name='user-info'),
+    path('register/', RegistrationView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('save-fcm-token/', save_fcm_token, name='save_fcm_token'),
+    path('google-auth/', GoogleAuthView.as_view(), name='google-auth'),
+    path('refresh/', CookieTokenRefreshView.as_view(), name='refresh-token'),
+    path('generate-timetable/', GenerateTimetable.as_view(), name='generate-timetable'),
+    path('logout/', LogoutView.as_view(), name='logout')
   
 ]
    

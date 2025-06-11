@@ -1,0 +1,179 @@
+.analyticsContainer {
+  padding: 30px;
+  font-family: "Segoe UI", "Roboto", sans-serif;
+}
+
+.title-1 {
+  color: #0a1a4f;
+  font-weight: 700;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+
+.gridContainer {
+  margin-top: 20px !important;
+}
+
+.metricCard {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-left: 4px solid #0a1a4f;
+}
+
+.metricCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.metricHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.metricIcon {
+  font-size: 1.5rem;
+  color: #0a1a4f;
+  margin-right: 12px;
+}
+
+.metricTitle {
+  color: #5f6368;
+  font-weight: 600 !important;
+}
+
+.metricValue {
+  color: #0a1a4f;
+  font-weight: 700 !important;
+  margin: 10px 0;
+}
+
+.metricChange {
+  color: #5f6368;
+  font-size: 0.9rem !important;
+}
+
+.chartCard,
+.summaryCard {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  height: 100%;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.cardTitle {
+  color: #0a1a4f;
+  font-weight: 700 !important;
+}
+
+.legend {
+  display: flex;
+  gap: 20px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #5f6368;
+}
+
+.legendColor {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+}
+
+.studyHours {
+  background-color: #0a1a4f;
+}
+
+.productivity {
+  background-color: #f68712;
+}
+
+.chartWrapper {
+  height: 300px;
+  width: 100%;
+}
+
+.summaryIcon {
+  font-size: 1.5rem;
+  color: #0a1a4f;
+  margin-right: 12px;
+}
+
+.summaryItem {
+  margin-bottom: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.summaryItem:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.summaryLabel {
+  color: #5f6368;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.summaryValue {
+  color: #0a1a4f;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.summarySubtext {
+  color: #7a7f9a;
+  font-size: 0.9rem;
+}
+
+.summaryChange {
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.positive {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
+}
+
+@media (max-width: 900px) {
+  .analyticsContainer {
+    padding: 20px 15px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .legend {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
