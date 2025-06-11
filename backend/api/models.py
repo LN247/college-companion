@@ -263,10 +263,8 @@ class FileUpload(models.Model):
     
     file = models.FileField(
         upload_to=message_file_path,
-        validators=[FileValidator(
-            max_size=1024 * 1024 * 10,  # 10MB
-            message='File size must be under 10MB'
-        )]
+        validators=[validate_file_size],
+       
     )
     file_type = models.CharField(max_length=10, choices=FILE_TYPES)
     file_size = models.IntegerField()
@@ -332,6 +330,7 @@ class MessageContent(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        validators=[validate_file_size],
         related_name='message_contents'
     )
     order = models.PositiveIntegerField(default=0)
@@ -341,18 +340,10 @@ class MessageContent(models.Model):
     
     def __str__(self):
         return f"{self.content_type} content for message {self.message.id}"
+    
 
 class Reaction(models.Model):
-    REACTION_CHOICES = [
-        ('like', '👍'),
-        ('love', '❤️'),
-        ('laugh', '😂'),
-        ('wow', '😮'),
-        ('sad', '😢'),
-        ('angry', '😡'),
-        ('thumbsup', '👍'),
-        ('thumbsdown', '👎'),
-    ]
+  
     
     user = models.ForeignKey(
         CustomUser,
@@ -364,7 +355,6 @@ class Reaction(models.Model):
         on_delete=models.CASCADE,
         related_name='reactions'
     )
-    reaction_type = models.CharField(max_length=15, choices=REACTION_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -373,3 +363,12 @@ class Reaction(models.Model):
     
     def __str__(self):
         return f"{self.user.username} reacted {self.reaction_type} to message {self.message.id}"
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # Ensure only one reaction per user per message
+            existing_reaction = Reaction.objects.filter(
+                user=self.user, 
+                message=self.message
+            ).first()
+            if existing_reaction:
+                existing_reaction.delete()
