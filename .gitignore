@@ -38,3 +38,15 @@ serviceAccountKey.json
 __pycache__/
 *.py[cod]
 *$py.class
+
+
+
+.idea/
+.vscode/
+
+# Virtual environments
+venv/
+env/
+myenv/
+# Jupyter Notebook
+.ipynb_checkpoints/
