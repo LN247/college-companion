@@ -59,7 +59,7 @@ class SemesterSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['id', 'semester', 'name', 'code', 'credits', 'difficulty', 'color']
+        fields = ['id', 'semester', 'name', 'code', 'credits', 'difficulty']
         read_only_fields = ['user']
 
 class FixedClassScheduleSerializer(serializers.ModelSerializer):

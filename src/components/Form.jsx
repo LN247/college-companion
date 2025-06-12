@@ -50,7 +50,11 @@ function FormComponent({
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+
+    // Add a 5 second delay before setting loading to true
+    setTimeout(() => {
+      setLoading(true);
+    }, 5000);
 
     try {
       const url = `http://localhost:8000/api/${
@@ -60,6 +64,16 @@ function FormComponent({
       // Add validation for signup
       if (type === "signup") {
         if (!validate()) {
+          // After successful  signup, get FCM token and send to backend
+          const token = await requestForToken();
+          if (token) {
+            await axios.post(
+              "http://localhost:8000/api/save-fcm-token/",
+              { token },
+              { withCredentials: true }
+            );
+          }
+
           setLoading(false);
           return;
         }
@@ -69,16 +83,6 @@ function FormComponent({
       const response = await axios.post(url, dataToSend, {
         body: { "Content-Type": "application/json" },
       });
-
-      // After successful login or signup, get FCM token and send to backend
-      const token = await requestForToken();
-      if (token) {
-        await axios.post(
-          "http://localhost:8000/api/save-fcm-token/",
-          { token },
-          { withCredentials: true }
-        );
-      }
 
       if (type === "login") {
         navigate("/dashboard");

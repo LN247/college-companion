@@ -107,9 +107,19 @@ const MultiStepFormTracker = () => {
           </CardHeader>
           <CardContent>
             <CurrentStepComponent
-              onFormComplete={(isCompleted) =>
-                handleStepCompletion(currentStepData.id, isCompleted)
-              }
+              onFormComplete={(result) => {
+                // For semester step, result is { valid, semesterId }
+                if (
+                  currentStepData.id === "semester-info" &&
+                  result?.semesterId
+                ) {
+                  setSemesterId(result.semesterId);
+                  handleStepCompletion(currentStepData.id, result.valid);
+                } else {
+                  handleStepCompletion(currentStepData.id, result);
+                }
+                console.log("Parent received:", result, semesterId);
+              }}
               semesterId={semesterId}
             />
 

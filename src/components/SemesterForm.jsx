@@ -82,8 +82,9 @@ export default function SemesterCourseForm({ onFormComplete }) {
           { withCredentials: true }
         );
         // Pass the created semester's ID to the parent
-        const semesterId = response.data.id;
-        onFormComplete({ valid: true, semesterId });
+        console.log("Semester response:", response.data);
+
+        onFormComplete({ valid: true, semesterId: response.data.id });
       } catch (error) {
         // Optionally handle error
         onFormComplete({ valid: false, semesterId: null });

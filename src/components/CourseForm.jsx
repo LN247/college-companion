@@ -27,11 +27,15 @@ import axios from "axios";
 import { Button } from "./ui/Button";
 import InputWithError from "./InputwithError";
 import TableCellInput from "./TabelCellInput";
+import { Slider } from "../components/ui/slider";
+import { Label } from "./ui/label";
+import "../Styles/plan.css";
 
 function CourseForm({ onFormComplete, semesterId }) {
   // List of courses and editing state
   const [courses, setCourses] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
+  const difficultyLabels = ["Easy", "Moderate", "Hard", "Very Difficult"];
 
   // Course inputs and errors
   const [courseName, setCourseName] = useState("");
@@ -43,7 +47,11 @@ function CourseForm({ onFormComplete, semesterId }) {
 
   const totalFields = 4;
   const countCompletedFields = (data) => {
-    return Object.values(data).filter((value) => value.trim() !== "").length;
+    return Object.values(data).filter(
+      (value) =>
+        (typeof value === "string" && value.trim() !== "") ||
+        (typeof value === "number" && !isNaN(value) && value !== "")
+    ).length;
   };
   const isCourseFormComplete = () => {
     return (
@@ -85,7 +93,12 @@ function CourseForm({ onFormComplete, semesterId }) {
     if (inputs.credits === "") errors.credits = "Credits is required";
     else if (isNaN(inputs.credits) || Number(inputs.credits) < 0)
       errors.credits = "Credits must be 0 or more";
-    if (!inputs.difficulty.trim()) errors.difficulty = "Difficulty is required";
+    if (
+      typeof difficulty !== "number" ||
+      isNaN(difficulty) ||
+      difficulty === ""
+    )
+      errors.difficulty = "Difficulty is required";
     return errors;
   }, []);
 
@@ -130,10 +143,10 @@ function CourseForm({ onFormComplete, semesterId }) {
         const response = await axios.post(
           `${API_BASE}/courses/`,
           {
-            course_name: courseName,
-            course_code: courseCode,
-            course_credits: credits,
-            course_timings: timings,
+            name: courseName,
+            code: courseCode,
+            credits: credits,
+            difficulty: difficulty,
             semester: semesterId,
           },
           { withCredentials: true }
@@ -141,12 +154,12 @@ function CourseForm({ onFormComplete, semesterId }) {
 
         setCourses((prev) => [
           ...prev,
-          { courseName, courseCode, credits, timings, semester: semesterId },
+          { courseName, courseCode, credits, difficulty, semester: semesterId },
         ]);
         setCourseName("");
         setCourseCode("");
         setCredits("");
-        setTimings("");
+        setDifficulty("");
         setCourseErrors({});
       } catch (error) {
         setCourseErrors((prev) => ({
@@ -184,7 +197,7 @@ function CourseForm({ onFormComplete, semesterId }) {
 
       // Make API call to save edited course
       axios
-        .put(`/api/courses/${courses[index].id}/`, {
+        .patch(`${API_BASE}/courses/${courses[index].id}/`, {
           ...editRow,
           withCredentials: true,
         })
@@ -214,7 +227,7 @@ function CourseForm({ onFormComplete, semesterId }) {
       if (window.confirm("Are you sure you want to delete this course?")) {
         // Make API call to delete course if needed
         axios
-          .delete(`/api/courses/${courses[index].id}/`, {
+          .delete(`${API_BASE}/courses/${courses[index].id}/`, {
             withCredentials: true,
           })
           .catch((error) => {
@@ -227,12 +240,6 @@ function CourseForm({ onFormComplete, semesterId }) {
     },
     [editingIndex, handleCancelEdit]
   );
-
-  //
-
-  const generateSchedule = () => {
-    // Logic to generate course schedule
-  };
 
   // Handlers for input fields
   const courseHandlers = {
@@ -427,18 +434,40 @@ function CourseForm({ onFormComplete, semesterId }) {
                 />
               </div>
 
-              <InputWithError
-                id="difficulty"
-                label="Difficulty"
-                value={difficulty}
-                onChange={(e) => courseHandlers.setDifficulty(e.target.value)}
-                error={courseErrors.difficulty}
-                placeholder="e.g., Easy, Medium, Hard, Very Hard"
-                icon={Contact}
-              />
+              <div className="difficulty-section">
+                <Label>
+                  Difficulty Level: {difficultyLabels[difficulty - 1]}
+                </Label>
+                <div className="slider-container">
+                  <Slider
+                    value={[difficulty]}
+                    onValueChange={(value) =>
+                      courseHandlers.setDifficulty(value[0])
+                    }
+                    aria-label="Difficulty Level"
+                    aria-valuetext={`Difficulty Level: ${
+                      difficultyLabels[difficulty - 1]
+                    }`}
+                    aria-valuemin={1}
+                    aria-valuemax={5}
+                    aria-valuenow={difficulty}
+                    min={1}
+                    max={5}
+                    step={1}
+                    className="difficulty-slider"
+                  />
+                  <div className="slider-labels">
+                    <span>Easy</span>
+                    <span>Very Difficult</span>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            <Button type="submit" className="add-course-btn">
+            <Button
+              type="submit"
+              onClick={handleAddCourse}
+              className="add-course-btn"
+            >
               <Plus className="btn-icon" />
               Add Course
             </Button>
@@ -475,18 +504,12 @@ function CourseForm({ onFormComplete, semesterId }) {
                     <th className="table-header">Course Name</th>
                     <th className="table-header">Course Code</th>
                     <th className="table-header">Credits</th>
-                    <th className="table-header">Timings</th>
+                    <th className="table-header">Difficulty</th>
                     <th className="table-header actions-header">Actions</th>
                   </tr>
                 </thead>
                 <tbody>{courseList}</tbody>
               </table>
-              <Button
-                disabled={!isCourseFormComplete() || !semesterId}
-                onClick={generateSchedule}
-              >
-                continue
-              </Button>
             </div>
           )}
         </CardContent>

@@ -26,6 +26,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  ListItemButton,
   Typography,
   Box,
   Avatar,
@@ -96,16 +97,16 @@ const Dashboard = () => {
         </IconButton>
         <List>
           {navItems.map((item) => (
-            <ListItem
-              button
-              key={item.name}
-              onClick={() => {
-                navigate(item.route);
-                setMobileOpen(false); // Optionally close the drawer
-              }}
-            >
-              <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
-              <ListItemText primary={item.name} />
+            <ListItem key={item.name} disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  navigate(item.route);
+                  setMobileOpen(false);
+                }}
+              >
+                <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItemButton>
             </ListItem>
           ))}
         </List>

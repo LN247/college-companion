@@ -15,11 +15,12 @@ import {
   SelectValue,
 } from "../components/ui/Select";
 import { Button } from "../components/ui/Button";
-import { Slider } from "../components/ui/slider";
+
 import { Trash2, Plus } from "lucide-react";
 import "../Styles/UserPrefrenceForm.css";
+import axios from "axios";
 
-const StepUserPreferencesForm = ({ onFormComplete }) => {
+const StepUserPreferencesForm = ({ onFormComplete, semesterId }) => {
   const [offDays, setOffDays] = useState([]);
   const [preferStudyHours, setPreferStudyHours] = useState("");
   const [notificationReminder, setNotificationReminder] = useState("");
@@ -37,16 +38,44 @@ const StepUserPreferencesForm = ({ onFormComplete }) => {
     },
   ]);
 
-  // Mock course data
-  const mockCourses = [
-    {
-      id: "1",
-      name: "Introduction to Computer Science",
-      code: "CS101",
-      credits: 3,
-    },
-    // ... other courses
-  ];
+  // Fetch course data
+  const fetchCourses = async (semesterId) => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/api/courses?semesterId=${semesterId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+      return [];
+    }
+  };
+
+  const [mockCourses, setMockCourses] = useState([]);
+  useEffect(() => {
+    const loadCourses = async () => {
+      const courses = await fetchCourses(semesterId);
+      setMockCourses(courses);
+      // Initialize selectedCourses with the fetched courses
+      setSelectedCourses((prev) =>
+        prev.map((course) => ({
+          ...course,
+          courseId: courses.length > 0 ? courses[0].id : "",
+          startTime: "",
+          endTime: "",
+          day: "",
+          location: "",
+          difficultyLevel: 1,
+        }))
+      );
+    };
+    loadCourses();
+  }, [semesterId]);
 
   const daysOfWeek = [
     "Monday",
@@ -57,7 +86,6 @@ const StepUserPreferencesForm = ({ onFormComplete }) => {
     "Saturday",
     "Sunday",
   ];
-  const difficultyLabels = ["Easy", "Moderate", "Hard", "Very Difficult"];
 
   const removeCourse = (id) => {
     if (selectedCourses.length > 1) {
@@ -298,31 +326,6 @@ const StepUserPreferencesForm = ({ onFormComplete }) => {
                       </SelectContent>
                     </Select>
                   </div>
-
-                  {selectedCourseData && (
-                    <div className="difficulty-section">
-                      <Label>
-                        Difficulty Level:{" "}
-                        {difficultyLabels[course.difficultyLevel - 1]}
-                      </Label>
-                      <div className="slider-container">
-                        <Slider
-                          value={[course.difficultyLevel]}
-                          onValueChange={(value) =>
-                            updateCourse(course.id, "difficultyLevel", value[0])
-                          }
-                          max={5}
-                          min={1}
-                          step={1}
-                          className="difficulty-slider"
-                        />
-                        <div className="slider-labels">
-                          <span>Easy</span>
-                          <span>Very Difficult</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
                   <div className="time-grid">
                     <div className="input-group">
