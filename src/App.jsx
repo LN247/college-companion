@@ -13,72 +13,88 @@ import Homepage from "./pages/Homepage";
 import AddSemester from "/src/pages/AddSemester.jsx";
 import UserProfileForm from "./pages/UserProfileForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import LoadingScreen from "./pages/Loadingpage";
+import { LoadingProvider } from "./context/LoadingContext";
+import { useLoading } from "./context/LoadingContext";
+
+const AppContent = () => {
+  const { isLoading } = useLoading();
+
+  return (
+    <>
+      {isLoading && <LoadingScreen />}
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/signup" element={<SignupForm />} />
+        <Route path="/user-profile" element={<UserProfileForm />} />
+        <Route path="*" element={<Notfound />} />
+        <Route
+          path="/add-semester"
+          element={
+            <ProtectedRoute>
+              <AddSemester />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/college-life"
+          element={
+            <ProtectedRoute>
+              <CollegeLife />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/semester-plan"
+          element={
+            <ProtectedRoute>
+              <SemesterPlan />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/progress"
+          element={
+            <ProtectedRoute>
+              <Progress />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/help"
+          element={
+            <ProtectedRoute>
+              <HelpCenter />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </>
+  );
+};
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Homepage />} />
-      <Route path="/login" element={<LoginForm />} />
-      <Route path="/signup" element={<SignupForm />} />
-      <Route path="/user-profile" element={<UserProfileForm />} />
-      <Route path="*" element={<Notfound />} />
-      <Route
-        path="/add-semester"
-        element={
-          <ProtectedRoute>
-            <AddSemester />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />{" "}
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/college-life"
-        element={
-          <ProtectedRoute>
-            <CollegeLife />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/semester-plan"
-        element={
-          <ProtectedRoute>
-            <SemesterPlan />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/progress"
-        element={
-          <ProtectedRoute>
-            <Progress />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/help"
-        element={
-          <ProtectedRoute>
-            <HelpCenter />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+    <LoadingProvider>
+      <AppContent />
+    </LoadingProvider>
   );
 }
 
