@@ -27,6 +27,7 @@ from .serializers import (
     SemesterSerializer, CourseSerializer, FixedClassScheduleSerializer,
     StudyBlockSerializer, UserPreferencesSerializer
 )
+from .utilities.Propose_community import propose_community
 
 
 
@@ -330,3 +331,14 @@ class GenerateTimetable(APIView):
             )
 
         return JsonResponse({'status': 'success', 'blocks_created': len(study_blocks)}, status=status.HTTP_200_OK)
+
+class CommunityProposalView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id=None):
+        """
+        Get community proposals for the authenticated user.
+        Optionally filter by course_id.
+        """
+        result = propose_community(request.user.id, course_id)
+        return Response(result, status=status.HTTP_200_OK if result['status'] == 'success' else status.HTTP_400_BAD_REQUEST)
