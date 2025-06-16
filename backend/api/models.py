@@ -31,6 +31,15 @@ DAY_CHOICES = [
 
 #defining a custom class user to fit app requirements 
 class CustomUser(AbstractUser):
+<<<<<<< HEAD
+    USERNAME_FIELD= 'email'
+    email= models.EmailField(unique=True)
+    REQUIRED_FIELDS=[]
+
+    
+    
+    
+=======
     username = models.CharField(max_length=150, unique=False, null=True, blank=True)
     email = models.EmailField(unique=True)
     USERNAME_FIELD = 'email'
@@ -192,3 +201,4 @@ class UserPreferences(models.Model):
 def create_user_preferences(sender, instance, created, **kwargs):
     if created:
         UserPreferences.objects.create(user=instance)
+>>>>>>> b6dc82cae86bbbbbee5bbea630142c39207f2a74
