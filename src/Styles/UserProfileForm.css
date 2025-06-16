@@ -22,7 +22,7 @@ body {
 
 .profile-card h2 {
   margin-top: 10px;
-  color: #010427;
+  color:#02052d
 }
 
 .profile-pic-wrapper {
@@ -30,7 +30,7 @@ body {
   border-radius: 50%;
   width: 120px;
   height: 120px;
-  border: #010427 solid 1px;
+  border: solid #02052d px;
   margin: 0 auto 20px;
 }
 
@@ -65,7 +65,7 @@ body {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(5, 1, 33, 0.4);
   color: white;
   font-size: 12px;
   display: flex;
@@ -94,7 +94,7 @@ body {
   padding: 12px;
   margin-top: 15px;
   background-color: #bc5506;
-  color: white;
+  color:#02052d
   border: none;
   border-radius: 6px;
   font-size: 16px;
@@ -102,5 +102,5 @@ body {
 }
 
 .profile-card button:hover {
-  background-color: #010427;
+  background-color: #02052d;
 }
