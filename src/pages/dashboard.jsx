@@ -14,7 +14,7 @@ import {
   FaUserCircle,
   FaQuestionCircle,
 } from "react-icons/fa";
-
+import axios from "axios";
 import {
   AppBar,
   Toolbar,
@@ -42,7 +42,7 @@ const Dashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [timeLeft, setTimeLeft] = useState({});
-  const user = { name: "John Doe", email: "john@university.edu" };
+  const[user,setuser]  =useState([]);
 
   const navigate = useNavigate();
   const [showRelativeTime, setShowRelativeTime] = useState(true);
@@ -56,7 +56,28 @@ const Dashboard = () => {
     { name: "Help Center", icon: <FaQuestionCircle />, route: "/help" },
   ];
 
-  const semesterEnd = "2024-05-31T23:59:59"; // Example semester end date
+  const API_BASE = "http://localhost:8000/api";
+
+  const semesterEnd = "2025-06-26T23:59:59"; // Example semester end date
+
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/user-info/`, {
+          withCredentials: true,
+        });
+        setuser(response.data);
+
+      } catch (err) {
+        console.log(err);
+
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
+
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -141,7 +162,7 @@ const Dashboard = () => {
         seconds: Math.floor((difference / 1000) % 60),
       };
     }
-    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    return { days:0 , hours: 0, minutes: 0, seconds: 0 };
   };
 
   // Mock data - replace with actual API calls
@@ -196,7 +217,7 @@ const Dashboard = () => {
   const handleLogout = () => {};
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboardContainer">
       {/* App Bar */}
       <AppBar position="static" className="appBar">
         <Toolbar>
@@ -243,9 +264,12 @@ const Dashboard = () => {
           >
             <MenuItem onClick={handleMenuClose}>
               <div className="userInfo">
-                <Avatar className="avatar">{user.name.charAt(0)}</Avatar>
+                <Avatar className="avatar">
+            {user && user.username ? String(user.username).charAt(0) : '?'}
+        </Avatar>
+
                 <div>
-                  <Typography variant="subtitle1">{user.name}</Typography>
+                  <Typography variant="subtitle1">{user.username}</Typography>
                   <Typography variant="body2">{user.email}</Typography>
                 </div>
               </div>

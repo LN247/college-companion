@@ -4,11 +4,6 @@
   margin: 0;
   padding: 0;
   text-align: center;
-
-  --slider-track-bg: 220 14% 96%;
-  --slider-range-bg: 220 78% 46%;
-  --slider-thumb-border: 220 78% 46%;
-  --slider-focus-ring: 220 78% 46%;
 }
 
 .app-container {
@@ -16,17 +11,4 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.dark-theme {
-  --slider-track-bg: 240 5% 26%;
-  --slider-range-bg: 240 5.9% 90%;
-  --slider-thumb-border: 240 5.9% 90%;
-  --slider-focus-ring: 240 5.9% 90%;
-}
-.light-theme {
-  --slider-track-bg: 220 14% 96%;
-  --slider-range-bg: 220 78% 46%;
-  --slider-thumb-border: 220 78% 46%;
-  --slider-focus-ring: 220 78% 46%;
 }

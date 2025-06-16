@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from "react";
 import { Button } from "../components/ui/Button";
-import CourseForm from "../components/CourseForm";
 import SemesterCourseForm from "../components/SemesterForm";
 import StepUserPreferencesForm from "../components/UserPrefrenceForm";
 import { CheckCircle, Circle, ArrowLeft, ArrowRight } from "lucide-react";
@@ -28,13 +27,7 @@ const MultiStepFormTracker = () => {
       completed: stepCompletion["semester-info"],
       totalFields: 3, // Example total fields for this step
     },
-    {
-      id: "course-details",
-      title: "Course Details",
-      component: CourseForm,
-      completed: stepCompletion["course-details"],
-      totalFields: 5, // Example total fields for this step
-    },
+
     {
       id: "user-preferences",
       title: "User Preferences",

@@ -169,3 +169,34 @@
   font-size: 0.875rem;
   color: black;
 }
+
+/* Difficulty slider */
+.difficulty-section {
+  margin-top: 0.5rem;
+}
+
+.slider-container {
+  margin-top: 0.5rem;
+}
+
+.difficulty-slider {
+  width: 100%;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+/* Select styles */
+.select-trigger {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  font-size: 0.875rem;
+}

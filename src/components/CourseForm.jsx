@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useCallback,
-  useMemo,
-  useEffect,
-  useRef,
-} from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   BookOpen,
   Hash,
@@ -14,38 +8,63 @@ import {
   Trash2,
   Save,
   X,
-  Contact,
 } from "lucide-react";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/Select";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "./ui/card";
+} from "../components/ui/card";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { Label } from "../components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/Table";
 import axios from "axios";
-import { Button } from "./ui/Button";
-import InputWithError from "./InputwithError";
-import TableCellInput from "./TabelCellInput";
-import { Slider } from "../components/ui/slider";
-import { Label } from "./ui/label";
-import "../Styles/plan.css";
+import "../Styles/CourseForm.css";
+import {useAdmin} from "../context/AdminContext";
 
-function CourseForm({ onFormComplete, semesterId }) {
+function CourseForm({ onFormComplete }) {
   // List of courses and editing state
   const [courses, setCourses] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
-  const difficultyLabels = ["Easy", "Moderate", "Hard", "Very Difficult"];
-
+  const { Courses, addCourses, updateCourses, deleteCourses } = useAdmin([]);
   // Course inputs and errors
   const [courseName, setCourseName] = useState("");
   const [courseCode, setCourseCode] = useState("");
   const [credits, setCredits] = useState("");
-  const [difficulty, setDifficulty] = useState("");
+  const [semester, setSemester] = useState("");
+  const [academicLevel, setAcademicLevel] = useState("");
+
+  const semesterOptions = ["Fall", "Spring", "Summer"];
+
+  const academicLevelOptions = [
+    "Freshman ",
+    "Sophomore ",
+    "Junior ",
+    "Senior ",
+    "Master",
+    "PhD",
+  ];
 
   const API_BASE = "http://127.0.0.1:8000/api";
 
-  const totalFields = 4;
+  const totalFields = 5;
   const countCompletedFields = (data) => {
     return Object.values(data).filter(
       (value) =>
@@ -53,10 +72,16 @@ function CourseForm({ onFormComplete, semesterId }) {
         (typeof value === "number" && !isNaN(value) && value !== "")
     ).length;
   };
+
   const isCourseFormComplete = () => {
     return (
-      countCompletedFields({ courseName, courseCode, credits, difficulty }) ===
-      totalFields
+      countCompletedFields({
+        courseName,
+        courseCode,
+        credits,
+        semester,
+        academicLevel,
+      }) === totalFields
     );
   };
 
@@ -79,7 +104,8 @@ function CourseForm({ onFormComplete, semesterId }) {
     courseName: "",
     courseCode: "",
     credits: "",
-    difficulty: "",
+    semester: "",
+    academicLevel: "",
   });
   const [editErrors, setEditErrors] = useState({});
 
@@ -91,14 +117,12 @@ function CourseForm({ onFormComplete, semesterId }) {
     if (!inputs.courseCode.trim())
       errors.courseCode = "Course Code is required";
     if (inputs.credits === "") errors.credits = "Credits is required";
-    else if (isNaN(inputs.credits) || Number(inputs.credits) < 0)
+    else if (isNaN(Number(inputs.credits)) || Number(inputs.credits) < 0)
       errors.credits = "Credits must be 0 or more";
-    if (
-      typeof difficulty !== "number" ||
-      isNaN(difficulty) ||
-      difficulty === ""
-    )
-      errors.difficulty = "Difficulty is required";
+    if (!inputs.semester || inputs.semester.trim() === "")
+      errors.semester = "Semester is required";
+    if (!inputs.academicLevel || inputs.academicLevel.trim() === "")
+      errors.academicLevel = "Academic Level is required";
     return errors;
   }, []);
 
@@ -111,7 +135,8 @@ function CourseForm({ onFormComplete, semesterId }) {
         courseName,
         courseCode,
         credits,
-        difficulty,
+        semester,
+        academicLevel,
       });
 
       setCourseErrors(courseErrors);
@@ -146,20 +171,30 @@ function CourseForm({ onFormComplete, semesterId }) {
             name: courseName,
             code: courseCode,
             credits: credits,
-            difficulty: difficulty,
-            semester: semesterId,
+            semester: semester,
+            academicLevel: academicLevel,
+
           },
           { withCredentials: true }
         );
 
+
         setCourses((prev) => [
           ...prev,
-          { courseName, courseCode, credits, difficulty, semester: semesterId },
+          {
+            courseName,
+            courseCode,
+            credits,
+            semester,
+            academicLevel,
+
+          },
         ]);
         setCourseName("");
         setCourseCode("");
         setCredits("");
-        setDifficulty("");
+        setSemester("");
+        setAcademicLevel("");
         setCourseErrors({});
       } catch (error) {
         setCourseErrors((prev) => ({
@@ -167,8 +202,18 @@ function CourseForm({ onFormComplete, semesterId }) {
           courseName: "Failed to add course. Please try again.",
         }));
       }
+
     },
-    [courseName, courseCode, credits, difficulty, validateCourse, courses]
+    [
+      courseName,
+      courseCode,
+      credits,
+      semester,
+      academicLevel,
+      validateCourse,
+      courses,
+
+    ]
   );
 
   // Start editing a row
@@ -218,7 +263,7 @@ function CourseForm({ onFormComplete, semesterId }) {
           }));
         });
     },
-    [editRow, validateCourse]
+    [editRow, validateCourse, courses, API_BASE]
   );
 
   // Delete course
@@ -238,282 +283,381 @@ function CourseForm({ onFormComplete, semesterId }) {
         if (editingIndex === index) handleCancelEdit();
       }
     },
-    [editingIndex, handleCancelEdit]
+    [courses, editingIndex, handleCancelEdit, API_BASE]
   );
 
-  // Handlers for input fields
-  const courseHandlers = {
-    setCourseName,
-    setCourseCode,
-    setCredits,
-    setDifficulty,
-  };
-
-  // Generate course list rows
-  const courseList = useMemo(() => {
-    return courses.map((course, index) => {
-      const isEditing = editingIndex === index;
-      return (
-        <tr key={index} className="table-row">
-          <td className="table-cell">
-            {isEditing ? (
-              <TableCellInput
-                label="Course Name"
-                value={editRow.courseName}
-                onChange={(e) =>
-                  setEditRow((prev) => ({
-                    ...prev,
-                    courseName: e.target.value,
-                  }))
-                }
-                error={editErrors.courseName}
-              />
-            ) : (
-              <span className="course-name">{course.courseName}</span>
-            )}
-          </td>
-          <td className="table-cell">
-            {isEditing ? (
-              <TableCellInput
-                label="Course Code"
-                value={editRow.courseCode}
-                onChange={(e) =>
-                  setEditRow((prev) => ({
-                    ...prev,
-                    courseCode: e.target.value,
-                  }))
-                }
-                error={editErrors.courseCode}
-              />
-            ) : (
-              <span className="course-code">{course.courseCode}</span>
-            )}
-          </td>
-          <td className="table-cell">
-            {isEditing ? (
-              <TableCellInput
-                label="Credits"
-                type="number"
-                min="0"
-                value={editRow.credits}
-                onChange={(e) =>
-                  setEditRow((prev) => ({
-                    ...prev,
-                    credits: e.target.value,
-                  }))
-                }
-                error={editErrors.credits}
-              />
-            ) : (
-              <span className="course-credits">{course.credits}</span>
-            )}
-          </td>
-          <td className="table-cell">
-            {isEditing ? (
-              <TableCellInput
-                label="Timings"
-                value={editRow.difficulty}
-                onChange={(e) =>
-                  setEditRow((prev) => ({
-                    ...prev,
-                    difficulty: e.target.value,
-                  }))
-                }
-                error={editErrors.difficulty}
-              />
-            ) : (
-              <span className="course-timings">{course.timings}</span>
-            )}
-          </td>
-          <td className="table-cell actions-cell">
-            <div className="action-buttons">
-              {isEditing ? (
-                <>
-                  <Button
-                    onClick={() => handleSaveEdit(index)}
-                    type="button"
-                    size="sm"
-                    className="action-btn save-btn"
-                    aria-label="Save course"
-                  >
-                    <Save className="action-icon" />
-                  </Button>
-                  <Button
-                    onClick={handleCancelEdit}
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="action-btn cancel-btn"
-                    aria-label="Cancel editing"
-                  >
-                    <X className="action-icon" />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    onClick={() => handleEditClick(index)}
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="action-btn edit-btn"
-                    aria-label="Edit course"
-                  >
-                    <Edit3 className="action-icon" />
-                  </Button>
-                  <Button
-                    onClick={() => handleDelete(index)}
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="action-btn delete-btn"
-                    aria-label="Delete course"
-                  >
-                    <Trash2 className="action-icon" />
-                  </Button>
-                </>
-              )}
-            </div>
-          </td>
-        </tr>
-      );
-    });
-  }, [
-    courses,
-    editingIndex,
-    editRow,
-    editErrors,
-    handleSaveEdit,
-    handleCancelEdit,
-    handleEditClick,
-    handleDelete,
-  ]);
-
   return (
-    <div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Add a Course</CardTitle>
-          <CardDescription>
-            Enter course details to add to your schedule
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddCourse}>
-            <div className="course-inputs">
-              <InputWithError
-                id="courseName"
-                label="Course Name"
-                value={courseName}
-                onChange={(e) => courseHandlers.setCourseName(e.target.value)}
-                error={courseErrors.courseName}
-                placeholder="e.g., Introduction to Programming"
-                icon={BookOpen}
-              />
-
-              <div className="course-grid">
-                <InputWithError
-                  id="courseCode"
-                  label="Course Code"
-                  value={courseCode}
-                  onChange={(e) => courseHandlers.setCourseCode(e.target.value)}
-                  error={courseErrors.courseCode}
-                  placeholder="e.g., CS101"
-                  icon={Hash}
-                />
-                <InputWithError
-                  id="credits"
-                  label="Credits"
-                  value={credits}
-                  onChange={(e) => courseHandlers.setCredits(e.target.value)}
-                  error={courseErrors.credits}
-                  type="number"
-                  min="0"
-                  placeholder="3"
-                  icon={GraduationCap}
-                />
-              </div>
-
-              <div className="difficulty-section">
-                <Label>
-                  Difficulty Level: {difficultyLabels[difficulty - 1]}
-                </Label>
-                <div className="slider-container">
-                  <Slider
-                    value={[difficulty]}
-                    onValueChange={(value) =>
-                      courseHandlers.setDifficulty(value[0])
-                    }
-                    aria-label="Difficulty Level"
-                    aria-valuetext={`Difficulty Level: ${
-                      difficultyLabels[difficulty - 1]
-                    }`}
-                    aria-valuemin={1}
-                    aria-valuemax={5}
-                    aria-valuenow={difficulty}
-                    min={1}
-                    max={5}
-                    step={1}
-                    className="difficulty-slider"
-                  />
-                  <div className="slider-labels">
-                    <span>Easy</span>
-                    <span>Very Difficult</span>
+    <div className="course-form-container">
+      <div className="course-form-wrapper">
+        {/* Add Course Form */}
+        <Card className="course-form-card">
+          <CardHeader className="course-form-header">
+            <div className="course-form-icon-container">
+              <BookOpen className="course-form-icon" />
+            </div>
+            <CardTitle className="course-form-title">Add a Course</CardTitle>
+            <CardDescription className="course-form-description">
+              Enter course details to add to your schedule
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAddCourse} className="course-form">
+              <div className="course-form-grid">
+                <div className="course-form-field course-form-field-full">
+                  <Label htmlFor="courseName" className="input-label">
+                    Course Name
+                  </Label>
+                  <div className="input-container">
+                    <BookOpen className="input-icon" />
+                    <Input
+                      id="courseName"
+                      value={courseName}
+                      onChange={(e) => setCourseName(e.target.value)}
+                      placeholder="e.g., Introduction to Programming"
+                      className="text-input"
+                    />
                   </div>
+                  {courseErrors.courseName && (
+                    <p className="error-message">{courseErrors.courseName}</p>
+                  )}
+                </div>
+
+                <div className="course-form-field">
+                  <Label htmlFor="courseCode" className="input-label">
+                    Course Code
+                  </Label>
+                  <div className="input-container">
+                    <Hash className="input-icon" />
+                    <Input
+                      id="courseCode"
+                      value={courseCode}
+                      onChange={(e) => setCourseCode(e.target.value)}
+                      placeholder="e.g., CS101"
+                      className="text-input"
+                    />
+                  </div>
+                  {courseErrors.courseCode && (
+                    <p className="error-message">{courseErrors.courseCode}</p>
+                  )}
+                </div>
+
+                <div className="course-form-field">
+                  <Label htmlFor="credits" className="input-label">
+                    Credits
+                  </Label>
+                  <div className="input-container">
+                    <GraduationCap className="input-icon" />
+                    <Input
+                      id="credits"
+                      type="number"
+                      min="0"
+                      value={credits}
+                      onChange={(e) => setCredits(e.target.value)}
+                      placeholder="3"
+                      className="text-input"
+                    />
+                  </div>
+                  {courseErrors.credits && (
+                    <p className="error-message">{courseErrors.credits}</p>
+                  )}
+                </div>
+
+                <div className="course-form-field">
+                  <Label htmlFor="semester" className="input-label">
+                    Semester
+                  </Label>
+                  <Select value={semester} onValueChange={setSemester}>
+                    <SelectTrigger className="select-trigger">
+                      <SelectValue placeholder="Select Semester" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {semesterOptions.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {courseErrors.semester && (
+                    <p className="error-message">{courseErrors.semester}</p>
+                  )}
+                </div>
+
+                <div className="course-form-field">
+                  <Label htmlFor="academicLevel" className="input-label">
+                    Academic Level
+                  </Label>
+                  <Select
+                    value={academicLevel}
+                    onValueChange={setAcademicLevel}
+                  >
+                    <SelectTrigger className="select-trigger">
+                      <SelectValue placeholder="Select Academic Level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {academicLevelOptions.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {courseErrors.academicLevel && (
+                    <p className="error-message">
+                      {courseErrors.academicLevel}
+                    </p>
+                  )}
                 </div>
               </div>
-            </div>
-            <Button
-              type="submit"
-              onClick={handleAddCourse}
-              className="add-course-btn"
-            >
-              <Plus className="btn-icon" />
-              Add Course
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
 
-      {/* Added Courses Section */}
-      <Card className="courses-card">
-        <CardHeader className="card-header-emerald">
-          <CardTitle className="card-title">
-            <BookOpen className="header-icon" />
-            Course Schedule ({courses.length}{" "}
-            {courses.length === 1 ? "course" : "courses"})
-          </CardTitle>
-          <CardDescription className="header-description">
-            Manage your enrolled courses for this semester
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="card-content">
-          {courses.length === 0 ? (
-            <div className="empty-courses">
-              <BookOpen className="empty-icon" />
-              <p className="empty-text">No courses added yet</p>
-              <p className="empty-subtext">
-                Add your first course using the form above
-              </p>
-            </div>
-          ) : (
-            <div className="courses-table-container">
-              <table className="courses-table">
-                <thead>
-                  <tr className="table-header-row">
-                    <th className="table-header">Course Name</th>
-                    <th className="table-header">Course Code</th>
-                    <th className="table-header">Credits</th>
-                    <th className="table-header">Difficulty</th>
-                    <th className="table-header actions-header">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>{courseList}</tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              <Button type="submit" className="submit-course">
+                <Plus className="button-icon" />
+                Add Course
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Courses List */}
+        <Card className="course-list-card">
+          <CardHeader>
+            <CardTitle className="course-list-title">
+              <BookOpen className="title-icon" />
+              Course Schedule ({courses.length}{" "}
+              {courses.length === 1 ? "course" : "courses"})
+            </CardTitle>
+            <CardDescription className="course-list-description">
+              Manage your enrolled courses for this semester
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {Courses.length === 0 ? (
+              <div className="empty-state">
+                <BookOpen className="empty-icon" />
+                <h3 className="empty-title">No courses added yet</h3>
+                <p className="empty-description">
+                  Add your first course using the form above
+                </p>
+              </div>
+            ) : (
+              <div className="table-container">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="table-header">
+                        Course Name
+                      </TableHead>
+                      <TableHead className="table-header">
+                        Course Code
+                      </TableHead>
+                      <TableHead className="table-header">Credits</TableHead>
+                      <TableHead className="table-header">Semester</TableHead>
+                      <TableHead className="table-header">
+                        Academic Level
+                      </TableHead>
+                      <TableHead className="table-header actions-header">
+                        Actions
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {Courses.map((course, index) => {
+                      const isEditing = editingIndex === index;
+                      return (
+                        <TableRow key={index} className="table-row">
+                          <TableCell>
+                            {isEditing ? (
+                              <div className="edit-field">
+                                <Input
+                                  value={editRow.courseName}
+                                  onChange={(e) =>
+                                    setEditRow((prev) => ({
+                                      ...prev,
+                                      courseName: e.target.value,
+                                    }))
+                                  }
+                                  className="edit-input"
+                                />
+                                {editErrors.courseName && (
+                                  <p className="field-error">
+                                    {editErrors.courseName}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="course-name">
+                                {course.name}
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {isEditing ? (
+                              <div className="edit-field">
+                                <Input
+                                  value={editRow.courseCode}
+                                  onChange={(e) =>
+                                    setEditRow((prev) => ({
+                                      ...prev,
+                                      courseCode: e.target.value,
+                                    }))
+                                  }
+                                  className="edit-input"
+                                />
+                                {editErrors.courseCode && (
+                                  <p className="field-error">
+                                    {editErrors.courseCode}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="course-code">
+                                {course.code}
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {isEditing ? (
+                              <div className="edit-field">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={editRow.credits}
+                                  onChange={(e) =>
+                                    setEditRow((prev) => ({
+                                      ...prev,
+                                      credits: e.target.value,
+                                    }))
+                                  }
+                                  className="edit-input credits-input"
+                                />
+                                {editErrors.credits && (
+                                  <p className="field-error">
+                                    {editErrors.credits}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <span>{course.credits}</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {isEditing ? (
+                              <div className="edit-field">
+                                <Select
+                                  value={editRow.semester}
+                                  onValueChange={(value) =>
+                                    setEditRow((prev) => ({
+                                      ...prev,
+                                      semester: value,
+                                    }))
+                                  }
+                                >
+                                  <SelectTrigger className="edit-select-trigger">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {semesterOptions.map((option) => (
+                                      <SelectItem key={option} value={option}>
+                                        {option}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {editErrors.semester && (
+                                  <p className="field-error">
+                                    {editErrors.semester}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <span>{course.semester}</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {isEditing ? (
+                              <div className="edit-field">
+                                <Select
+                                  value={editRow.academicLevel}
+                                  onValueChange={(value) =>
+                                    setEditRow((prev) => ({
+                                      ...prev,
+                                      academicLevel: value,
+                                    }))
+                                  }
+                                >
+                                  <SelectTrigger className="edit-select-trigger">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {academicLevelOptions.map((option) => (
+                                      <SelectItem key={option} value={option}>
+                                        {option}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {editErrors.academicLevel && (
+                                  <p className="field-error">
+                                    {editErrors.academicLevel}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <span>{course.academicLevel}</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="action-buttons">
+                              {isEditing ? (
+                                <>
+                                  <Button
+                                    onClick={() => handleSaveEdit(index)}
+                                    size="sm"
+                                    className="icon-button save-button"
+                                  >
+                                    <Save className="action-icon" />
+                                  </Button>
+                                  <Button
+                                    onClick={handleCancelEdit}
+                                    size="sm"
+                                    variant="outline"
+                                    className="icon-button cancel-button"
+                                  >
+                                    <X className="action-icon" />
+                                  </Button>
+                                </>
+                              ) : (
+                                <>
+                                  <Button
+                                    onClick={() => handleEditClick(index)}
+                                    size="sm"
+                                    variant="outline"
+                                    className="icon-button edit-button"
+                                  >
+                                    <Edit3 className="action-icon" />
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleDelete(index)}
+                                    size="sm"
+                                    variant="outline"
+                                    className="icon-button delete-button"
+                                  >
+                                    <Trash2 className="action-icon" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

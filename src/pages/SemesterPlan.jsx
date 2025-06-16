@@ -132,17 +132,6 @@ const Timetable = () => {
           </div>
 
           <div className="header-actions">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                navigate("/add-semester");
-              }}
-              className="notification-btn"
-            >
-              <Plus className="logo-icon"></Plus>
-              Add semester
-            </Button>
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ const ProtectedRoute = ({ children }) => {
     const verifyAuth = async () => {
       try {
         const auth_status = await checkAuthStatus();
+
         setIsAuthenticated(auth_status === 200);
       } catch (error) {
         setIsAuthenticated(false);

@@ -1,7 +1,7 @@
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 from .serializers import CustomUserSerializer,RegistrationSerializer,LoginSerializer, GoogleAuthSerializer
 from .models import CustomUser
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -15,12 +15,17 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta ,date
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 import json
 import os
 from .task import send_study_notification
 from rest_framework import viewsets
+from .authentication import CookieJWTAuthentication
 from .models import Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences
 from django.conf import settings
 from .serializers import (
@@ -34,10 +39,13 @@ from .serializers import (
 class UserInfoView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class=CustomUserSerializer
+    authentication_classes = [CookieJWTAuthentication]
 
     def get_object(self):
         return self.request.user
-    
+
+
+
 
 
 class RegistrationView(CreateAPIView):
@@ -72,6 +80,9 @@ class LoginView(APIView):
                 samesite='Lax',
                 httponly=True,
                 secure=False,
+                max_age=timedelta(days=7, hours=23, minutes=59),
+                domain='127.0.0.1'
+
             )
 
             response.set_cookie(
@@ -79,7 +90,9 @@ class LoginView(APIView):
                 value=str(refresh),
                 samesite='Lax',
                 httponly=True,
-                secure=False
+                secure=False,
+                max_age = timedelta(days=12, hours=23, minutes=59),
+                domain='127.0.0.1'
             )
 
             return response
@@ -100,13 +113,14 @@ class LogoutView(APIView):
         except Exception as e:
           return Response({'error': 'error in validating token: ' + str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-      response= Response({'message': 'logout succesfull: ' }, status=status.HTTP_200_OK)
+      response= Response({'message': 'logout successful: ' }, status=status.HTTP_200_OK)
 
       response.delete_cookie('access_token')
       response.delete_cookie('refresh_token')
 
       return response
    
+@method_decorator(csrf_protect, name='dispatch')
 class CookieTokenRefreshView(TokenRefreshView):
    
    def post(self, request):
@@ -124,9 +138,10 @@ class CookieTokenRefreshView(TokenRefreshView):
          response.set_cookie(
                 key='access_token',
                 value=access_token,
-                samesite='None',
+                samesite='Lax',
                 httponly=True,
-                secure=True
+                secure=False,
+                max_age=timedelta(days=12, hours=23, minutes=59),
             )
          return response  
       except InvalidToken:
@@ -151,7 +166,7 @@ class GoogleAuthView(APIView):
                 idinfo = id_token.verify_oauth2_token(
                     token, 
                     requests.Request(),
-                    os.getenv('VITE_GOOGLE_CLIENT_ID')  # Make sure to set this in your environment variables
+                    os.getenv('VITE_GOOGLE_CLIENT_ID')
                 )
 
                 
@@ -179,24 +194,30 @@ class GoogleAuthView(APIView):
                 response.set_cookie(
                     key='access_token',
                     value=access_token,
-                    samesite='None',
+                    samesite='Lax',
                     httponly=True,
-                    secure=True
+                    secure=False,
+                    max_age = timedelta(days=7, hours=23, minutes=59),
+
                     )
 
                 response.set_cookie(
                     key='refresh_token',
                     value=str(refresh),
-                    samesite='None',
+                    samesite='Lax',
                     httponly=True,
-                    secure=True
-                  )    
+                    secure=False,
+                    max_age=timedelta(days=12, hours=23, minutes=59),
+
+                )
                 
                 # Example: return user info
                 return Response({'email': user.email}, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def save_fcm_token(request):
@@ -216,25 +237,127 @@ def save_fcm_token(request):
 
 
 
-class SemesterViewSet(viewsets.ModelViewSet):
+class SemesterViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+       Read-only viewset for the Semester model with different querysets for superusers and non-superusers.
+       """
+
+    queryset = Semester.objects.all()
     serializer_class = SemesterSerializer
-    permission_classes = [IsAuthenticated]
+
 
     def get_queryset(self):
-        return Semester.objects.filter(user=self.request.user)
+        """
+        Customize the queryset based on whether the user is a superuser.
+        """
+
+        today = date.today()
+
+        if self.request.user.is_superuser:
+            # Superuser: return all semesters
+            return Semester.objects.all()
+        else:
+            # Non-superuser: return only ongoing/upcoming semesters
+            from django.db.models import Q
+            return Semester.objects.filter(
+                Q(start_date__gte=today) | Q(end_date__gte=today)
+            )
+
+
+
+
+class  SemesterOperationViewSet(viewsets.ModelViewSet):
+
+    queryset = Semester.objects.all()
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = SemesterSerializer
+
+
+    def get_queryset(self):
+        """
+        Returns all Semester objects.
+        """
+        return Semester.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        """
+        Creates a new semester.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, pk=None, *args, **kwargs):
+        """
+        Updates an existing semester.
+        """
+        queryset = self.get_queryset()
+        semester = get_object_or_404(queryset, pk=pk)
+        serializer = self.get_serializer(semester, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def destroy(self, request, pk=None, *args, **kwargs):
+        """
+        Deletes a semester.
+        """
+        queryset = self.get_queryset()
+        semester = get_object_or_404(queryset, pk=pk)
+        self.perform_destroy(semester)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        """
+        Saves the new semester instance.
+        """
+        serializer.save()
+
+    def perform_update(self, serializer):
+        """
+        Updates the semester instance.
+        """
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        """
+        Deletes the semester instance.
+        """
+        instance.delete()
+
+
 
 class CourseViewSet(viewsets.ModelViewSet):
+
+    queryset = Course.objects.all()
+    permission_classes = [IsAuthenticated,IsAdminUser]
     serializer_class = CourseSerializer
-    permission_classes = [IsAuthenticated]
+
+
 
     def get_queryset(self):
-        return Course.objects.filter(user=self.request.user)
+        """ Customise the queryset based on whether the user is a superuser.
+         p"""
+        if self.request.user.is_superuser:
+            # Superuser: return all semesters
+            return Course.objects.all()
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        else:
+            """
+              ViewSet for filtering courses by semester type and level.
+              """
+            queryset = Course.objects.all()
+            serializer_class = CourseSerializer
+            filter_backends = [DjangoFilterBackend]
+            filterset_fields = {
+                 'semester__semester_type': ['exact'],
+                'academicLevel': ['exact'],
+            }
+
+
+
 
 class FixedClassScheduleViewSet(viewsets.ModelViewSet):
     serializer_class = FixedClassScheduleSerializer

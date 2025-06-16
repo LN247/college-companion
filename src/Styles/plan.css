@@ -364,24 +364,3 @@
   font-size: 0.75rem;
   color: #dc2626;
 }
-
-/* Difficulty slider */
-.difficulty-section {
-  margin-top: 0.5rem;
-}
-
-.slider-container {
-  margin-top: 0.5rem;
-}
-
-.difficulty-slider {
-  width: 100%;
-}
-
-.slider-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 0.25rem;
-}
