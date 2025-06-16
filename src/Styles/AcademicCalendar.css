@@ -1,0 +1,82 @@
+.calendarContainer {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.dayHeader {
+  text-align: center;
+  font-weight: bold;
+  padding: 8px;
+  background: #161515;
+  border-radius: 6px;
+}
+
+.weekRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.dayCell {
+  min-height: 80px;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dayCell:hover {
+  background: rgba(15, 88, 180, 0.1);
+  border-color: rgba(15, 88, 180, 0.5);
+}
+
+.selectedDay {
+  background: rgba(15, 88, 180, 0.2);
+  border-color: rgba(15, 88, 180, 1);
+  box-shadow: 0px 0px 8px rgba(15, 88, 180, 0.5);
+}
+
+.dayNumber {
+  font-weight: bold;
+}
+
+.courseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 2px;
+}
+
+.legend {
+  margin-top: 20px;
+  padding: 10px;
+  background: #f8f8f8;
+  border-radius: 8px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.legendColor {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: tomato;
+}

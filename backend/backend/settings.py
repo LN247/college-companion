@@ -38,14 +38,14 @@ REST_FRAMEWORK = {
         "api.authentication.CookieJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny",
     ],
 }
 # defines the lifetime of the access and refresh tokens
 # The access token is valid for 30 minutes, and the refresh token is valid for 1 day
 SIMPLE_JWT = {
     
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=0.5),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=0.5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKEN":False,
     "BLACKLIST_AFTER_ROTATION":False,
@@ -61,6 +61,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     
 ]
+
 
 CORS_ALLOW_HEADERS = [
     "accept",
@@ -132,6 +133,9 @@ TEMPLATES = [
     },
 ]
 
+
+
+
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
@@ -192,3 +196,37 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS=True
 
 AUTH_USER_MODEL='api.CustomUser'
+
+
+
+# Celery settings
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_RESULT_EXPIRES = 3600 
+
+# Notification settings
+STUDY_NOTIFICATION_ADVANCE_MINUTES = 10
+
+
+
+# Firebase Cloud Messaging settings
+
+
+# Load credentials from file
+BASE_DIR = Path(__file__).resolve().parent.parent
+FIREBASE_CREDENTIAL_PATH = BASE_DIR / "serviceAccountKey.json"
+
+
+if not FIREBASE_CREDENTIAL_PATH.exists():
+    raise FileNotFoundError("Firebase service account file missing")
+
+# Initialize Firebase
+import firebase_admin
+from firebase_admin import credentials
+
+cred = credentials.Certificate(str(FIREBASE_CREDENTIAL_PATH))
+firebase_admin.initialize_app(cred)

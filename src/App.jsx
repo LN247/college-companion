@@ -1,28 +1,36 @@
-import React from "react";
-import {Routes,Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import LoginForm from "./pages/LoginForm";
-import SignupForm from "./pages/signupForm";
+import SignupForm from "./pages/SignupForm";
 import Notfound from "./pages/Notfound";
-import Homepage from "./pages/Homepage";
-import UserProfileForm from "./pages/UserProfileForm";
-import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/dashboard";
+import CollegeLife from "./pages/CollegeLife";
+import SemesterPlan from "./pages/SemesterPlan";
+import Progress from "./pages/Progress";
+import Settings from "./pages/Settings";
+import HelpCenter from "./pages/HelpCenter";
+import Homepage from "./pages/Homepage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LoadingScreen from "./pages/Loadingpage";
+import { LoadingProvider } from "./context/LoadingContext";
+import { useLoading } from "./context/LoadingContext";
 
-function App() {
+const AppContent = () => {
+  const { isLoading } = useLoading();
+
   return (
     <div>
-<Routes>    
+      <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignupForm />} />
-        <Route path="/profile" element={<UserProfileForm />} />
+        <Route path="/404" element={<Notfound />} />
         <Route path="*" element={<Notfound />} />
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
-      </Routes>  
+      </Routes>
     </div>
   );
 }

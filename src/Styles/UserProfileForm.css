@@ -4,6 +4,11 @@ body {
   background: #f0f1f6;
 }
 
+.input-1 {
+  color: #010427;
+  background-color: white;
+}
+
 .profile-page {
   display: flex;
   justify-content: center;
@@ -22,7 +27,7 @@ body {
 
 .profile-card h2 {
   margin-top: 10px;
-  color:#02052d
+  color: #010427;
 }
 
 .profile-pic-wrapper {
@@ -30,19 +35,18 @@ body {
   border-radius: 50%;
   width: 120px;
   height: 120px;
-  border: solid #02052d px;
+  border: #010427 solid 1px;
   margin: 0 auto 20px;
 }
 
 .profile-pic-label {
   display: block;
   position: relative;
-    width: 100%;
+  width: 100%;
   height: 100%;
-  display: block;
   aspect-ratio: 16 / 9;
   cursor: pointer;
-  border:none;
+  border: none;
 }
 
 .profile-pic {
@@ -94,7 +98,7 @@ body {
   padding: 12px;
   margin-top: 15px;
   background-color: #bc5506;
-  color:#02052d
+  color: white;
   border: none;
   border-radius: 6px;
   font-size: 16px;
@@ -102,5 +106,5 @@ body {
 }
 
 .profile-card button:hover {
-  background-color: #02052d;
+  background-color: #010427;
 }

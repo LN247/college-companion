@@ -11,17 +11,19 @@ axios.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If 401 and not a retry attempt
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Prevent endless loop: don't retry for refresh endpoint itself
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.endsWith("/refresh/")
+    ) {
       originalRequest._retry = true;
-
       try {
-        // Attempt token refresh
-        await axios.post(`${API_BASE}/refresh/`, { withCredentials: true });
+        await axios.post(`${API_BASE}/refresh/`, {}, { withCredentials: true });
         return axios(originalRequest);
       } catch (refreshError) {
         console.error("Refresh token failed:", refreshError);
-        window.location.href = "/"; // Redirect to login
+        window.location.href = "/login"; // Redirect to login
         return Promise.reject(refreshError);
       }
     }
