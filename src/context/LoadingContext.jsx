@@ -1,15 +1,18 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const LoadingContext = createContext({
   isLoading: false,
   setIsLoading: () => {},
+  loadingMessage: '',
+  setLoadingMessage: () => {},
 });
 
 export const LoadingProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('Loading, please wait...');
 
   return (
-    <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
+    <LoadingContext.Provider value={{ isLoading, setIsLoading, loadingMessage, setLoadingMessage }}>
       {children}
     </LoadingContext.Provider>
   );
