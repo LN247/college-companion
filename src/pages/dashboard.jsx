@@ -35,6 +35,7 @@ import {
 import "../Styles/Dashboard.css";
 import { Card, CardContent } from "@mui/material";
 import { onMessageListener } from "../utils/firebase";
+
 const Dashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -45,6 +46,26 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
   const [showRelativeTime, setShowRelativeTime] = useState(true);
+  const [tipOfTheDay, setTipOfTheDay] = useState({
+    tip: '',
+    author: 'AdviceSlip'
+  });
+
+  useEffect(() => {
+    fetch("https://api.adviceslip.com/advice")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.slip) {
+          setTipOfTheDay({
+            tip: data.slip.advice,
+            author: "Advice Slip",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching tip:", error);
+      });
+  }, []);
 
   const navItems = [
     { name: "College-Life", icon: <FaGraduationCap />, route: "/college-life" },
@@ -55,7 +76,7 @@ const Dashboard = () => {
     { name: "Help Center", icon: <FaQuestionCircle />, route: "/help" },
   ];
 
-  const semesterEnd = "2024-05-31T23:59:59"; // Example semester end date
+  const semesterEnd = "2024-05-31T23:59:59";
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -66,7 +87,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     onMessageListener().then((payload) => {
-      // Show notification or update UI
       alert(`New notification: ${payload.notification.title}`);
     });
   }, []);
@@ -101,7 +121,7 @@ const Dashboard = () => {
               key={item.name}
               onClick={() => {
                 navigate(item.route);
-                setMobileOpen(false); // Optionally close the drawer
+                setMobileOpen(false);
               }}
             >
               <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
@@ -129,7 +149,6 @@ const Dashboard = () => {
     </Box>
   );
 
-  // Function to calculate time left until semester end
   const calculateTimeLeft = () => {
     const difference = +new Date(semesterEnd) - +new Date();
     if (difference > 0) {
@@ -143,7 +162,6 @@ const Dashboard = () => {
     return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   };
 
-  // Mock data - replace with actual API calls
   const recentActivities = [
     {
       action: "Created a study plan",
@@ -171,12 +189,6 @@ const Dashboard = () => {
       type: "reminder",
     },
   ];
-  // navigation icons
-
-  const tipOfTheDay = {
-    tip: "Break your study sessions into 25-minute intervals with 5-minute breaks for better focus.",
-    author: "Pomodoro Technique",
-  };
 
   const formatTimestamp = (date) => {
     if (showRelativeTime) {
@@ -261,10 +273,8 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="mainContent">
-        {/* Desktop Navigation */}
         {!isMobile && renderDesktopMenu}
 
-        {/* Welcome Message */}
         <div className="welcome-section">
           <h1>Welcome, {user?.name || "Student"}</h1>
           <p className="date">
@@ -277,10 +287,8 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* User Analytics */}
         <UserAnalytics />
 
-        {/* Activity Feed */}
         <div className="activity-section">
           <div className="section-header">
             <h2>Recent Activity</h2>
@@ -310,10 +318,10 @@ const Dashboard = () => {
 
         {/* Tip of the Day */}
         <div className="tip-section">
-          <Card className="tip-card">
-            <h2>Tip of the Day</h2>
+          <Card className="tip-card styled-tip-card">
+            <h2 className="tip-heading">✨ Tip of the Day ✨</h2>
             <CardContent>
-              <p className="tip-text">{tipOfTheDay.tip}</p>
+              <p className="tip-text">"{tipOfTheDay.tip}"</p>
               <p className="tip-author">— {tipOfTheDay.author}</p>
             </CardContent>
           </Card>

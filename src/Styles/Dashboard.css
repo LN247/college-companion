@@ -324,35 +324,42 @@
   font-size: 0.85rem;
 }
 
-/* Tip Section */
+/* Chalkboard Style Tip Section */
 .tip-section {
-  background: #06123d;
-  border-radius: 16px;
-  padding: 1.5rem;
+  background: #1c1c1c; /* Chalkboard black */
+  border-radius: 12px;
+  padding: 2rem;
   color: #ffffff;
+  font-family: 'Courier New', Courier, monospace;
+  text-align: center;
+  border: 3px solid #f68712;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .tip-section h2 {
-  font-size: 1.5rem;
+  font-size: 2rem;
+  text-transform: uppercase;
   margin-bottom: 1rem;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000;
 }
 
 .tip-card {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-.tip-text {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 1rem;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 1px 0 #000;
+  line-height: 1.8;
 }
 
 .tip-author {
+  font-size: 1rem;
   color: #f68712;
   font-style: italic;
-  text-align: right;
+  margin-top: 1rem;
 }
 
 /* Responsive Design */
