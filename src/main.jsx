@@ -3,6 +3,12 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
 import "./index.css";
+import "./Styles/Hero.css";
+import "./Styles/Features.css";
+import "./Styles/Testimonials.css";
+import "./Styles/Footer.css";
+import "./components/ui/button.css";
+import "./components/ui/card.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;

@@ -16,12 +16,13 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingScreen from "./pages/Loadingpage";
 import { LoadingProvider } from "./context/LoadingContext";
 import { useLoading } from "./context/LoadingContext";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const AppContent = () => {
   const { isLoading } = useLoading();
 
   return (
-    <>
+    <ErrorBoundary>
       {isLoading && <LoadingScreen />}
       <Routes>
         <Route path="/" element={<Homepage />} />
@@ -86,7 +87,7 @@ const AppContent = () => {
           }
         />
       </Routes>
-    </>
+    </ErrorBoundary>
   );
 };
 

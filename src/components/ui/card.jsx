@@ -1,5 +1,5 @@
 import React from "react";
-import "../ui/Button.css";
+import "./card.css";
 
 const Card = React.forwardRef(({ className = "", ...props }, ref) => {
   return <div ref={ref} className={`card ${className}`} {...props} />;
