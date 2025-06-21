@@ -42,14 +42,19 @@ const Dashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [timeLeft, setTimeLeft] = useState({});
-  const user = { name: "John Doe", email: "john@university.edu" };
-
-  const navigate = useNavigate();
+  const [tipOfTheDay, setTipOfTheDay] = useState(null);
   const [showRelativeTime, setShowRelativeTime] = useState(true);
-  const [tipOfTheDay, setTipOfTheDay] = useState({
-    tip: '',
-    author: 'AdviceSlip'
-  });
+  const user = { name: "John Doe", email: "john@university.edu" };
+  const navigate = useNavigate();
+
+  const semesterEnd = "2024-05-31T23:59:59";
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     fetch("https://api.adviceslip.com/advice")
@@ -62,9 +67,22 @@ const Dashboard = () => {
           });
         }
       })
-      .catch((error) => {
-        console.error("Error fetching tip:", error);
+      .catch(() => {
+        setTipOfTheDay({
+          tip: "Stay consistent and avoid procrastination.",
+          author: "System",
+        });
       });
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onMessageListener().then((payload) => {
+      alert(`New notification: ${payload.notification.title}`);
+    });
+
+    return () => {
+      // Add cleanup if your onMessageListener supports it
+    };
   }, []);
 
   const navItems = [
@@ -75,21 +93,6 @@ const Dashboard = () => {
     { name: "Notification", icon: <FaBell />, route: "/notifications" },
     { name: "Help Center", icon: <FaQuestionCircle />, route: "/help" },
   ];
-
-  const semesterEnd = "2024-05-31T23:59:59";
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    onMessageListener().then((payload) => {
-      alert(`New notification: ${payload.notification.title}`);
-    });
-  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -103,51 +106,10 @@ const Dashboard = () => {
     setAnchorEl(null);
   };
 
-  const renderMobileMenu = (
-    <Drawer
-      anchor="left"
-      open={mobileOpen}
-      onClose={handleDrawerToggle}
-      ModalProps={{ keepMounted: true }}
-    >
-      <Box className="mobileDrawer">
-        <IconButton onClick={handleDrawerToggle} className="closeButton">
-          <FaTimes />
-        </IconButton>
-        <List>
-          {navItems.map((item) => (
-            <ListItem
-              button
-              key={item.name}
-              onClick={() => {
-                navigate(item.route);
-                setMobileOpen(false);
-              }}
-            >
-              <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
-              <ListItemText primary={item.name} />
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-    </Drawer>
-  );
-
-  const renderDesktopMenu = (
-    <Box className="desktopMenu">
-      {navItems.map((item) => (
-        <div
-          key={item.name}
-          className="menuItem"
-          onClick={() => navigate(item.route)}
-          style={{ cursor: "pointer" }}
-        >
-          {item.icon}
-          <span>{item.name}</span>
-        </div>
-      ))}
-    </Box>
-  );
+  const handleLogout = () => {
+    // Replace with auth/session clearing logic if any
+    navigate("/login");
+  };
 
   const calculateTimeLeft = () => {
     const difference = +new Date(semesterEnd) - +new Date();
@@ -161,34 +123,6 @@ const Dashboard = () => {
     }
     return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   };
-
-  const recentActivities = [
-    {
-      action: "Created a study plan",
-      timestamp: new Date(Date.now() - 7200000),
-      type: "plan",
-    },
-    {
-      action: "Updated timetable",
-      timestamp: new Date(Date.now() - 86400000),
-      type: "timetable",
-    },
-    {
-      action: "Completed assignment",
-      timestamp: new Date(Date.now() - 172800000),
-      type: "assignment",
-    },
-    {
-      action: "Joined study group",
-      timestamp: new Date(Date.now() - 259200000),
-      type: "group",
-    },
-    {
-      action: "Set exam reminder",
-      timestamp: new Date(Date.now() - 345600000),
-      type: "reminder",
-    },
-  ];
 
   const formatTimestamp = (date) => {
     if (showRelativeTime) {
@@ -204,28 +138,67 @@ const Dashboard = () => {
     return date.toLocaleString();
   };
 
-  const handleLogout = () => {};
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case "plan": return <FaCalendar />;
+      case "timetable": return <FaTable />;
+      case "assignment": return <FaGraduationCap />;
+      case "group": return <FaUserCircle />;
+      case "reminder": return <FaBell />;
+      default: return <FaClock />;
+    }
+  };
+
+  const recentActivities = [
+    { action: "Created a study plan", timestamp: new Date(Date.now() - 7200000), type: "plan" },
+    { action: "Updated timetable", timestamp: new Date(Date.now() - 86400000), type: "timetable" },
+    { action: "Completed assignment", timestamp: new Date(Date.now() - 172800000), type: "assignment" },
+    { action: "Joined study group", timestamp: new Date(Date.now() - 259200000), type: "group" },
+    { action: "Set exam reminder", timestamp: new Date(Date.now() - 345600000), type: "reminder" },
+  ];
+
+  const renderMobileMenu = (
+    <Drawer anchor="left" open={mobileOpen} onClose={handleDrawerToggle} ModalProps={{ keepMounted: true }}>
+      <Box className="mobileDrawer">
+        <IconButton onClick={handleDrawerToggle} className="closeButton">
+          <FaTimes />
+        </IconButton>
+        <List>
+          {navItems.map((item) => (
+            <ListItem button key={item.name} onClick={() => {
+              navigate(item.route);
+              setMobileOpen(false);
+            }}>
+              <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
+              <ListItemText primary={item.name} />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+    </Drawer>
+  );
+
+  const renderDesktopMenu = (
+    <Box className="desktopMenu">
+      {navItems.map((item) => (
+        <div key={item.name} className="menuItem" onClick={() => navigate(item.route)} style={{ cursor: "pointer" }}>
+          {item.icon}
+          <span>{item.name}</span>
+        </div>
+      ))}
+    </Box>
+  );
 
   return (
     <div className="dashboard-container">
-      {/* App Bar */}
       <AppBar position="static" className="appBar">
         <Toolbar>
           {isMobile && (
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={handleDrawerToggle}
-              className="menuButton"
-            >
+            <IconButton edge="start" color="inherit" onClick={handleDrawerToggle} className="menuButton">
               <FaBars />
             </IconButton>
           )}
-
-          <Typography variant="h6" className="title">
-            Academic Dashboard
-          </Typography>
-
+          <Typography variant="h6" className="title">Academic Dashboard</Typography>
           <div className="countdown">
             <span>{timeLeft.days}d</span>
             <span>{timeLeft.hours}h</span>
@@ -233,16 +206,9 @@ const Dashboard = () => {
             <span>{timeLeft.seconds}s</span>
             <Typography variant="caption">Until Semester End</Typography>
           </div>
-
-          <IconButton
-            edge="end"
-            color="inherit"
-            onClick={handleProfileMenuOpen}
-            className="profileButton"
-          >
+          <IconButton edge="end" color="inherit" onClick={handleProfileMenuOpen} className="profileButton">
             <FaUserCircle />
           </IconButton>
-
           <Menu
             anchorEl={anchorEl}
             anchorOrigin={{ vertical: "top", horizontal: "right" }}
@@ -263,15 +229,13 @@ const Dashboard = () => {
             </MenuItem>
             <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
             <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-            <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
 
-      {/* Mobile Navigation Drawer */}
       {isMobile && renderMobileMenu}
 
-      {/* Main Content */}
       <main className="mainContent">
         {!isMobile && renderDesktopMenu}
 
@@ -292,37 +256,35 @@ const Dashboard = () => {
         <div className="activity-section">
           <div className="section-header">
             <h2>Recent Activity</h2>
-            <button
-              className="time-toggle"
-              onClick={() => setShowRelativeTime(!showRelativeTime)}
-            >
+            <button className="time-toggle" onClick={() => setShowRelativeTime(!showRelativeTime)}>
               {showRelativeTime ? "Show Absolute Time" : "Show Relative Time"}
             </button>
           </div>
           <div className="activity-list">
             {recentActivities.map((activity, index) => (
               <div key={index} className="activity-item">
-                <div className="activity-icon">
-                  {activity.type === "plan" ? <FaCalendar /> : <FaClock />}
-                </div>
+                <div className="activity-icon">{getActivityIcon(activity.type)}</div>
                 <div className="activity-content">
                   <p>{activity.action}</p>
-                  <span className="timestamp">
-                    {formatTimestamp(activity.timestamp)}
-                  </span>
+                  <span className="timestamp">{formatTimestamp(activity.timestamp)}</span>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Tip of the Day */}
         <div className="tip-section">
           <Card className="tip-card styled-tip-card">
             <h2 className="tip-heading">✨ Tip of the Day ✨</h2>
             <CardContent>
-              <p className="tip-text">"{tipOfTheDay.tip}"</p>
-              <p className="tip-author">— {tipOfTheDay.author}</p>
+              {tipOfTheDay ? (
+                <>
+                  <p className="tip-text">"{tipOfTheDay.tip}"</p>
+                  <p className="tip-author">— {tipOfTheDay.author}</p>
+                </>
+              ) : (
+                <p className="tip-text">Loading tip...</p>
+              )}
             </CardContent>
           </Card>
         </div>
