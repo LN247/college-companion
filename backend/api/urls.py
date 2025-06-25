@@ -4,9 +4,13 @@ from .views import (
     UserInfoView, RegistrationView, LoginView, LogoutView,
     CookieTokenRefreshView, GoogleAuthView,GenerateTimetable,save_fcm_token,
     SemesterViewSet, CourseViewSet, FixedClassScheduleViewSet,
-    StudyBlockViewSet, UserPreferencesViewSet,  GroupViewSet,
+    StudyBlockViewSet, UserPreferencesViewSet, CommunityProposalView,
+    GroupViewSet,
     MessageViewSet,
-    ReactionViewSet, , CommunityProposalView
+    ReactionViewSet,
+    GroupChatViewSet,
+    GroupMembershipViewSet,
+    GroupMessageViewSet
 )
 
 
@@ -28,6 +32,10 @@ groups_router.register(r'messages', MessageViewSet, basename='group-message')
 messages_router = DefaultRouter()
 messages_router.register(r'reactions', ReactionViewSet, basename='message-reaction')
 
+router.register(r'group-chats', GroupChatViewSet, basename='groupchat')
+router.register(r'group-memberships', GroupMembershipViewSet, basename='groupmembership')
+router.register(r'group-messages', GroupMessageViewSet, basename='groupmessage')
+
 urlpatterns = [
     path('', include(router.urls)),
     path('groups/', GroupViewSet.as_view({'get': 'list', 'post': 'create'}), name='group-list-create'),
@@ -43,6 +51,5 @@ urlpatterns = [
     path('generate-timetable/', GenerateTimetable.as_view(), name='generate-timetable'),
     path('community/proposals/', CommunityProposalView.as_view(), name='community-proposals'),
     path('community/proposals/<int:course_id>/', CommunityProposalView.as_view(), name='course-community-proposals'),
-  
 ]
    

@@ -1,6 +1,3 @@
-
-
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -372,3 +369,31 @@ class Reaction(models.Model):
             ).first()
             if existing_reaction:
                 existing_reaction.delete()
+
+class GroupChat(models.Model):
+    name = models.CharField(max_length=100)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='created_chats')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+class GroupMembership(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='group_memberships')
+    group = models.ForeignKey(GroupChat, on_delete=models.CASCADE, related_name='memberships')
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'group')
+
+    def __str__(self):
+        return f"{self.user.username} in {self.group.name}"
+
+class GroupMessage(models.Model):
+    group = models.ForeignKey(GroupChat, on_delete=models.CASCADE, related_name='messages')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='group_messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}: {self.content[:20]}..."

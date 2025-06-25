@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from django.contrib.auth import  authenticate
-from .models import CustomUser, Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences
+from .models import CustomUser, Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences, GroupChat, GroupMembership, GroupMessage
 from rest_framework import serializers
 from .models import (
     Group,
@@ -236,3 +236,15 @@ class ReactionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = ['reaction_type']
+
+class GroupChatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GroupChat
+        fields = ['id', 'name', 'created_by', 'created_at']
+        read_only_fields = ['created_by', 'created_at']
+
+class GroupMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GroupMessage
+        fields = ['id', 'group', 'user', 'content', 'timestamp']
+        read_only_fields = ['user', 'timestamp']

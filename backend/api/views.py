@@ -17,7 +17,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .models import UserPreferences, Course, StudyBlock,CustomUser,UserProfile
+from .models import UserPreferences, Course, StudyBlock,CustomUser,UserProfile, GroupChat, GroupMembership, GroupMessage
 from .scheduler import generate_timetable
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken
@@ -42,7 +42,9 @@ from .serializers import (
     MessageCreateSerializer,
     MessageContentSerializer,
     ReactionSerializer,
-    ReactionCreateSerializer
+    ReactionCreateSerializer,
+    GroupChatSerializer,
+    GroupMessageSerializer
 )
 from .utilities.Propose_community import propose_community
 
@@ -558,3 +560,38 @@ class CommunityProposalView(APIView):
         """
         result = propose_community(request.user.id, course_id)
         return Response(result, status=status.HTTP_200_OK if result['status'] == 'success' else status.HTTP_400_BAD_REQUEST)
+
+class GroupChatViewSet(viewsets.ModelViewSet):
+    queryset = GroupChat.objects.all()
+    serializer_class = GroupChatSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+class GroupMembershipViewSet(viewsets.ModelViewSet):
+    queryset = GroupMembership.objects.all()
+    serializer_class = GroupMembershipSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        group_id = request.data.get('group')
+        if GroupMembership.objects.filter(user=request.user, group_id=group_id).exists():
+            return Response({'detail': 'Already a member'}, status=status.HTTP_400_BAD_REQUEST)
+        membership = GroupMembership.objects.create(user=request.user, group_id=group_id)
+        return Response(GroupMembershipSerializer(membership).data, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        membership = self.get_object()
+        if membership.user != request.user:
+            return Response({'detail': 'Not allowed'}, status=status.HTTP_403_FORBIDDEN)
+        membership.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class GroupMessageViewSet(viewsets.ModelViewSet):
+    queryset = GroupMessage.objects.all()
+    serializer_class = GroupMessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
