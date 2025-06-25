@@ -1,13 +1,4 @@
 import React from "react";
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
 import "../Styles/Footer.css";
 
 const Footer = () => {
@@ -15,121 +6,59 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-grid">
-          {/* Company Info */}
-          <div className="footer-company">
-            <div className="footer-company-info">
-              <h3 className="footer-company-title">CollegeCompanion</h3>
-              <p className="footer-company-desc">
-                Empowering students worldwide to achieve academic excellence
-                through intelligent planning, community support, and
-                personalized guidance.
-              </p>
-            </div>
-            <div className="footer-social">
-              <a href="#" className="footer-social-btn">
-                <Facebook className="footer-social-icon" />
-              </a>
-              <a href="#" className="footer-social-btn">
-                <Twitter className="footer-social-icon" />
-              </a>
-              <a href="#" className="footer-social-btn">
-                <Instagram className="footer-social-icon" />
-              </a>
-              <a href="#" className="footer-social-btn">
-                <Linkedin className="footer-social-icon" />
-              </a>
-            </div>
+          <div className="footer-section">
+            <h3 className="footer-title">College Companion</h3>
+            <p className="footer-description">
+              Your all-in-one platform for academic success and personal growth.
+            </p>
           </div>
 
-          {/* Quick Links */}
-          <div className="footer-links">
-            <h4 className="footer-links-title">Quick Links</h4>
-            <ul className="footer-link-list">
-              {[
-                "About Us",
-                "Features",
-                "Pricing",
-                "Testimonials",
-                "Blog",
-                "Career",
-              ].map((item) => (
-                <li key={item}>
-                  <a href="#" className="footer-link">
-                    {item}
-                  </a>
-                </li>
-              ))}
+          <div className="footer-section">
+            <h4 className="footer-heading">Features</h4>
+            <ul className="footer-links">
+              <li><a href="#semester-planning">Semester Planning</a></li>
+              <li><a href="#community">Community & Networking</a></li>
+              <li><a href="#daily-tips">Daily Tips & Insights</a></li>
+              <li><a href="#career-test">Career Test</a></li>
             </ul>
           </div>
 
-          {/* Support */}
-          <div className="footer-links">
-            <h4 className="footer-links-title">Support</h4>
-            <ul className="footer-link-list">
-              {[
-                "Help Center",
-                "Contact Us",
-                "Privacy Policy",
-                "Terms of Service",
-                "FAQ",
-                "Community Guidelines",
-              ].map((item) => (
-                <li key={item}>
-                  <a href="#" className="footer-link">
-                    {item}
-                  </a>
-                </li>
-              ))}
+          <div className="footer-section">
+            <h4 className="footer-heading">Resources</h4>
+            <ul className="footer-links">
+              <li><a href="#blog">Blog</a></li>
+              <li><a href="#help-center">Help Center</a></li>
+              <li><a href="#faq">FAQ</a></li>
+              <li><a href="#contact">Contact Us</a></li>
             </ul>
           </div>
 
-          {/* Contact Info & Newsletter */}
-          <div className="footer-contact">
-            <h4 className="footer-contact-title">Get in Touch</h4>
-            <div className="footer-contact-info">
-              <div className="footer-contact-item">
-                <Mail className="footer-contact-icon" />
-                <span className="footer-contact-text">
-                  support@collegecompanion.com
-                </span>
-              </div>
-              <div className="footer-contact-item">
-                <Phone className="footer-contact-icon" />
-                <span className="footer-contact-text">+1 (555) 123-4567</span>
-              </div>
-              <div className="footer-contact-item">
-                <MapPin className="footer-contact-icon" />
-                <span className="footer-contact-text">San Francisco, CA</span>
-              </div>
-            </div>
-            <div className="footer-newsletter">
-              <h5 className="footer-newsletter-title">Stay Updated</h5>
-              <div className="footer-newsletter-form">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="footer-newsletter-input"
-                />
-                <button className="footer-newsletter-button">Subscribe</button>
-              </div>
-            </div>
+          <div className="footer-section">
+            <h4 className="footer-heading">Legal</h4>
+            <ul className="footer-links">
+              <li><a href="#privacy">Privacy Policy</a></li>
+              <li><a href="#terms">Terms of Service</a></li>
+              <li><a href="#cookies">Cookie Policy</a></li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="footer-bottom">
-          <p className="footer-bottom-text">
-            © 2024 CollegeCompanion. All rights reserved.
+          <p className="footer-copyright">
+            © {new Date().getFullYear()} College Companion. All rights reserved.
           </p>
-          <div className="footer-bottom-links">
-            <a href="#" className="footer-bottom-link">
-              Privacy Policy
+          <div className="footer-social">
+            <a href="#twitter" aria-label="Twitter">
+              <i className="fab fa-twitter"></i>
             </a>
-            <a href="#" className="footer-bottom-link">
-              Terms of Service
+            <a href="#facebook" aria-label="Facebook">
+              <i className="fab fa-facebook"></i>
             </a>
-            <a href="#" className="footer-bottom-link">
-              Cookie Policy
+            <a href="#instagram" aria-label="Instagram">
+              <i className="fab fa-instagram"></i>
+            </a>
+            <a href="#linkedin" aria-label="LinkedIn">
+              <i className="fab fa-linkedin"></i>
             </a>
           </div>
         </div>

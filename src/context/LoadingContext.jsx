@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const LoadingContext = createContext({
   isLoading: false,
@@ -10,6 +10,11 @@ const LoadingContext = createContext({
 export const LoadingProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Loading, please wait...');
+
+  // Reset loading state after initial mount
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
 
   return (
     <LoadingContext.Provider value={{ isLoading, setIsLoading, loadingMessage, setLoadingMessage }}>

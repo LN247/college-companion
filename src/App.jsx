@@ -10,18 +10,19 @@ import Progress from "./pages/Progress";
 import Settings from "./pages/Settings";
 import HelpCenter from "./pages/HelpCenter";
 import Homepage from "./pages/Homepage";
-import AddSemester from "/src/pages/AddSemester.jsx";
+import AddSemester from "./pages/AddSemester";
 import UserProfileForm from "./pages/UserProfileForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingScreen from "./pages/Loadingpage";
 import { LoadingProvider } from "./context/LoadingContext";
 import { useLoading } from "./context/LoadingContext";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const AppContent = () => {
   const { isLoading } = useLoading();
 
   return (
-    <>
+    <ErrorBoundary>
       {isLoading && <LoadingScreen />}
       <Routes>
         <Route path="/" element={<Homepage />} />
@@ -86,7 +87,7 @@ const AppContent = () => {
           }
         />
       </Routes>
-    </>
+    </ErrorBoundary>
   );
 };
 

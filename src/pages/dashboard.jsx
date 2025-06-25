@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../Styles/sampledashboard.css";
+import "../Styles/Dashboard.css";
 import {
   AppBar,
   Toolbar,

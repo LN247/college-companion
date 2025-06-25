@@ -1,12 +1,12 @@
 .features-section {
-  width: 100%ss;
+  width: 100%;
   padding: 5rem 0;
   background: linear-gradient(to bottom, #f9fafb, #ffffff);
   font-family: Arial, sans-serif;
 }
 
 .features-container {
-  max-width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
   align-items: center;
@@ -193,14 +193,14 @@
 }
 
 .features-additional-container {
-  width: 90%;
+  width: 100%;
+  max-width: 1200px;
   position: relative;
-  margin-left: 30px;
+  margin: 0 auto;
   background: linear-gradient(135deg, #06123d, #0a1854, #06123d);
   border-radius: 1.5rem;
-  color: #ffffff;
-  margin-bottom: 3rem;
-  overflow: hidden;
+  padding: 3rem 2rem;
+  color: white;
 }
 
 .features-additional-container::before,
