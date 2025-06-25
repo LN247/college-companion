@@ -1,665 +1,431 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import {
-  BookOpen,
-  Hash,
-  GraduationCap,
-  Plus,
-  Edit3,
-  Trash2,
-  Save,
-  X,
-} from "lucide-react";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/Select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { Button } from "../components/ui/Button";
-import { Input } from "../components/ui/Input";
+import { Card } from "../components/ui/card";
 import { Label } from "../components/ui/label";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../components/ui/Table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/Select";
 import axios from "axios";
+import { Plus, Trash2, BookOpen, Edit3, Save, X, Clock, Calendar } from "lucide-react";
 import "../Styles/CourseForm.css";
-import {useAdmin} from "../context/AdminContext";
+import userContext from "../context/UserContext";
 
-function CourseForm({ onFormComplete }) {
-  // List of courses and editing state
-  const [courses, setCourses] = useState([]);
-  const [editingIndex, setEditingIndex] = useState(null);
-  const { Courses, addCourses, updateCourses, deleteCourses } = useAdmin([]);
-  // Course inputs and errors
-  const [courseName, setCourseName] = useState("");
-  const [courseCode, setCourseCode] = useState("");
-  const [credits, setCredits] = useState("");
-  const [semester, setSemester] = useState("");
-  const [academicLevel, setAcademicLevel] = useState("");
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-  const semesterOptions = ["Fall", "Spring", "Summer"];
+const CourseForm = ({ semester, level,onFormComplete }) => {
+  const formRef = useRef(null);
+  const API_BASE = "http://localhost:8000/api";
+  const [courses, setCourses] = useState([]); // Fetched courses
+  const [selectedCourses, setSelectedCourses] = useState([]); // User-selected courses
+  const [editingId, setEditingId] = useState(null);
+  const [isCourseStepComplete, setIsCourseStepComplete] = useState(false);
+  const [currentCourse, setCurrentCourse] = useState({
+    course: "",
+    day: "",
+    start_time: "",
+    end_time: "",
+    difficulty_level:"",
+    semester:semester.semesterId,
 
-  const academicLevelOptions = [
-    "Freshman ",
-    "Sophomore ",
-    "Junior ",
-    "Senior ",
-    "Master",
-    "PhD",
-  ];
-
-  const API_BASE = "http://127.0.0.1:8000/api";
-
-  const totalFields = 5;
-  const countCompletedFields = (data) => {
-    return Object.values(data).filter(
-      (value) =>
-        (typeof value === "string" && value.trim() !== "") ||
-        (typeof value === "number" && !isNaN(value) && value !== "")
-    ).length;
-  };
-
-  const isCourseFormComplete = () => {
-    return (
-      countCompletedFields({
-        courseName,
-        courseCode,
-        credits,
-        semester,
-        academicLevel,
-      }) === totalFields
-    );
-  };
-
-  // Track previous completion status to avoid infinite loop
-  const prevComplete = useRef(isCourseFormComplete());
-
-  useEffect(() => {
-    // Form is only complete if there are at least 6 courses
-    const complete = courses.length >= 6;
-    if (prevComplete.current !== complete) {
-      prevComplete.current = complete;
-      onFormComplete(complete);
-    }
-  }, [courses, onFormComplete]);
-
-  const [courseErrors, setCourseErrors] = useState({});
-
-  // Editable row state & errors
-  const [editRow, setEditRow] = useState({
-    courseName: "",
-    courseCode: "",
-    credits: "",
-    semester: "",
-    academicLevel: "",
   });
-  const [editErrors, setEditErrors] = useState({});
-
-  // Validation helpers
-  const validateCourse = useCallback((inputs) => {
-    const errors = {};
-    if (!inputs.courseName.trim())
-      errors.courseName = "Course Name is required";
-    if (!inputs.courseCode.trim())
-      errors.courseCode = "Course Code is required";
-    if (inputs.credits === "") errors.credits = "Credits is required";
-    else if (isNaN(Number(inputs.credits)) || Number(inputs.credits) < 0)
-      errors.credits = "Credits must be 0 or more";
-    if (!inputs.semester || inputs.semester.trim() === "")
-      errors.semester = "Semester is required";
-    if (!inputs.academicLevel || inputs.academicLevel.trim() === "")
-      errors.academicLevel = "Academic Level is required";
-    return errors;
-  }, []);
-
-  // Handle Add Course submit
-  const handleAddCourse = useCallback(
-    async (e) => {
-      e.preventDefault();
-
-      const courseErrors = validateCourse({
-        courseName,
-        courseCode,
-        credits,
-        semester,
-        academicLevel,
-      });
-
-      setCourseErrors(courseErrors);
-
-      if (Object.keys(courseErrors).length > 0) return;
-
-      try {
-        // Check if course already exists
-        const courseExists = courses.some(
-          (course) =>
-            course.courseCode === courseCode || course.courseName === courseName
-        );
-        if (courseExists) {
-          setCourseErrors((prev) => ({
-            ...prev,
-            courseName: "Course with this name or code already exists.",
-          }));
-          return;
-        }
-        // Add new course to the list
-        if (courses.length >= 10) {
-          setCourseErrors((prev) => ({
-            ...prev,
-            courseName: "You can only add up to 10 courses.",
-          }));
-          return;
-        }
-
-        const response = await axios.post(
-          `${API_BASE}/courses/`,
-          {
-            name: courseName,
-            code: courseCode,
-            credits: credits,
-            semester: semester,
-            academicLevel: academicLevel,
-
-          },
-          { withCredentials: true }
-        );
 
 
-        setCourses((prev) => [
-          ...prev,
-          {
-            courseName,
-            courseCode,
-            credits,
-            semester,
-            academicLevel,
 
-          },
-        ]);
-        setCourseName("");
-        setCourseCode("");
-        setCredits("");
-        setSemester("");
-        setAcademicLevel("");
-        setCourseErrors({});
-      } catch (error) {
-        setCourseErrors((prev) => ({
-          ...prev,
-          courseName: "Failed to add course. Please try again.",
-        }));
-      }
 
-    },
-    [
-      courseName,
-      courseCode,
-      credits,
-      semester,
-      academicLevel,
-      validateCourse,
-      courses,
+// Dynamically find the name of the selected course
+const selectedCourseName = courses.find((c) => c.id === currentCourse.name)  ;
 
-    ]
-  );
 
-  // Start editing a row
-  const handleEditClick = useCallback(
-    (index) => {
-      setEditingIndex(index);
-      setEditRow({ ...courses[index] });
-      setEditErrors({});
-    },
-    [courses]
-  );
-
-  // Cancel editing
-  const handleCancelEdit = useCallback(() => {
-    setEditingIndex(null);
-    setEditErrors({});
-  }, []);
-
-  // Save edited course
-  const handleSaveEdit = useCallback(
-    (index) => {
-      const errors = validateCourse(editRow);
-      setEditErrors(errors);
-
-      if (Object.keys(errors).length > 0) return;
-
-      // Make API call to save edited course
+  // Fetch courses based on semester and level
+  useEffect(() => {
+    if (semester && level) {
       axios
-        .patch(`${API_BASE}/courses/${courses[index].id}/`, {
-          ...editRow,
-          withCredentials: true,
-        })
+        .get(`http://localhost:8000/api/courses/?semester=Spring&academicLevel=${level}`,{withCredentials: true})
         .then((response) => {
-          // Update local state with edited course
-          setCourses((prev) => {
-            const newCourses = [...prev];
-            newCourses[index] = { ...editRow };
-            return newCourses;
-          });
-          setEditingIndex(null);
+          const fetchedCourses = Array.isArray(response.data) ? response.data : response.data.courses || [];
+          setCourses(fetchedCourses);
         })
         .catch((error) => {
-          console.error("Failed to save course:", error);
-          setEditErrors((prev) => ({
-            ...prev,
-            courseName: "Failed to save course. Please try again.",
-          }));
+          console.error("Error fetching courses:", error);
         });
-    },
-    [editRow, validateCourse, courses, API_BASE]
-  );
+    }
+  }, [semester, level]);
 
-  // Delete course
-  const handleDelete = useCallback(
-    (index) => {
-      if (window.confirm("Are you sure you want to delete this course?")) {
-        // Make API call to delete course if needed
-        axios
-          .delete(`${API_BASE}/courses/${courses[index].id}/`, {
-            withCredentials: true,
-          })
-          .catch((error) => {
-            console.error("Failed to delete course:", error);
-          });
-        // Update local state
-        setCourses((prev) => prev.filter((_, i) => i !== index));
-        if (editingIndex === index) handleCancelEdit();
-      }
-    },
-    [courses, editingIndex, handleCancelEdit, API_BASE]
-  );
+
+    useEffect(() => {
+    if (selectedCourses.length >= 2) {
+      setIsCourseStepComplete(true);
+      onFormComplete(true);
+    } else {
+      setIsCourseStepComplete(false);
+      onFormComplete(false);
+    }
+  }, [selectedCourses, onFormComplete]);
+
+
+
+
+  // Reset form
+  const resetForm = () => {
+    setCurrentCourse({
+      course: "",
+      day: "",
+      start_time: "",
+      end_time: "",
+      difficulty_level: '',
+      semester:semester.semesterId,
+    });
+    setEditingId(null);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Add a new course
+  const addCourse = () => {
+    if (!currentCourse.course || !currentCourse.day || !currentCourse.start_time || !currentCourse.end_time|| !currentCourse.difficulty_level
+) {
+      alert("Please fill in all fields before adding the course.");
+      return;
+    }
+
+    // Check for time conflicts
+    const hasConflict = selectedCourses.some(existingCourse =>
+      existingCourse.day === currentCourse.day &&
+      ((currentCourse.start_time >= existingCourse.start_time && currentCourse.start_time < existingCourse.end_time) ||
+       (currentCourse.end_time > existingCourse.start_time && currentCourse.end_time <= existingCourse.end_time) ||
+       (currentCourse.start_time <= existingCourse.start_time && currentCourse.end_time >= existingCourse.end_time))
+    );
+
+    if (hasConflict) {
+      alert("Time conflict detected! Please choose a different time slot.");
+      return;
+    }
+
+    const newCourse = {
+      ...currentCourse,
+       day: currentCourse.day,
+      start_time: currentCourse.start_time,
+      end_time: currentCourse.end_time,
+      difficulty_level: currentCourse.difficulty_level,
+      semester: parseInt(semester.semesterId, 10)
+
+    };
+
+    setSelectedCourses([...selectedCourses, newCourse]);
+    resetForm();
+  };
+
+  // Remove a course
+  const removeCourse = (id) => {
+    setSelectedCourses(selectedCourses.filter(course => course.id !== id));
+    if (editingId === id) {
+      resetForm();
+    }
+  };
+
+  // Start editing a course
+  const startEdit = (course) => {
+    setCurrentCourse({ ...course ,semester:semester.semesterId,difficulty_level:course.level||"Medium"});
+    setEditingId(course.id);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Save edited course
+  const saveEdit = () => {
+    if (!currentCourse.course || !currentCourse.day || !currentCourse.startTime || !currentCourse.endTime) {
+      alert("Please fill in all fields before saving.");
+      return;
+    }
+
+    // Check for time conflicts (excluding the course being edited)
+    const hasConflict = selectedCourses.some(existingCourse =>
+      existingCourse.id !== editingId &&
+      existingCourse.day === currentCourse.day &&
+      ((currentCourse.start_time >= existingCourse.start_time && currentCourse.start_time < existingCourse.end_time) ||
+       (currentCourse.end_time > existingCourse.start_time && currentCourse.end_time <= existingCourse.end_time) ||
+       (currentCourse.start_time <= existingCourse.start_time && currentCourse.end_time >= existingCourse.end_time))
+    );
+
+    if (hasConflict) {
+      alert("Time conflict detected! Please choose a different time slot.");
+      return;
+    }
+
+    setSelectedCourses(selectedCourses.map(course =>
+      course.id === editingId ? { ...currentCourse } : course
+    ));
+    resetForm();
+  };
+
+  // Update current course form
+  const updateCurrentCourse = (field, value) => {
+    setCurrentCourse(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Format time for display
+  const formatTime = (time) => {
+    return new Date(`2000-01-01T${time}`).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (selectedCourses.length === 0) {
+    alert("Please add at least one course before submitting.");
+    return;
+  }
+
+  try {
+    await axios.post(
+      `${API_BASE}/fixed-schedules/`,
+       selectedCourses ,
+      { withCredentials: true }
+    );
+
+
+    resetForm();
+    alert(
+      `Successfully added ${selectedCourses.length} course${
+        selectedCourses.length !== 1 ? "s" : ""
+      } to your schedule!`
+    );
+    console.log("Submitted Courses:", selectedCourses);
+  } catch (error) {
+
+    alert("Failed to add courses. Please try again.");
+    console.error("Error submitting courses:", error);
+  }
+};
+
 
   return (
-    <div className="course-form-container">
-      <div className="course-form-wrapper">
-        {/* Add Course Form */}
-        <Card className="course-form-card">
-          <CardHeader className="course-form-header">
-            <div className="course-form-icon-container">
-              <BookOpen className="course-form-icon" />
+    <div className="course-form">
+      {/* Header Section */}
+      <div className="form-header">
+        <div className="header-content">
+          <div className="header-icon-wrapper">
+            <BookOpen className="header-icon" />
+          </div>
+          <div className="header-text">
+            <h1>Course Management</h1>
+            <p>Add and manage your course schedule</p>
+          </div>
+        </div>
+
+        <div className="stats-container">
+          <div className="stat-card">
+            <div className="stat-icon">
+              <BookOpen size={20} />
             </div>
-            <CardTitle className="course-form-title">Add a Course</CardTitle>
-            <CardDescription className="course-form-description">
-              Enter course details to add to your schedule
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAddCourse} className="course-form">
-              <div className="course-form-grid">
-                <div className="course-form-field course-form-field-full">
-                  <Label htmlFor="courseName" className="input-label">
-                    Course Name
-                  </Label>
-                  <div className="input-container">
-                    <BookOpen className="input-icon" />
-                    <Input
-                      id="courseName"
-                      value={courseName}
-                      onChange={(e) => setCourseName(e.target.value)}
-                      placeholder="e.g., Introduction to Programming"
-                      className="text-input"
-                    />
-                  </div>
-                  {courseErrors.courseName && (
-                    <p className="error-message">{courseErrors.courseName}</p>
-                  )}
-                </div>
-
-                <div className="course-form-field">
-                  <Label htmlFor="courseCode" className="input-label">
-                    Course Code
-                  </Label>
-                  <div className="input-container">
-                    <Hash className="input-icon" />
-                    <Input
-                      id="courseCode"
-                      value={courseCode}
-                      onChange={(e) => setCourseCode(e.target.value)}
-                      placeholder="e.g., CS101"
-                      className="text-input"
-                    />
-                  </div>
-                  {courseErrors.courseCode && (
-                    <p className="error-message">{courseErrors.courseCode}</p>
-                  )}
-                </div>
-
-                <div className="course-form-field">
-                  <Label htmlFor="credits" className="input-label">
-                    Credits
-                  </Label>
-                  <div className="input-container">
-                    <GraduationCap className="input-icon" />
-                    <Input
-                      id="credits"
-                      type="number"
-                      min="0"
-                      value={credits}
-                      onChange={(e) => setCredits(e.target.value)}
-                      placeholder="3"
-                      className="text-input"
-                    />
-                  </div>
-                  {courseErrors.credits && (
-                    <p className="error-message">{courseErrors.credits}</p>
-                  )}
-                </div>
-
-                <div className="course-form-field">
-                  <Label htmlFor="semester" className="input-label">
-                    Semester
-                  </Label>
-                  <Select value={semester} onValueChange={setSemester}>
-                    <SelectTrigger className="select-trigger">
-                      <SelectValue placeholder="Select Semester" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {semesterOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {courseErrors.semester && (
-                    <p className="error-message">{courseErrors.semester}</p>
-                  )}
-                </div>
-
-                <div className="course-form-field">
-                  <Label htmlFor="academicLevel" className="input-label">
-                    Academic Level
-                  </Label>
-                  <Select
-                    value={academicLevel}
-                    onValueChange={setAcademicLevel}
-                  >
-                    <SelectTrigger className="select-trigger">
-                      <SelectValue placeholder="Select Academic Level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {academicLevelOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {courseErrors.academicLevel && (
-                    <p className="error-message">
-                      {courseErrors.academicLevel}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <Button type="submit" className="submit-course">
-                <Plus className="button-icon" />
-                Add Course
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Courses List */}
-        <Card className="course-list-card">
-          <CardHeader>
-            <CardTitle className="course-list-title">
-              <BookOpen className="title-icon" />
-              Course Schedule ({courses.length}{" "}
-              {courses.length === 1 ? "course" : "courses"})
-            </CardTitle>
-            <CardDescription className="course-list-description">
-              Manage your enrolled courses for this semester
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {Courses.length === 0 ? (
-              <div className="empty-state">
-                <BookOpen className="empty-icon" />
-                <h3 className="empty-title">No courses added yet</h3>
-                <p className="empty-description">
-                  Add your first course using the form above
-                </p>
-              </div>
-            ) : (
-              <div className="table-container">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="table-header">
-                        Course Name
-                      </TableHead>
-                      <TableHead className="table-header">
-                        Course Code
-                      </TableHead>
-                      <TableHead className="table-header">Credits</TableHead>
-                      <TableHead className="table-header">Semester</TableHead>
-                      <TableHead className="table-header">
-                        Academic Level
-                      </TableHead>
-                      <TableHead className="table-header actions-header">
-                        Actions
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {Courses.map((course, index) => {
-                      const isEditing = editingIndex === index;
-                      return (
-                        <TableRow key={index} className="table-row">
-                          <TableCell>
-                            {isEditing ? (
-                              <div className="edit-field">
-                                <Input
-                                  value={editRow.courseName}
-                                  onChange={(e) =>
-                                    setEditRow((prev) => ({
-                                      ...prev,
-                                      courseName: e.target.value,
-                                    }))
-                                  }
-                                  className="edit-input"
-                                />
-                                {editErrors.courseName && (
-                                  <p className="field-error">
-                                    {editErrors.courseName}
-                                  </p>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="course-name">
-                                {course.name}
-                              </span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {isEditing ? (
-                              <div className="edit-field">
-                                <Input
-                                  value={editRow.courseCode}
-                                  onChange={(e) =>
-                                    setEditRow((prev) => ({
-                                      ...prev,
-                                      courseCode: e.target.value,
-                                    }))
-                                  }
-                                  className="edit-input"
-                                />
-                                {editErrors.courseCode && (
-                                  <p className="field-error">
-                                    {editErrors.courseCode}
-                                  </p>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="course-code">
-                                {course.code}
-                              </span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {isEditing ? (
-                              <div className="edit-field">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={editRow.credits}
-                                  onChange={(e) =>
-                                    setEditRow((prev) => ({
-                                      ...prev,
-                                      credits: e.target.value,
-                                    }))
-                                  }
-                                  className="edit-input credits-input"
-                                />
-                                {editErrors.credits && (
-                                  <p className="field-error">
-                                    {editErrors.credits}
-                                  </p>
-                                )}
-                              </div>
-                            ) : (
-                              <span>{course.credits}</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {isEditing ? (
-                              <div className="edit-field">
-                                <Select
-                                  value={editRow.semester}
-                                  onValueChange={(value) =>
-                                    setEditRow((prev) => ({
-                                      ...prev,
-                                      semester: value,
-                                    }))
-                                  }
-                                >
-                                  <SelectTrigger className="edit-select-trigger">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {semesterOptions.map((option) => (
-                                      <SelectItem key={option} value={option}>
-                                        {option}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                {editErrors.semester && (
-                                  <p className="field-error">
-                                    {editErrors.semester}
-                                  </p>
-                                )}
-                              </div>
-                            ) : (
-                              <span>{course.semester}</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {isEditing ? (
-                              <div className="edit-field">
-                                <Select
-                                  value={editRow.academicLevel}
-                                  onValueChange={(value) =>
-                                    setEditRow((prev) => ({
-                                      ...prev,
-                                      academicLevel: value,
-                                    }))
-                                  }
-                                >
-                                  <SelectTrigger className="edit-select-trigger">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {academicLevelOptions.map((option) => (
-                                      <SelectItem key={option} value={option}>
-                                        {option}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                {editErrors.academicLevel && (
-                                  <p className="field-error">
-                                    {editErrors.academicLevel}
-                                  </p>
-                                )}
-                              </div>
-                            ) : (
-                              <span>{course.academicLevel}</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="action-buttons">
-                              {isEditing ? (
-                                <>
-                                  <Button
-                                    onClick={() => handleSaveEdit(index)}
-                                    size="sm"
-                                    className="icon-button save-button"
-                                  >
-                                    <Save className="action-icon" />
-                                  </Button>
-                                  <Button
-                                    onClick={handleCancelEdit}
-                                    size="sm"
-                                    variant="outline"
-                                    className="icon-button cancel-button"
-                                  >
-                                    <X className="action-icon" />
-                                  </Button>
-                                </>
-                              ) : (
-                                <>
-                                  <Button
-                                    onClick={() => handleEditClick(index)}
-                                    size="sm"
-                                    variant="outline"
-                                    className="icon-button edit-button"
-                                  >
-                                    <Edit3 className="action-icon" />
-                                  </Button>
-                                  <Button
-                                    onClick={() => handleDelete(index)}
-                                    size="sm"
-                                    variant="outline"
-                                    className="icon-button delete-button"
-                                  >
-                                    <Trash2 className="action-icon" />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            <div className="stat-content">
+              <span className="stat-number">{selectedCourses.length}</span>
+              <span className="stat-label">Courses Added</span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Course Form Section */}
+      <Card className="form-card" ref={formRef}>
+        <div className="form-card-header">
+          <div className="form-title">
+            <BookOpen size={20} />
+            <h2>{editingId ? 'Edit Course' : 'Add New Course'}</h2>
+          </div>
+          {editingId && (
+            <Button
+              onClick={resetForm}
+              variant="ghost"
+              size="sm"
+              className="cancel-edit-btn"
+            >
+              <X size={16} />
+              Cancel Edit
+            </Button>
+          )}
+        </div>
+
+        <div className="form-grid">
+          <div className="form-group">
+            <Label className="form-label">
+              <BookOpen size={16} />
+              Course Name
+            </Label>
+              <Select
+                    onValueChange={(value) => setCurrentCourse({ ...currentCourse, course: value })}
+                    value={currentCourse.course || ""}
+                                     >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select a course" />
+                          </SelectTrigger>
+                       <SelectContent>
+                       {courses.map((course) => (
+                           <SelectItem key={course.id} value={course.id}>
+                             {course.name} {/* Display the course name */}
+                              </SelectItem>
+                       ))}
+                    </SelectContent>
+                    </Select>
+
+          </div>
+
+          <div className="form-group">
+            <Label className="form-label">
+              <Calendar size={16} />
+              Day of Week
+            </Label>
+            <Select
+              value={currentCourse.day}
+              onValueChange={(value) => updateCurrentCourse("day", value)}
+            >
+              <SelectTrigger className="form-select">
+                <SelectValue placeholder="Select a day" />
+              </SelectTrigger>
+              <SelectContent>
+                {DAYS.map((day) => (
+                  <SelectItem key={day} value={day}>
+                    {day}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="form-group">
+            <Label className="form-label">
+              <Clock size={16} />
+              Start Time
+            </Label>
+            <input
+              type="time"
+              className="form-input time-input"
+              value={currentCourse.start_time}
+              onChange={(e) => updateCurrentCourse("start_time", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <Label className="form-label">
+              <Clock size={16} />
+              End Time
+            </Label>
+            <input
+              type="time"
+              className="form-input time-input"
+              value={currentCourse.end_time}
+              onChange={(e) => updateCurrentCourse("end_time", e.target.value)}
+            />
+          </div>
+        </div>
+
+              <div className="mb-4">
+  <Label htmlFor="difficulty_level">Difficulty Level</Label>
+  <Select
+    value={currentCourse.difficulty_level}
+    onValueChange={(value) => setCurrentCourse({
+      ...currentCourse,
+      difficulty_level: value
+    })}
+  >
+    <SelectTrigger>
+      <SelectValue placeholder="Select difficulty level" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="easy">Easy</SelectItem>
+      <SelectItem value="medium">Medium</SelectItem>
+      <SelectItem value="hard">Hard</SelectItem>
+    </SelectContent>
+  </Select>
+</div>
+
+
+        <div className="form-actions">
+          {editingId ? (
+            <Button onClick={saveEdit} className="primary-btn">
+              <Save size={16} />
+              Save Changes
+            </Button>
+          ) : (
+            <Button onClick={addCourse} className="primary-btn">
+              <Plus size={16} />
+              Add Course
+            </Button>
+          )}
+        </div>
+      </Card>
+
+      {/* Added Courses Section */}
+      {selectedCourses.length > 0 && (
+        <div className="added-courses-section">
+          <div className="section-header">
+            <h2>Added Courses</h2>
+            <span className="course-count">{selectedCourses.length} course{selectedCourses.length !== 1 ? 's' : ''}</span>
+          </div>
+
+          <div className="courses-grid">
+            {selectedCourses.map((course, index) => (
+              <Card key={course.id} className={`course-card ${editingId === course.id ? 'editing' : ''}`}>
+                <div className="course-card-header">
+                  <div className="course-number">
+                    <BookOpen size={16} />
+                    <span>Course {index + 1}</span>
+                  </div>
+                  <div className="course-actions">
+                    <Button
+                      onClick={() => startEdit(course)}
+                      variant="ghost"
+                      size="sm"
+                      className="edit-btn"
+                      disabled={editingId && editingId !== course.id}
+                    >
+                      <Edit3 size={16} />
+                    </Button>
+                    <Button
+                      onClick={() => removeCourse(course.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="delete-btn"
+                      disabled={editingId && editingId !== course.id}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="course-details">
+                  <div className="course-name">
+                    <h3>{selectedCourseName}</h3>
+                  </div>
+
+                  <div className="course-schedule">
+                    <div className="schedule-item">
+                      <Calendar size={14} />
+                      <span>{course.day}</span>
+                    </div>
+                    <div className="schedule-item">
+                      <Clock size={14} />
+                      <span>{formatTime(course.start_time)} - {formatTime(course.end_time)}</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          <div className="submit-section">
+            <Button onClick={handleSubmit} className="submit-btn" disabled={!isCourseStepComplete}>
+              <BookOpen size={16} />
+              Submit All Courses
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default CourseForm;

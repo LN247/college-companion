@@ -1,202 +1,239 @@
-/* Main container */
-.user-preferences-form {
+.preferences-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* Card styles */
-.preferences-card,
-.courses-card {
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+.form-header {
+  text-align: center;
 }
 
-/* Section headers */
-.section-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1e293b;
+.header-icon {
+  width: 3rem;
+  height: 3rem;
+  color: rgb(255, 255, 255);
+  margin: 0 auto 1rem;
 }
 
-/* Off days section */
-.off-days-section {
-  margin-bottom: 1rem;
-}
-
-.section-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #334155;
+.form-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
   margin-bottom: 0.5rem;
 }
 
-.days-grid {
+.form-header p {
+  color: #4b5563;
+}
+
+
+.study-hours-section, .off-days-section {
+  /* Same styling as other preference sections */
+}
+
+.study-hours-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.off-days-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-  color: #1e293b;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
 }
 
-@media (min-width: 768px) {
-  .days-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+.day-toggle {
+  display: flex;
 }
 
-.day-button {
-  padding: 0.5rem;
-  font-size: 0.875rem;
-  border-radius: 0.25rem;
-  border: 1px solid #cbd5e1;
-  background-color: #fff;
-  transition: all 0.2s ease;
+.day-checkbox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s;
+  background: white;
 }
 
-.day-button:hover {
-  background-color: #f1f5f9;
-}
-
-.day-button.selected {
-  background-color: #3b82f6;
-  color: white;
+.day-checkbox:hover {
   border-color: #3b82f6;
+  background: #f8fafc;
 }
 
-/* Grid layouts */
-.preferences-grid,
-.time-grid,
-.course-details-grid {
-  display: grid;
-  gap: 1rem;
-  margin-top: 1rem;
+.day-checkbox.selected {
+  border-color: #ef4444;
+  background: #fef2f2;
+  color: #dc2626;
 }
 
-@media (min-width: 768px) {
-  .preferences-grid,
-  .time-grid,
-  .course-details-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.hidden-checkbox {
+  display: none;
 }
 
-/* Input groups */
-.input-group {
+.day-content {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-}
-
-.form-input {
-  width: 90%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-}
-
-/* Courses section */
-.courses-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding-bottom: 0;
+  gap: 4px;
 }
 
-.add-course-button {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.875rem;
+.day-short {
+  font-weight: 600;
+  font-size: 14px;
 }
 
-.courses-content {
+.day-full {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.selected-off-days {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.preferences-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
-.course-card {
-  padding: 1rem;
-  border: 1px solid #e2e8f0;
+.preference-section {
+  padding: 1.5rem;
   border-radius: 0.5rem;
-  background-color: #f8fafc;
 }
 
-.course-header {
+.study-time-section {
+  background: linear-gradient(to right, #f3e8ff, #dbeafe);
+}
+
+.reminder-section {
+  background: linear-gradient(to right, #dbeafe, #dcfce7);
+}
+
+.section-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
-.course-title {
-  font-weight: 500;
-  font-size: 1rem;
-  color: #1e293b;
+.section-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: rgba(222, 68, 9, 0.93);
 }
 
-.remove-course-button {
-  color: #ef4444;
+.reminder-section .section-icon {
+  color: #2563eb;
 }
 
-.remove-course-button:hover {
-  background-color: #fee2e2;
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
 }
 
-.button-icon {
+.time-range-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.time-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.section-description {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-top: 0.5rem;
+}
+
+.reminder-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reminder-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reminder-select {
+  width: 100%;
+}
+
+.notification-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.notification-text p {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1.5rem;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.arrow-icon {
   width: 1rem;
   height: 1rem;
 }
 
-/* Course grid */
-.course-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.submit-button {
+  background: linear-gradient(to right, #9333ea, #3b82f6);
+  color: white;
+  padding: 0.5rem 2rem;
 }
 
-/* Select styles */
-.select-trigger {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 0.25rem;
-  background-color: #fff;
-  font-size: 0.875rem;
-  color: black;
+.submit-button:hover {
+  background: linear-gradient(to right, #7e22ce, #2563eb);
 }
 
-/* Difficulty slider */
-.difficulty-section {
-  margin-top: 0.5rem;
-}
+/* Responsive styles */
+@media (min-width: 768px) {
+  .time-range-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 
-.slider-container {
-  margin-top: 0.5rem;
-}
+  .form-header h2 {
+    font-size: 2rem;
+  }
 
-.difficulty-slider {
-  width: 100%;
-}
+  .form-actions {
+    flex-direction: row;
+    justify-content: space-between;
+  }
 
-.slider-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 0.25rem;
-}
-
-/* Select styles */
-.select-trigger {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 0.25rem;
-  background-color: #fff;
-  font-size: 0.875rem;
+  .reminder-select {
+    width: 12rem;
+  }
 }

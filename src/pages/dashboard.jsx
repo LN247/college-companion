@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import UserAnalytics from "../components/UserAnalytics";
+import { useContext } from "react";
 import {
   FaCalendar,
   FaChartLine,
@@ -36,19 +37,26 @@ import {
 import "../Styles/Dashboard.css";
 import { Card, CardContent } from "@mui/material";
 import { onMessageListener } from "../utils/firebase";
+import UserContext from "../context/UserContext";
+
+
+
 const Dashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [timeLeft, setTimeLeft] = useState({});
-  const[user,setuser]  =useState([]);
-
   const navigate = useNavigate();
+   const { user, setUser } = useContext(UserContext);
+
+
+
+
   const [showRelativeTime, setShowRelativeTime] = useState(true);
 
   const navItems = [
-    { name: "College-Life", icon: <FaGraduationCap />, route: "/college-life" },
+    { name: "College-Life", icon: <FaGraduationCap />, route: "/chat" },
     { name: "Semester-Plan", icon: <FaCalendarAlt />, route: "/semester-plan" },
     { name: "Progress", icon: <FaChartLine />, route: "/progress" },
     { name: "Timetable", icon: <FaTable />, route: "/timetable" },
@@ -61,23 +69,6 @@ const Dashboard = () => {
   const semesterEnd = "2025-06-26T23:59:59"; // Example semester end date
 
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await axios.get(`${API_BASE}/user-info/`, {
-          withCredentials: true,
-        });
-        setuser(response.data);
-
-      } catch (err) {
-        console.log(err);
-
-      }
-    };
-
-    fetchUserInfo();
-  }, []);
-
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -86,12 +77,17 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
+
+
+
   useEffect(() => {
     onMessageListener().then((payload) => {
       // Show notification or update UI
       alert(`New notification: ${payload.notification.title}`);
     });
   }, []);
+
+
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -106,6 +102,8 @@ const Dashboard = () => {
   };
 
   const renderMobileMenu = (
+       <React.Fragment>
+
     <Drawer
       anchor="left"
       open={mobileOpen}
@@ -133,9 +131,12 @@ const Dashboard = () => {
         </List>
       </Box>
     </Drawer>
+          </React.Fragment>
+
   );
 
   const renderDesktopMenu = (
+       <React.Fragment>
     <Box className="desktopMenu">
       {navItems.map((item) => (
         <div
@@ -149,6 +150,8 @@ const Dashboard = () => {
         </div>
       ))}
     </Box>
+       </React.Fragment>
+
   );
 
   // Function to calculate time left until semester end
@@ -217,6 +220,8 @@ const Dashboard = () => {
   const handleLogout = () => {};
 
   return (
+
+
     <div className="dashboardContainer">
       {/* App Bar */}
       <AppBar position="static" className="appBar">
@@ -345,6 +350,7 @@ const Dashboard = () => {
         </div>
       </main>
     </div>
+
   );
 };
 

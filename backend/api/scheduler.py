@@ -1,108 +1,105 @@
-# utils/scheduler.py
-from datetime import datetime, timedelta, time, date
-from .models import UserPreferences, Course, StudyBlock,FixedClassSchedule
-from .models import CustomUser
-import json
+from datetime import datetime, time, timedelta
+from .models import FixedClassSchedule, Semester
+from .models import StudyBlock
+from .models import UserPreferences
+from .task import send_study_notification
 
 
-def generate_timetable(user, courses, start_date, end_date):
+def generate_timetable(user, semester_start, semester_end, semester_id):
     # Get user preferences
     prefs = UserPreferences.objects.get(user=user)
-    off_days = [day.lower() for day in UserPreferences.get_off_days_list(prefs.off_days)]
+    off_days = [day.lower() for day in prefs.get_off_days_list()]
+    notification_min= prefs. notification_reminder_minutes
+    preferred_start_time = prefs.study_start_min
+    preferred_end_time = prefs.study_end_max
 
-    # Get fixed class hours
-    fixed_hours = user.FixedClassSchedule.values_list('day', 'start_time', 'end_time')
-    fixed_hours = [{'day': day, 'start': start, 'end': end} for day, start, end in fixed_hours]
-    
-    # Calculate total study minutes per course
-    difficulty_weights = {'low': 1, 'medium': 2, 'high': 3, 'very_high': 4}
-    course_study_minutes = {}
-    
-    for course in courses:
-        base_minutes = course.credits * 60  # 1 hour per credit
-        course_study_minutes[course.id] = base_minutes * difficulty_weights[course.difficulty] * course.priority
-    
-    # Generate available time slots
-    available_slots = []
-    current_date = start_date
-    
-    while current_date <= end_date:
-        day_name = current_date.strftime('%A').lower()
-        
-        if day_name not in off_days:
-            # Get fixed hours for this day
-            day_hours = next((h for h in fixed_hours if h['day'].lower() == day_name), None)
-            
-            if day_hours:
-                start = datetime.strptime(day_hours['start'], '%H:%M').time()
-                end = datetime.strptime(day_hours['end'], '%H:%M').time()
-                available_slots.append({
-                    'date': current_date,
-                    'start': start,
-                    'end': end,
-                    'duration': (datetime.combine(date.today(), end) - datetime.combine(date.today(), start)).seconds // 60
-                })
-        current_date += timedelta(days=1)
-    
-    
+    print(off_days, preferred_end_time, preferred_start_time)
 
-    # Sort courses by priority (highest first)
-    sorted_courses = sorted(courses, key=lambda c: c.priority, reverse=True)
-    
-    #python dictionary which stores the total number of  minutes allocated  per day
+    # Get user's fixed class schedule for the provided semester
+    fixed_class_schedules = FixedClassSchedule.objects.filter(user=user, semester=semester_id)
 
-    daily_allocated = {}
+    print(fixed_class_schedules)
 
-    # Assign study blocks
     study_blocks = []
-    for course in sorted_courses:
-        remaining_minutes = course_study_minutes[course.id]
 
-        while remaining_minutes > 0 and available_slots:
-            # Select the available slot with the longest duration
-            slot = max(available_slots, key=lambda s: s['duration'])
-            slot_date = slot['date']
+    for class_schedule in fixed_class_schedules:
+        print(f"Processing class schedule: {class_schedule}")  # Added
 
-            # Determine how many minutes have already been scheduled for this day
-            allocated_today = daily_allocated.get(slot_date, 0)
-            # Calculate remaining allowed minutes for this day
-        allowed_today = 240 - allocated_today
-        
-        if allowed_today <= 0:
-            # If the day has hit the maximum, remove the slot and continue
-            available_slots.remove(slot)
+        day = class_schedule.day.lower()
+        start_time = class_schedule.start_time
+        end_time = class_schedule.end_time
+        course = class_schedule.course
+
+        print(f"Day: {day}, Start time: {start_time}, End time: {end_time}, Course: {course}")  # Added
+
+        if day in off_days:
+            print(f"Skipping {day} because it's an off day. Off days are: {off_days}")  # Modified
             continue
-        
-        # Determine study duration: up to 60 minutes or less if not enough time remains
-        study_duration = min(remaining_minutes, 60, slot['duration'], allowed_today)
 
-        # Create the study block
-        study_blocks.append({
-            'course': course,
-            'date': slot_date,
-            'start_time': slot['start'],
-            'end_time': (datetime.combine(slot_date, slot['start']) + timedelta(minutes=study_duration)).time()
-        })
-        
-        # Update the available slot and remaining study minutes for the course
-        slot['start'] = (datetime.combine(slot_date, slot['start']) + timedelta(minutes=study_duration)).time()
-        slot['duration'] -= study_duration
-        remaining_minutes -= study_duration
-        
-        # Track the total amount allocated for that day
-        daily_allocated[slot_date] = allocated_today + study_duration
-        
-        # Remove the slot if it's been fully used
-        if slot['duration'] <= 0:
-            available_slots.remove(slot)
-    
+        # Time conversion and comparison issues:
+        print(f"Original start_time: {start_time}, Original end_time: {end_time}")
+
+        if not isinstance(start_time, time):
+            start_time = datetime.strptime(str(start_time), '%H:%M:%S').time()
+            print(f"Converted start_time: {start_time}")
+        if not isinstance(end_time, time):
+            end_time = datetime.strptime(str(end_time), '%H:%M:%S').time()
+            print(f"Converted end_time: {end_time}")
+
+        if preferred_start_time and preferred_end_time:
+            print(
+                f"Preferred study times are set. preferred_start_time: {preferred_start_time}, preferred_end_time: {preferred_end_time}")
+
+            if not isinstance(preferred_start_time, time):
+                preferred_start_time = datetime.strptime(preferred_start_time, '%H:%M:%S').time()
+                print(f"Converted preferred_start_time: {preferred_start_time}")
+            if not isinstance(preferred_end_time, time):
+                preferred_end_time = datetime.strptime(preferred_end_time, '%H:%M:%S').time()
+                print(f"Converted preferred_end_time: {preferred_end_time}")
+
+            if start_time >= preferred_start_time and end_time <= preferred_end_time:
+                print("Class is within preferred study times. Creating study block.")
+                study_block = StudyBlock(
+                    user=user,
+                    course=course,
+                    semester_id=semester_id,
+                    day=day,
+                    start_time=start_time,
+                    end_time=end_time,
+                )
+                try:
+                    study_block.save()
+                    study_blocks.append(study_block)
+                    print(f"Created and saved study block: {study_block}")
+                except Exception as e:
+                    print(f"Error saving study block: {e}")
+
+                # Schedule notification
+                notification_time = datetime.combine(semester_start, start_time) - timedelta(minutes=notification_min)
+                # Schedule the task
+                send_study_notification.apply_async(args=[study_block.id], eta=notification_time)
+
+            else:
+                print("Class is outside preferred study times. Skipping.")
+                continue
+        else:
+            print("Preferred study times are not set. Creating study block.")
+            study_block = StudyBlock(
+                user=user,
+                course=course,
+                semester=Semester.objects.get(pk=semester_id),
+                day=day,
+                start_time=start_time,
+                end_time=end_time,
+            )
+            try:
+                study_block.save()
+                study_blocks.append(study_block)
+                print(f"Created and saved study block: {study_block}")
+            except Exception as e:
+                print(f"Error saving study block: {e}")
+
+            notification_time = datetime.combine(semester_start, start_time) - timedelta(minutes=notification_min)
+            send_study_notification.apply_async(args=[study_block.id], eta=notification_time)
+
     return study_blocks
-
-
-def has_conflict(new_block, existing_blocks):
-    for block in existing_blocks:
-        if (new_block['date'] == block['date'] and 
-                not (new_block['end_time'] <= block['start_time'] or 
-                     new_block['start_time'] >= block['end_time'])):
-            return True
-    return False

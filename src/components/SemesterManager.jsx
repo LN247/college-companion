@@ -24,25 +24,13 @@ import { useToast } from "../hooks/use-toast";
 import axios from "axios";
 import "../Styles/SemesterManager.css";
 import { format } from "date-fns";
+import {getCookie} from "../utils/getcookies";
+
 
 const SemesterManager = () => {
 
 
-   function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          let cookie = cookies[i].trim();
-          // Does this cookie string begin with the name we want?
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
-    }
+
 
 
     const csrfToken=getCookie('csrftoken');
@@ -90,8 +78,8 @@ const SemesterManager = () => {
       let response;
       if (editingSemester) {
         // Update semester in backend
-        response = await axios.put(
-          `http://127.0.0.1:8000/api/semesters/${editingSemester.id}`,
+        response = await axios.patch(
+          `http://localhost:8000/api/semesters/${editingSemester.id}`,
           formattedFormData
         );
         updateSemester(editingSemester.name, formattedFormData);
@@ -101,7 +89,7 @@ const SemesterManager = () => {
         });
       } else {
         // Add semester to backend
-        response = await axios.post("http://127.0.0.1:8000/api/semesters-operation/", formattedFormData, {
+        response = await axios.post("http://localhost:8000/api/semesters-operation/", formattedFormData, {
             headers: {'X-CSRFToken': csrfToken},
             withCredentials: true
         });
@@ -124,10 +112,11 @@ const SemesterManager = () => {
     setIsDialogOpen(false);
   };
 
-  const handleDelete = async (name) => {
+  const handleDelete = async (semester) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/semesters-operation/${id}/`);
-      deleteSemester(name);
+      console.log('Deleting semester with id:', semester.id);
+      await axios.delete(`http://localhost:8000/api/semesters-operation/${semester.id}/`);
+      deleteSemester(semesters.find((semester) => semester.id === id));
       toast({
         title: "Semester deleted",
         description:
@@ -143,6 +132,8 @@ const SemesterManager = () => {
   };
 
   const handleEdit = (semester) => {
+
+
     setEditingSemester(semester);
     setFormData({
       name: semester.name,
@@ -150,8 +141,12 @@ const SemesterManager = () => {
       start_date: semester.start_date,
       end_date: semester.end_date,
     });
+
     setIsDialogOpen(true);
   };
+
+
+
 
   return (
     <Card>
@@ -302,10 +297,10 @@ const SemesterManager = () => {
                 <TableCell className="table-cell-custom">
                   <span
                     className={`status-badge ${
-                      semester.isActive ? "status-active" : "status-inactive"
+                      semester.is_active ? true : false
                     }`}
                   >
-                    {semester.isActive ? "Active" : "Inactive"}
+                    {semester.is_active ? "Active" : "Inactive"}
                   </span>
                 </TableCell>
                 <TableCell className="table-cell-custom">
@@ -321,7 +316,7 @@ const SemesterManager = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(semester.id)}
+                      onClick={() => handleDelete(semester)}
                       className="button-delete"
                     >
                       <Trash2 className="icon-small" />

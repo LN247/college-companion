@@ -1,6 +1,3 @@
-
-
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -15,15 +12,6 @@ from datetime import date
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
-DAY_CHOICES = [
-        ('MON', 'Monday'),
-        ('TUE', 'Tuesday'),
-        ('WED', 'Wednesday'),
-        ('THU', 'Thursday'),
-        ('FRI', 'Friday'),
-        ('SAT', 'Saturday'),
-        ('SUN', 'Sunday'),
-    ]
 
 
 
@@ -62,6 +50,24 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
+
+
+from rest_framework.permissions import BasePermission
+
+
+class IsSuperUserOrReadOnly(BasePermission):
+    """
+       Custom permission to grant full access only to superusers,
+       while others can only view.
+       """
+
+    def has_permission(self, request, view):
+        # Grant full access to superusers
+        if request.user.is_superuser:
+            return True
+        # Allow only safe methods (GET, HEAD, OPTIONS) for normal users
+        return request.method in ["GET", "HEAD", "OPTIONS"]
+
 
 
 class UserProfile(models.Model):
@@ -187,35 +193,28 @@ class FixedClassSchedule(models.Model):
    
     
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='fixed_classes')
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='fixed_schedules')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='fixed_schedules')
-    day = models.CharField(max_length=3, choices=DAY_CHOICES)
+    day = models.CharField(max_length=15 )
     start_time = models.TimeField()
     end_time = models.TimeField()
-    location = models.CharField(max_length=100, blank=True, null=True)
+    difficulty_level = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         unique_together = ['user', 'course', 'day', 'start_time']
         ordering = ['day', 'start_time']
     
     
-
 class StudyBlock(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='study_blocks')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='study_sessions')
-    date = models.DateField()
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    day = models.CharField(max_length=10,null=True,blank=True)
     start_time = models.TimeField()
     end_time = models.TimeField()
-    is_completed = models.BooleanField(default=False)
-    is_notified = models.BooleanField(default=False)
-    
-    class Meta:
-        ordering = ['date', 'start_time']
-        indexes = [
-            models.Index(fields=['date', 'user']),
-        ]
-    
-    def _str_(self):
-        return f"{self.course.name} study on {self.date} at {self.start_time.strftime('%H:%M')}"
+
+    def __str__(self):
+        return f"{self.course.name} on {self.day} from {self.start_time} to {self.end_time}"
 
 class UserPreferences(models.Model):
 
@@ -229,7 +228,9 @@ class UserPreferences(models.Model):
     off_days = models.CharField(
         max_length=27,  
         blank=True,
-        help_text="Comma-separated days the user doesn't study (e.g., 'SAT,SUN')"
+        help_text="Comma-separated days the user doesn't study ",
+        default='Sunday'
+
     )
     study_start_min = models.TimeField(
         default='20:00', 

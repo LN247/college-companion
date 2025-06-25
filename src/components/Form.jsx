@@ -3,11 +3,9 @@
     import axios from "axios";
     import "../Styles/Forms.css";
     import validation from "../utils/validation";
-    import { toast } from "react-toastify";
-    import { checkAuthStatus } from "../utils/auth";
-
     import InputWithError from "./InputwithError";
     import { GoogleLogin } from "@react-oauth/google";
+    import {useLoading} from "../context/LoadingContext";
 
     function FormComponent({
       type = "login",
@@ -22,6 +20,8 @@
         username: "",
         confirmPassword: "",
       });
+      const [isLoading, setIsLoading] = useState(true);
+      const loadingIndicator = useLoading();
       const [responseData, setResponseData] = useState(null);
       const [InputError, setInputError] = useState("");
       const [loading, setLoading] = useState(false);
@@ -41,7 +41,7 @@
           errors.password = PasswordValidation.message;
         }
 
-        // Only check confirm password on signup
+
         if (
           formData.confirmPassword !== undefined &&
           formData.confirmPassword !== formData.password
@@ -55,10 +55,8 @@
       const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Add a 5 second delay before setting loading to true
-        setTimeout(() => {
-          setLoading(true);
-        }, 5000);
+
+        setIsLoading(true);
 
         try {
           const url = `http://localhost:8000/api/${
@@ -68,7 +66,7 @@
           // Add validation for signup
           if (type === "signup") {
             if (!validate()) {
-              setLoading(false);
+              setIsLoading(false);
               return;
             }
           }

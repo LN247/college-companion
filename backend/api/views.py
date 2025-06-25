@@ -81,7 +81,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,
                 max_age=timedelta(days=7, hours=23, minutes=59),
-                domain='127.0.0.1'
+                domain='localhost'
 
             )
 
@@ -92,7 +92,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,
                 max_age = timedelta(days=12, hours=23, minutes=59),
-                domain='127.0.0.1'
+                domain='localhost'
             )
 
             return response
@@ -330,31 +330,38 @@ class  SemesterOperationViewSet(viewsets.ModelViewSet):
 
 
 class CourseViewSet(viewsets.ModelViewSet):
-
     queryset = Course.objects.all()
-    permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     serializer_class = CourseSerializer
 
-
-
     def get_queryset(self):
-        """ Customise the queryset based on whether the user is a superuser.
-         p"""
-        if self.request.user.is_superuser:
-            # Superuser: return all semesters
-            return Course.objects.all()
+        """Filter courses by semester type and level based on query parameters."""
+        user = self.request.user
 
-        else:
-            """
-              ViewSet for filtering courses by semester type and level.
-              """
+        # Base queryset: Allow access to all courses for superusers
+        if user.is_superuser:
             queryset = Course.objects.all()
-            serializer_class = CourseSerializer
-            filter_backends = [DjangoFilterBackend]
-            filterset_fields = {
-                 'semester__semester_type': ['exact'],
-                'academicLevel': ['exact'],
-            }
+        else:
+            queryset = super().get_queryset()
+
+        # Get query parameters
+        semester_type = self.request.query_params.get("semester")
+        academic_level = self.request.query_params.get("level")
+
+        # Filter by semester type (simple field filter)
+        if semester_type:
+            queryset = queryset.filter(semester=semester_type)
+
+        # Filter by academic level (simple field filter)
+        if academic_level:
+            queryset = queryset.filter(academicLevel=academic_level)
+
+        return queryset
+
+    def perform_create(self, serializer):
+        """Ensure courses are associated with the user who created them."""
+        serializer.save(user=self.request.user)
+
 
 
 
@@ -366,8 +373,16 @@ class FixedClassScheduleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return FixedClassSchedule.objects.filter(user=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        serializer = FixedClassScheduleSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        for item in serializer.validated_data:
+            FixedClassSchedule.objects.create(user=self.request.user, **item)
+
 
 class StudyBlockViewSet(viewsets.ModelViewSet):
     serializer_class = StudyBlockSerializer
@@ -391,48 +406,31 @@ class UserPreferencesViewSet(viewsets.ModelViewSet):
 
 
 
-
 @method_decorator(csrf_exempt, name='dispatch')
 class GenerateTimetable(APIView):
     def post(self, request):
         data = json.loads(request.body)
         user = request.user
-        
+        semester_id = data['semester']
+
         # Clear existing data
-        Course.objects.filter(user=user).delete()
         StudyBlock.objects.filter(user=user).delete()
-        
-        # Create courses
-        courses = []
-        for course_data in data['courses']:
-            course = Course.objects.create(
-                user=user,
-                name=course_data['name'],
-                difficulty=course_data['difficulty'],
-                credits=course_data['credits'],
-                priority=course_data.get('priority', 3)
-            )
-            courses.append(course)
-        
-        # Create/update preferences
-        UserPreferences.objects.update_or_create(
-            user=user,
-            defaults={
-                'off_days': data['preferences']['off_days'],
-                'fixed_study_hours': data['preferences']['fixed_study_hours']
-            }
-        )
-        
-        # Date range (next 2 weeks)
-        start_date = datetime.now().date()
-        end_date = start_date + timedelta(days=14)
-        
-        # Generate timetable
-        study_blocks = generate_timetable(user, courses, start_date, end_date)
-        
+
+        # Get semester information from database using semester_id
+
+        try:
+            semester = Semester.objects.get(id=semester_id)
+            semester_start = semester.start_date
+            semester_end = semester.end_date
+        except Semester.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Semester not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Generate timetable with correct parameters
+        study_blocks = generate_timetable(user, semester_start, semester_end, semester_id)
+
         # Save to database
         for block in study_blocks:
-            StudyBlock.objects.create(
+            study_block = StudyBlock.objects.create(
                 user=user,
                 course=block['course'],
                 date=block['date'],
@@ -440,16 +438,15 @@ class GenerateTimetable(APIView):
                 end_time=block['end_time']
             )
 
-
             notification_time = datetime.combine(
-            block['date'], 
-            block['start_time']
+                block['date'],
+                block['start_time']
             ) - timedelta(minutes=settings.STUDY_NOTIFICATION_ADVANCE_MINUTES)
-    
-    # Schedule Celery task
+
+            # Schedule Celery task
             send_study_notification.apply_async(
-            args=[block.id], 
-            eta=notification_time
+                args=[study_block.id],
+                eta=notification_time
             )
 
         return JsonResponse({'status': 'success', 'blocks_created': len(study_blocks)}, status=status.HTTP_200_OK)

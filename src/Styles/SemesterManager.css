@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Monterast:wght@700&family=Poppins:wght@400;500&display=swap");
+
+
 .card-header-custom {
   display: flex;
   flex-direction: row;
@@ -65,7 +68,7 @@
   flex-direction: column;
   gap: 1rem;
 }
-@import url("https://fonts.googleapis.com/css2?family=Monterast:wght@700&family=Poppins:wght@400;500&display=swap");
+
 
 .form-group {
   display: flex;

@@ -1,29 +1,19 @@
 // auth.js
 import axios from "axios";
-import { useNavigate} from "react";
-import { useQuery } from '@tanstack/react-query';
+import  {getCookie} from "./getcookies";
+
 const API_BASE = "http://localhost:8000/api";
 
 axios.defaults.withCredentials = true;
 
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
  const csrfToken = getCookie('csrftoken');
-
-
 // Add interceptor for token refresh
 axios.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    const navigate = useNavigate();
 
-    // Prevent endless loop: don't retry for refresh endpoint itself
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -79,16 +69,6 @@ axios.interceptors.response.use(
 }
 
 
-export const useAuthStatus = () => {
-    const { data, isLoading, error } = useQuery({
-        queryKey: ["auth"],
-        queryFn: fetchData,
-        refetchOnWindowFocus: false,
-        retry: 2,
-    });
-
-    return { status: data, isLoading, error };
-};
 
 // Create a direct function for imperative calls
 export const checkAuthStatus = async () => {

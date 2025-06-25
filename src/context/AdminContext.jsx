@@ -5,39 +5,34 @@ const AdminContext = createContext();
 
 export const AdminProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
-  const [mockSemesters, setMockSemesters] = useState([]);
-  const [mockCourses, setMockCourses] = useState([]);
+  const [semesters, setSemesters] = useState([]);
+  const [Courses, setCourses] = useState([]);
   const [error, setError] = useState(null);
-  const API_BASE = "http://127.0.0.1:8000/api"; // Ensure this is correct
+  const API_BASE = "http://localhost:8000/api";
 
   useEffect(() => {
     const fetchSemestersAndCourses = async () => {
-      setLoading(true); // Start loading
+      setLoading(true);
       try {
-        const semestersResponse = await axios.get(`${API_BASE}/semesters/`);
-        const coursesResponse = await axios.get(`${API_BASE}/courses/`);
 
-        setMockSemesters(semestersResponse.data);
-        setMockCourses(coursesResponse.data);
-        setLoading(false); // Stop loading on success
+        const coursesResponse = await axios.get(`${API_BASE}/courses/`);
+        const semestersResponse = await axios.get(`${API_BASE}/semesters/`);
+
+        setSemesters(semestersResponse.data);
+        setCourses(coursesResponse.data || []);
+
+        setLoading(false);
       } catch (err) {
         console.error("Error fetching semesters and courses:", err);
         setError(err);
-        setLoading(false); // Stop loading on error
+        setLoading(false);
       }
     };
 
     fetchSemestersAndCourses();
-  }, []); // Run only on mount
+  }, []);
 
-  // Initialize semesters and courses based on mockSemesters and mockCourses
-  const [semesters, setSemesters] = useState([]);
-  const [Courses, setCourses] = useState([]);
 
-  useEffect(() => {
-    setSemesters(mockSemesters);
-    setCourses(mockCourses);
-  }, [mockSemesters, mockCourses]);  // Update when mockSemesters or mockCourses change
 
   // Functions (same as original, without types)
   const addSemester = (semester) => {
@@ -90,8 +85,8 @@ export const AdminProvider = ({ children }) => {
         addCourse,
         updateCourse,
         deleteCourse,
-        loading,  // Expose loading state
-        error,    // Expose error state
+        loading,
+        error,
       }}
     >
       {children}

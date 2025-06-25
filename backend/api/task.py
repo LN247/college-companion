@@ -1,9 +1,10 @@
+# tasks.py
 from celery import shared_task
 from django.utils import timezone
-from .models import StudyBlock,FixedClassSchedule
+from .models import StudyBlock, FixedClassSchedule
 from django.conf import settings
-
 import requests
+
 
 @shared_task
 def send_study_notification(block_id):
@@ -16,8 +17,6 @@ def send_study_notification(block_id):
             f"Study time for {block.course.name} starting soon!\n"
             f" {block.start_time.strftime('%H:%M')} - {block.end_time.strftime('%H:%M')}"
         )
-
-
 
         # push notificaftion  using firebase cloud  messaging
         if hasattr(user, 'fcm_token') and user.fcm_token:
@@ -42,7 +41,7 @@ def send_study_notification(block_id):
                 json=payload,
                 headers=headers
             )
-        
+
         return f"Notification sent for block {block_id}"
     except StudyBlock.DoesNotExist:
         return "StudyBlock not found"

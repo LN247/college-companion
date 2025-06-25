@@ -6,9 +6,9 @@ import {
   TabsTrigger,
 } from "../components/ui/Tabs";
 import { AdminProvider } from "../context/AdminContext";
-import CourseForm from "../components/CourseForm";
 import SemesterManager from "../components/SemesterManager";
 import "../Styles/AdminDashboard.css";
+import CourseManager from "../components/CourseManager";
 
 const AdminDashboard = () => {
   return (
@@ -37,7 +37,7 @@ const AdminDashboard = () => {
             </TabsContent>
 
             <TabsContent value="courses" className="tab-content">
-              <CourseForm />
+              <CourseManager />
             </TabsContent>
           </Tabs>
         </div>

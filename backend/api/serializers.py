@@ -84,11 +84,17 @@ class CourseSerializer(serializers.ModelSerializer):
         validated_data['created_by'] = self.context['request'].user
         return super().create(validated_data)
 
+
+
 class FixedClassScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = FixedClassSchedule
-        fields = ['id', 'course', 'day', 'start_time', 'end_time', 'location', 'class_type']
-        read_only_fields = ['user']
+        fields = ['course', 'day', 'start_time', 'end_time', 'semester', 'difficulty_level']
+        # read_only_fields = ['user'] # Removed read_only_fields so user will be handled during serializer.save()
+
+    def create(self, validated_data):
+        return FixedClassSchedule.objects.create(**validated_data)
+
 
 class StudyBlockSerializer(serializers.ModelSerializer):
     class Meta:
@@ -96,11 +102,15 @@ class StudyBlockSerializer(serializers.ModelSerializer):
         fields = ['id', 'course', 'date', 'start_time', 'end_time', 'is_completed', 'is_notified']
         read_only_fields = ['user']
 
+
+
 class UserPreferencesSerializer(serializers.ModelSerializer):
+
+    semester = SemesterSerializer(read_only=True)
     class Meta:
         model = UserPreferences
         fields = [
             'id', 'preferred_study_hours_per_day', 'off_days',
-            'study_start_min', 'study_end_max', 'notification_reminder_minutes'
+            'study_start_min', 'study_end_max', 'notification_reminder_minutes','semester'
         ]
         read_only_fields = ['user']
