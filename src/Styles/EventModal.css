@@ -1,0 +1,61 @@
+.event-modal {
+  max-width: 500px;
+}
+
+.event-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  color: purple;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+.time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.color-grid {
+  display: flex;
+  gap: 5px;
+}
+
+.color-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid gray;
+  transition: all 0.3s ease-in-out;
+}
+
+.color-btn.selected {
+  border-color: black;
+  transform: scale(1.1);
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-btn {
+  border: 1px solid red;
+}
+
+.save-btn {
+  background-color: purple;
+  color: white;
+}

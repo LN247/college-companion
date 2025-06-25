@@ -32,3 +32,15 @@ myenv/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+
+.idea/
+.vscode/
+
+# Virtual environments
+venv/
+env/
+myenv/
+# Jupyter Notebook
+.ipynb_checkpoints/

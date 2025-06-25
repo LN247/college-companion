@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import UserAnalytics from "../components/UserAnalytics";
+import { useContext } from "react";
 import {
   FaCalendar,
   FaChartLine,
@@ -14,7 +15,7 @@ import {
   FaUserCircle,
   FaQuestionCircle,
 } from "react-icons/fa";
-
+import axios from "axios";
 import {
   AppBar,
   Toolbar,
@@ -26,6 +27,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  ListItemButton,
   Typography,
   Box,
   Avatar,
@@ -35,6 +37,9 @@ import {
 import "../Styles/Dashboard.css";
 import { Card, CardContent } from "@mui/material";
 import { onMessageListener } from "../utils/firebase";
+import UserContext from "../context/UserContext";
+
+
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -42,12 +47,28 @@ const Dashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [timeLeft, setTimeLeft] = useState({});
-  const [tipOfTheDay, setTipOfTheDay] = useState(null);
-  const [showRelativeTime, setShowRelativeTime] = useState(true);
-  const user = { name: "John Doe", email: "john@university.edu" };
   const navigate = useNavigate();
+   const { user, setUser } = useContext(UserContext);
 
-  const semesterEnd = "2024-05-31T23:59:59";
+
+
+
+  const [showRelativeTime, setShowRelativeTime] = useState(true);
+
+  const navItems = [
+    { name: "College-Life", icon: <FaGraduationCap />, route: "/chat" },
+    { name: "Semester-Plan", icon: <FaCalendarAlt />, route: "/semester-plan" },
+    { name: "Progress", icon: <FaChartLine />, route: "/progress" },
+    { name: "Timetable", icon: <FaTable />, route: "/timetable" },
+    { name: "Notification", icon: <FaBell />, route: "/notifications" },
+    { name: "Help Center", icon: <FaQuestionCircle />, route: "/help" },
+  ];
+
+  const API_BASE = "http://localhost:8000/api";
+
+  const semesterEnd = "2025-06-26T23:59:59"; // Example semester end date
+
+
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -56,43 +77,17 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    fetch("https://api.adviceslip.com/advice")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.slip) {
-          setTipOfTheDay({
-            tip: data.slip.advice,
-            author: "Advice Slip",
-          });
-        }
-      })
-      .catch(() => {
-        setTipOfTheDay({
-          tip: "Stay consistent and avoid procrastination.",
-          author: "System",
-        });
-      });
-  }, []);
+
+
 
   useEffect(() => {
-    const unsubscribe = onMessageListener().then((payload) => {
+    onMessageListener().then((payload) => {
+      // Show notification or update UI
       alert(`New notification: ${payload.notification.title}`);
     });
-
-    return () => {
-      // Add cleanup if your onMessageListener supports it
-    };
   }, []);
 
-  const navItems = [
-    { name: "College-Life", icon: <FaGraduationCap />, route: "/college-life" },
-    { name: "Semester-Plan", icon: <FaCalendarAlt />, route: "/semester-plan" },
-    { name: "Progress", icon: <FaChartLine />, route: "/progress" },
-    { name: "Timetable", icon: <FaTable />, route: "/timetable" },
-    { name: "Notification", icon: <FaBell />, route: "/notifications" },
-    { name: "Help Center", icon: <FaQuestionCircle />, route: "/help" },
-  ];
+
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -106,11 +101,60 @@ const Dashboard = () => {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    // Replace with auth/session clearing logic if any
-    navigate("/login");
-  };
+  const renderMobileMenu = (
+       <React.Fragment>
 
+    <Drawer
+      anchor="left"
+      open={mobileOpen}
+      onClose={handleDrawerToggle}
+      ModalProps={{ keepMounted: true }}
+    >
+      <Box className="mobileDrawer">
+        <IconButton onClick={handleDrawerToggle} className="closeButton">
+          <FaTimes />
+        </IconButton>
+        <List>
+          {navItems.map((item) => (
+            <ListItem key={item.name} disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  navigate(item.route);
+                  setMobileOpen(false);
+                }}
+              >
+                <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+    </Drawer>
+          </React.Fragment>
+
+  );
+
+  const renderDesktopMenu = (
+       <React.Fragment>
+    <Box className="desktopMenu">
+      {navItems.map((item) => (
+        <div
+          key={item.name}
+          className="menuItem"
+          onClick={() => navigate(item.route)}
+          style={{ cursor: "pointer" }}
+        >
+          {item.icon}
+          <span>{item.name}</span>
+        </div>
+      ))}
+    </Box>
+       </React.Fragment>
+
+  );
+
+  // Function to calculate time left until semester end
   const calculateTimeLeft = () => {
     const difference = +new Date(semesterEnd) - +new Date();
     if (difference > 0) {
@@ -121,7 +165,42 @@ const Dashboard = () => {
         seconds: Math.floor((difference / 1000) % 60),
       };
     }
-    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    return { days:0 , hours: 0, minutes: 0, seconds: 0 };
+  };
+
+  // Mock data - replace with actual API calls
+  const recentActivities = [
+    {
+      action: "Created a study plan",
+      timestamp: new Date(Date.now() - 7200000),
+      type: "plan",
+    },
+    {
+      action: "Updated timetable",
+      timestamp: new Date(Date.now() - 86400000),
+      type: "timetable",
+    },
+    {
+      action: "Completed assignment",
+      timestamp: new Date(Date.now() - 172800000),
+      type: "assignment",
+    },
+    {
+      action: "Joined study group",
+      timestamp: new Date(Date.now() - 259200000),
+      type: "group",
+    },
+    {
+      action: "Set exam reminder",
+      timestamp: new Date(Date.now() - 345600000),
+      type: "reminder",
+    },
+  ];
+  // navigation icons
+
+  const tipOfTheDay = {
+    tip: "Break your study sessions into 25-minute intervals with 5-minute breaks for better focus.",
+    author: "Pomodoro Technique",
   };
 
   const formatTimestamp = (date) => {
@@ -190,7 +269,10 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="dashboard-container">
+
+
+    <div className="dashboardContainer">
+      {/* App Bar */}
       <AppBar position="static" className="appBar">
         <Toolbar>
           {isMobile && (
@@ -220,9 +302,12 @@ const Dashboard = () => {
           >
             <MenuItem onClick={handleMenuClose}>
               <div className="userInfo">
-                <Avatar className="avatar">{user.name.charAt(0)}</Avatar>
+                <Avatar className="avatar">
+            {user && user.username ? String(user.username).charAt(0) : '?'}
+        </Avatar>
+
                 <div>
-                  <Typography variant="subtitle1">{user.name}</Typography>
+                  <Typography variant="subtitle1">{user.username}</Typography>
                   <Typography variant="body2">{user.email}</Typography>
                 </div>
               </div>
@@ -290,6 +375,7 @@ const Dashboard = () => {
         </div>
       </main>
     </div>
+
   );
 };
 

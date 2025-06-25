@@ -1,0 +1,293 @@
+.timetable-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.blue-card {
+  background-color: #dbeafe;
+  border-color: #bfdbfe;
+}
+
+.green-card {
+  background-color: #dcfce7;
+  border-color: #bbf7d0;
+}
+
+.purple-card {
+  background-color: #f3e8ff;
+  border-color: #e9d5ff;
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stat-icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.blue-icon {
+  color: #2563eb;
+}
+
+.green-icon {
+  color: #16a34a;
+}
+
+.purple-icon {
+  color: #9333ea;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.blue-value {
+  color: #1d4ed8;
+}
+
+.green-value {
+  color: #166534;
+}
+
+.purple-value {
+  color: #6b21a8;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+}
+
+.blue-label {
+  color: #1e40af;
+}
+
+.green-label {
+  color: #14532d;
+}
+
+.purple-label {
+  color: #581c87;
+}
+
+.main-card {
+  padding: 1.5rem;
+}
+
+.card-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.title-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.header-description {
+  color: #4b5563;
+  margin: 0;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.active-button {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.active-button:hover {
+  background-color: #2563eb;
+}
+
+.button-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.timetable-info {
+  margin-bottom: 1rem;
+}
+
+.timetable-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.25rem 0;
+}
+
+.timetable-description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.timetable-container {
+  overflow-x: auto;
+}
+
+.timetable-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #d1d5db;
+}
+
+.table-header {
+  background-color: #dbeafe;
+}
+
+.generated-header {
+  background-color: #dcfce7;
+}
+
+.time-header, .day-header {
+  border: 1px solid #d1d5db;
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  min-width: 7rem;
+}
+
+.day-header {
+  text-align: center;
+}
+
+.table-row {
+  transition: background-color 0.2s;
+}
+
+.table-row:hover {
+  background-color: #f9fafb;
+}
+
+.time-slot {
+  border: 1px solid #d1d5db;
+  padding: 0.75rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  background-color: #f9fafb;
+}
+
+.table-cell {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem;
+  vertical-align: top;
+}
+
+.course-event, .study-event, .schedule-event {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+
+.course-event {
+  background-color: #dbeafe;
+  border-left-color: #3b82f6;
+}
+
+.study-event {
+  background-color: #dcfce7;
+  border-left-color: #22c55e;
+}
+
+.event-title, .course-name, .study-title {
+  font-weight: 600;
+}
+
+.course-name {
+  color: #1d4ed8;
+}
+
+.study-title {
+  color: #166534;
+}
+
+.event-time, .course-time, .study-time {
+  color: #4b5563;
+}
+
+.course-time {
+  color: #3b82f6;
+}
+
+.study-time {
+  color: #16a34a;
+}
+
+.event-type, .course-semester, .study-type {
+  font-size: 0.6875rem;
+  color: #6b7280;
+}
+
+.course-semester {
+  color: #1e40af;
+}
+
+.study-type {
+  color: #166534;
+}
+
+/* Responsive styles */
+@media (min-width: 768px) {
+  .stats-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .card-header {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .time-header, .day-header {
+    min-width: 8rem;
+  }
+}

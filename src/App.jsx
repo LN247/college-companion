@@ -1,22 +1,26 @@
 import React from "react";
+
 import { Routes, Route } from "react-router-dom";
 
 import LoginForm from "./pages/LoginForm";
 import SignupForm from "./pages/SignupForm";
 import Notfound from "./pages/Notfound";
 import Dashboard from "./pages/dashboard";
-import CollegeLife from "./pages/CollegeLife";
 import SemesterPlan from "./pages/SemesterPlan";
 import Progress from "./pages/Progress";
 import Settings from "./pages/Settings";
 import HelpCenter from "./pages/HelpCenter";
 import Homepage from "./pages/Homepage";
+import AdminDashboard from "./pages/AdminDashboard";
+import AddSemester from "./pages/AddSemester.jsx";
+import UserProfileForm from "./pages/UserProfileForm";
 import ProtectedRoute from "./components/ProtectedRoute";
-import LoadingScreen from "./pages/Loadingpage";
+import { LoadingProvider } from "./context/LoadingContext";
+import ChatPage  from  "./pages/ChatPage"
 import { useLoading } from "./context/LoadingContext";
-
-// Optional: import if you have this file
-// import UserProfileForm from "./pages/UserProfileForm";
+import { AdminProvider } from "./context/AdminContext";
+import AcademicCalendar from "./components/AcademicCalendar";
+import {UserProvider} from "./context/UserContext";
 
 const AppContent = () => {
   const { isLoading } = useLoading();
@@ -26,27 +30,109 @@ const AppContent = () => {
   }
 
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Homepage />} />
-      <Route path="/login" element={<LoginForm />} />
-      <Route path="/signup" element={<SignupForm />} />
-      {/* <Route path="/profile" element={<UserProfileForm />} /> */}
+    <>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/signup" element={<SignupForm />} />
+        <Route path="/calendar" element={<AcademicCalendar />} />
+        <Route path="*" element={<Notfound />} />
+        <Route
+          path="/add-semester"
+          element={
+            <ProtectedRoute>
+              <AddSemester />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Protected Routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/college-life" element={<CollegeLife />} />
-        <Route path="/semester-plan" element={<SemesterPlan />} />
-        <Route path="/progress" element={<Progress />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/help" element={<HelpCenter />} />
-      </Route>
+        <Route path="/chat" element={<ChatPage />} />
 
-      {/* 404 Route */}
-      <Route path="*" element={<Notfound />} />
-    </Routes>
+        {/* Fix: Remove <UserProvider> here */}
+        <Route path="/login" element={<LoginForm />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user-profile"
+          element={
+            <ProtectedRoute>
+              <UserProfileForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/timetable"
+          element={
+            <ProtectedRoute>
+              <SemesterPlan />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/progress"
+          element={
+            <ProtectedRoute>
+              <Progress />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/help"
+          element={
+            <ProtectedRoute>
+              <HelpCenter />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminProvider>
+                <AdminDashboard />
+              </AdminProvider>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<Notfound />} />
+      </Routes>
+    </>
   );
 };
 
-export default AppContent;
+
+const AppProviders = ({ children }) => {
+  return (
+    <LoadingProvider>
+      <UserProvider>{children}</UserProvider>
+    </LoadingProvider>
+  );
+};
+
+// Then in App:
+function App() {
+  return (
+    <AppProviders>
+      <AppContent />
+    </AppProviders>
+  );
+}
+
+
+export default App;
