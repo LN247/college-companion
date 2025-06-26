@@ -14,6 +14,7 @@ import Homepage from "./pages/Homepage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingScreen from "./pages/Loadingpage";
 import { useLoading } from "./context/LoadingContext";
+import Notifications from "./pages/notifications";
 
 // Optional: import if you have this file
 // import UserProfileForm from "./pages/UserProfileForm";
@@ -35,14 +36,16 @@ const AppContent = () => {
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+      
         <Route path="/college-life" element={<CollegeLife />} />
         <Route path="/semester-plan" element={<SemesterPlan />} />
         <Route path="/progress" element={<Progress />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/help" element={<HelpCenter />} />
+  
       </Route>
-
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/notifications" element={<Notifications />} />
       {/* 404 Route */}
       <Route path="*" element={<Notfound />} />
     </Routes>
