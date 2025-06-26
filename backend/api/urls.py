@@ -2,15 +2,17 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     UserInfoView, RegistrationView, LoginView, LogoutView,
-    CookieTokenRefreshView, GoogleAuthView,GenerateTimetable,save_fcm_token,
+    CookieTokenRefreshView, GoogleAuthView, GenerateTimetable, save_fcm_token,
     SemesterViewSet, CourseViewSet, FixedClassScheduleViewSet,
-    StudyBlockViewSet, UserPreferencesViewSet
+    StudyBlockViewSet, UserPreferencesViewSet, SemesterOperationViewSet
 )
 
 
 
 router = DefaultRouter()
 router.register(r'semesters', SemesterViewSet, basename='semester')
+
+router.register(r'semesters-operation', SemesterOperationViewSet, basename='semester-operations')
 router.register(r'courses', CourseViewSet, basename='course')
 router.register(r'fixed-schedules', FixedClassScheduleViewSet, basename='fixed-schedule')
 router.register(r'study-blocks', StudyBlockViewSet, basename='study-block')

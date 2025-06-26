@@ -1,181 +1,74 @@
-import React, { useState, useCallback, useMemo } from "react";
-import { Calendar, GraduationCap } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
-import { Button } from "./ui/Button";
-import InputWithError from "./InputwithError";
+import userContext from "../context/userContext";
+import { useContext,useEffect } from "react";
+
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Label } from "../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import "../Styles/plan.css";
-import axios from "axios";
+export default function SemesterForm({ setSemester, setLevel,onFormComplete }) {
+  const { semesters } = useContext(userContext); // Get semesters from context
 
-export default function SemesterCourseForm({ onFormComplete }) {
-  // Semester state
-  const [semesterName, setSemesterName] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [semesterErrors, setSemesterErrors] = useState({});
 
-  // Validation helpers
-  const validateSemester = useCallback(() => {
-    const errors = {};
-    if (!semesterName.trim()) errors.semesterName = "Semester Name is required";
-    if (!startDate.trim()) errors.startDate = "Start Date is required";
-    if (!endDate.trim()) errors.endDate = "End Date is required";
-    if (
-      startDate.trim() &&
-      endDate.trim() &&
-      new Date(endDate) < new Date(startDate)
-    ) {
-      errors.endDate = "End Date cannot be before Start Date";
-    }
-    setSemesterErrors(errors);
-    return Object.keys(errors).length === 0;
-  }, [semesterName, startDate, endDate]);
 
-  const API_BASE = "http://127.0.0.1:8000/api";
+  useEffect(() => {
+    const isCompleted = Boolean(setSemester && setLevel);
+    onFormComplete(isCompleted); // Notify parent component with current state
+  }, [setSemester, setLevel, onFormComplete]);
 
-  const totalContactFields = 3;
-  const countCompletedFields = (data) => {
-    return Object.values(data).filter((value) => value.trim() !== "").length;
-  };
 
-  const isSemesterFormCompleted = () => {
-    // All fields must be filled
-    const allFilled =
-      countCompletedFields({
-        semesterName,
-        startDate,
-        endDate,
-      }) === totalContactFields;
 
-    // No validation errors
-    const noErrors =
-      !semesterErrors.semesterName &&
-      !semesterErrors.startDate &&
-      !semesterErrors.endDate;
-
-    return allFilled && noErrors;
-  };
-
-  // Handle Add Course submit
-  const handleSemesterSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      const semesterValid = validateSemester();
-      if (!semesterValid) {
-        onFormComplete(false);
-        return;
-      }
-
-      try {
-        const response = await axios.post(
-          `${API_BASE}/semesters/`,
-          {
-            name: semesterName,
-            start_date: startDate,
-            end_date: endDate,
-          },
-          { withCredentials: true }
-        );
-        // Pass the created semester's ID to the parent
-        const semesterId = response.data.id;
-        onFormComplete({ valid: true, semesterId });
-      } catch (error) {
-        // Optionally handle error
-        onFormComplete({ valid: false, semesterId: null });
-      }
-    },
-    [validateSemester, onFormComplete, semesterName, startDate, endDate]
-  );
-
-  // Memoize semester handlers
-  const semesterHandlers = useMemo(
-    () => ({
-      setSemesterName: (value) => {
-        setSemesterName(value);
-        if (semesterErrors.semesterName) {
-          setSemesterErrors((prev) => ({ ...prev, semesterName: "" }));
-        }
-      },
-      setStartDate: (value) => {
-        setStartDate(value);
-        if (semesterErrors.startDate || semesterErrors.endDate) {
-          setSemesterErrors((prev) => ({
-            ...prev,
-            startDate: "",
-            endDate: "",
-          }));
-        }
-      },
-      setEndDate: (value) => {
-        setEndDate(value);
-        if (semesterErrors.endDate || semesterErrors.startDate) {
-          setSemesterErrors((prev) => ({
-            ...prev,
-            endDate: "",
-            startDate: "",
-          }));
-        }
-      },
-    }),
-    [semesterErrors]
-  );
 
   return (
     <div className="semester-course-container">
-      {/* Semester Information Card */}
       <Card className="semester-card">
-        <CardHeader className="card-header-blue">
-          <CardTitle className="card-title">
-            <GraduationCap className="header-icon" />
+        <CardHeader>
+          <CardTitle>
             Semester Information
           </CardTitle>
-          <CardDescription className="header-description">
-            Set up your semester details and course schedule
-          </CardDescription>
         </CardHeader>
-        <CardContent className="card-content">
-          <form
-            onSubmit={handleSemesterSubmit}
-            noValidate
-            className="course-form"
-          >
-            <InputWithError
-              id="semesterName"
-              label="Semester Name"
-              value={semesterName}
-              onChange={(e) => semesterHandlers.setSemesterName(e.target.value)}
-              error={semesterErrors.semesterName}
-              placeholder="e.g., Fall 2024"
-              icon={Calendar}
-            />
+        <CardContent>
+          <form noValidate className="course-form">
+            {/* Semester Selection */}
+            <div className="form-group">
+              <Label>Semester</Label>
+              <Select
+                onValueChange={(value) => {
+                  const [semesterType, semesterId] = value.split(","); // Extract type and id
+                  setSemester && setSemester({ semesterType, semesterId }); // Send as object
+                }}
+              >
 
-            <div className="date-grid">
-              <InputWithError
-                id="startDate"
-                label="Start Date"
-                value={startDate}
-                onChange={(e) => semesterHandlers.setStartDate(e.target.value)}
-                error={semesterErrors.startDate}
-                type="date"
-                icon={Calendar}
-              />
-              <InputWithError
-                id="endDate"
-                label="End Date"
-                value={endDate}
-                onChange={(e) => semesterHandlers.setEndDate(e.target.value)}
-                error={semesterErrors.endDate}
-                type="date"
-                icon={Calendar}
-              />
-
-              <Button type="submit">Continue</Button>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select semester" />
+                </SelectTrigger>
+                <SelectContent>
+                  {semesters.map((semester) => (
+                    <SelectItem key={semester.id} value={`${semester.semester_type},${semester.id}`}>
+                      {semester.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* Academic Level Selection */}
+            <div className="form-group">
+              <Label>Academic Level</Label>
+              <Select onValueChange={(value) => setLevel && setLevel(value)}> {/* Only call setLevel if it exists */}
+                <SelectTrigger>
+                  <SelectValue placeholder="Select academic level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Freshman">Freshman</SelectItem>
+                  <SelectItem value="Sophomore">Sophomore</SelectItem>
+                  <SelectItem value="Junior">Junior</SelectItem>
+                  <SelectItem value="Senior">Senior</SelectItem>
+                  <SelectItem value="Master">Master</SelectItem>
+                  <SelectItem value="PhD">PhD</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
           </form>
         </CardContent>
       </Card>

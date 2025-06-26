@@ -18,7 +18,7 @@
   font-size: 30px;
   font-family:'Open Sans',  sans-serif , system-ui, -apple-system;
   border-right: .12em solid #333;
-  white-space: wr;
+  white-space: wrap;
   margin: 5px auto;
   letter-spacing: .10em;
   animation: 
