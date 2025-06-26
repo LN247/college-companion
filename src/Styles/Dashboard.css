@@ -1,74 +1,297 @@
+/* --- General dashboard container --- */
 .dashboard-container {
-  padding: 2rem;
-  background-color: #06123D;
-  min-height: calc(100vh - 200px);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212; /* Dark background */
+  color: #ffffff; /* Default white text */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+/* --- App Bar --- */
+.appBar {
+  background-color: #ff6f00; /* Orange */
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 111, 0, 0.8);
+  z-index: 1200;
 }
 
-.dashboard-card {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
-  border-left: 4px solid #F68712;
+.title {
+  flex-grow: 1;
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 0.05em;
 }
 
-.dashboard-card-header {
+/* --- Countdown Timer in AppBar --- */
+.countdown {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 8px;
+  margin-right: 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.countdown span {
+  background-color: #ffffff22;
+  padding: 6px 10px;
+  border-radius: 6px;
+  min-width: 30px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown > .MuiTypography-caption {
+  margin-left: 10px;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* --- Profile Button and Menu --- */
+.profileButton {
+  color: #fff;
+}
+
+.profileMenu {
+  background-color: #222;
+  color: #fff;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  background-color: #ff6f00;
+  color: #121212;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+/* --- Mobile Drawer --- */
+.mobileDrawer {
+  background-color: #121212;
+  width: 260px;
+  height: 100%;
+  padding: 1rem 0;
+  color: #fff;
+}
+
+.closeButton {
+  color: #ff6f00;
+  float: right;
+  margin: 0 0.5rem 0.5rem 0;
+}
+
+/* --- Navigation List in Drawer --- */
+.menuIcon {
+  color: #ff6f00;
+}
+
+.mobileDrawer .MuiList-root {
+  padding-top: 0;
+}
+
+/* --- Desktop Menu --- */
+.desktopMenu {
+  display: flex;
+  gap: 30px;
+  padding: 1rem 0;
+  color: #fff;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #ff6f00;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.menuItem:hover {
+  color: #ffa040;
+}
+
+/* --- Main Content Layout --- */
+.mainContent {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 2rem;
+}
+
+/* --- Welcome Section --- */
+.welcome-section h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.welcome-section .date {
+  font-weight: 400;
+  font-size: 1rem;
+  color: #ff6f00;
+}
+
+/* --- UserAnalytics Component Container --- */
+.UserAnalytics {
+  background-color: #1f1f1f;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #fff;
+}
+
+/* --- Activity Section --- */
+.activity-section {
+  background-color: #1f1f1f;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
 }
 
-.dashboard-card-header h3 {
-  margin: 0;
-  color: #FFFFFF;
-  font-size: 1.2rem;
+.section-header h2 {
+  color: #ff6f00;
+  font-weight: 700;
+  font-size: 1.3rem;
 }
 
-.feature-icon {
-  font-size: 1.5rem;
+.time-toggle {
+  background: none;
+  border: 1.5px solid #ff6f00;
+  color: #ff6f00;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.time-toggle:hover {
+  background-color: #ff6f00;
+  color: #121212;
+}
+
+/* --- Activity Items --- */
+.activity-list {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activity-item {
+  display: flex;
+  gap: 15px;
   align-items: center;
-  justify-content: center;
-  color: #F68712;
-}
-
-.dashboard-card p {
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.6;
-  margin: 0;
-}
-
-.feature-images {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-  justify-content: center;
-}
-
-.feature-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
+  background-color: #292929;
+  padding: 12px 16px;
   border-radius: 8px;
-  border: 2px solid #F68712;
+  transition: background-color 0.3s ease;
 }
 
-@media (max-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
+.activity-item:hover {
+  background-color: #ff6f0040;
+}
+
+.activity-icon {
+  color: #ff6f00;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.activity-content p {
+  margin: 0;
+  font-weight: 600;
+  color: #fff;
+}
+
+.timestamp {
+  font-size: 0.85rem;
+  color: #ffa040;
+  margin-top: 2px;
+}
+
+/* --- Tip of the Day Section fixed at top --- */
+.tip-section {
+  background-color: #1f1f1f; /* Dark background */
+  padding: 1rem 2rem;
+  color: #fff;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1300;
+  box-shadow: 0 2px 6px rgba(255, 111, 0, 0.7);
+}
+
+/* Card itself: transparent and no shadow */
+.styled-tip-card {
+  background-color: transparent;
+  box-shadow: none;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Heading: bright orange */
+.tip-heading {
+  color: #ff6f00;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.03em;
+}
+
+/* Tip text: white, italic */
+.tip-text {
+  color: #fff;
+  font-style: italic;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Author: smaller, orange */
+.tip-author {
+  color: #ff6f00;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 0;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 900px) {
+  .mainContent {
+    padding: 1rem 1.2rem;
   }
-  
-  .dashboard-container {
-    padding: 1rem;
+
+  .desktopMenu {
+    display: none;
   }
-} 
+}
+
+@media (max-width: 600px) {
+  .tip-section {
+    padding: 0.8rem 1rem;
+  }
+
+  .tip-heading {
+    font-size: 1.3rem;
+  }
+
+  .welcome-section h1 {
+    font-size: 1.5rem;
+  }
+}

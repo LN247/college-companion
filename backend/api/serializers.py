@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from django.contrib.auth import  authenticate
-from .models import CustomUser
+from .models import CustomUser, Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences
 
 class CustomUserSerializer(ModelSerializer):
     
@@ -14,7 +14,7 @@ class CustomUserSerializer(ModelSerializer):
 class RegistrationSerializer(ModelSerializer):
     class Meta:
         model=CustomUser
-        fields=('email','password')
+        fields=( 'username' ,'email','password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -39,6 +39,8 @@ class LoginSerializer(serializers.Serializer):
         
         raise serializers.ValidationError('Invalid email or password.')
 
+
+
 class GoogleAuthSerializer(serializers.Serializer):
     token = serializers.CharField(required=True)
     
@@ -47,3 +49,36 @@ class GoogleAuthSerializer(serializers.Serializer):
         if not token:
             raise serializers.ValidationError('Token is required')
         return data
+
+class SemesterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Semester
+        fields = ['id', 'name', 'start_date', 'end_date', 'is_active']
+        read_only_fields = ['user']
+
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['id', 'semester', 'name', 'code', 'credits', 'difficulty', 'color']
+        read_only_fields = ['user']
+
+class FixedClassScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FixedClassSchedule
+        fields = ['id', 'course', 'day', 'start_time', 'end_time', 'location', 'class_type']
+        read_only_fields = ['user']
+
+class StudyBlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudyBlock
+        fields = ['id', 'course', 'date', 'start_time', 'end_time', 'is_completed', 'is_notified']
+        read_only_fields = ['user']
+
+class UserPreferencesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPreferences
+        fields = [
+            'id', 'preferred_study_hours_per_day', 'off_days',
+            'study_start_min', 'study_end_max', 'notification_reminder_minutes'
+        ]
+        read_only_fields = ['user']

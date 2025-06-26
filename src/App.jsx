@@ -1,30 +1,52 @@
 import React from "react";
-import {Routes,Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+
 import LoginForm from "./pages/LoginForm";
-import SignupForm from "./pages/signupForm";
+import SignupForm from "./pages/SignupForm";
 import Notfound from "./pages/Notfound";
-import Homepage from "./pages/Homepage";
-import UserProfileForm from "./pages/UserProfileForm";
-import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/dashboard";
+import CollegeLife from "./pages/CollegeLife";
+import SemesterPlan from "./pages/SemesterPlan";
+import Progress from "./pages/Progress";
+import Settings from "./pages/Settings";
+import HelpCenter from "./pages/HelpCenter";
+import Homepage from "./pages/Homepage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LoadingScreen from "./pages/Loadingpage";
+import { useLoading } from "./context/LoadingContext";
 
-function App() {
+// Optional: import if you have this file
+// import UserProfileForm from "./pages/UserProfileForm";
+
+const AppContent = () => {
+  const { isLoading } = useLoading();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
-    <div>
-<Routes>    
-        <Route path="/" element={<Homepage />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/signup" element={<SignupForm />} />
-        <Route path="/profile" element={<UserProfileForm />} />
-        <Route path="*" element={<Notfound />} />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Homepage />} />
+      <Route path="/login" element={<LoginForm />} />
+      <Route path="/signup" element={<SignupForm />} />
+      {/* <Route path="/profile" element={<UserProfileForm />} /> */}
 
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Route>
-      </Routes>  
-    </div>
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/college-life" element={<CollegeLife />} />
+        <Route path="/semester-plan" element={<SemesterPlan />} />
+        <Route path="/progress" element={<Progress />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/help" element={<HelpCenter />} />
+      </Route>
+
+      {/* 404 Route */}
+      <Route path="*" element={<Notfound />} />
+    </Routes>
   );
-}
+};
 
-export default App;
+export default AppContent;

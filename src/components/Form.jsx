@@ -3,10 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../Styles/Forms.css";
 import validation from "../utils/validation";
-import ErrorMessage from "./Error";
-import { GoogleLogin } from '@react-oauth/google';
-import { useGoogleLogin } from "@react-oauth/google";
-import GoogleIcon from "../assets/google-icon.svg";
+import InputWithError from "./InputwithError";
+import { requestForToken } from "../utils/firebase";
+import { GoogleLogin } from "@react-oauth/google";
 
 function FormComponent({
   type = "login",
@@ -18,36 +17,39 @@ function FormComponent({
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    ...(type === "signup"),
+    username: "",
+    confirmPassword: "",
   });
-  const [error, setError] = useState("");
+  const [InputError, setInputError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   function validate() {
+    const errors = {};
     const EmailValidation = validation.validateEmail(formData.email);
     const PasswordValidation = validation.validatePassword(formData.password);
 
     if (!EmailValidation.success) {
-      setError(EmailValidation.message);
-
-      return false;
+      errors.email = EmailValidation.message;
     }
 
     if (!PasswordValidation.success) {
-      setError(PasswordValidation.message);
-      return false;
+      errors.password = PasswordValidation.message;
     }
 
-    setError("");
+    // Only check confirm password on signup
+    if (
+      formData.confirmPassword !== undefined &&
+      formData.confirmPassword !== formData.password
+    ) {
+      errors.ConfirmPassword = "Password fields do not match";
+    }
 
-    return true;
+    setInputError(errors);
+    return Object.keys(errors).length === 0;
   }
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
@@ -59,21 +61,29 @@ function FormComponent({
       if (type === "signup") {
         if (!validate()) {
           setLoading(false);
-
-          return true;
+          return;
         }
       }
 
-      const response = await axios.post(url, formData, {
-        withCredentials: true,
-        headers: { "Content-Type": "application/json" },
+      const { confirmPassword, ...dataToSend } = formData;
+      const response = await axios.post(url, dataToSend, {
+        body: { "Content-Type": "application/json" },
       });
 
+      // After successful login or signup, get FCM token and send to backend
+      const token = await requestForToken();
+      if (token) {
+        await axios.post(
+          "http://localhost:8000/api/save-fcm-token/",
+          { token },
+          { withCredentials: true }
+        );
+      }
+
       if (type === "login") {
-        // Handle successful login
         navigate("/dashboard");
       } else {
-        // Handle successful registration
+        // After signup, redirect to login
         navigate("/login");
       }
     } catch (err) {
@@ -84,14 +94,12 @@ function FormComponent({
       setLoading(false);
     }
   };
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
-
 
   return (
     <div className="container">
@@ -109,18 +117,18 @@ function FormComponent({
           <form onSubmit={handleSubmit}>
             <div className="login-message">
               <h2>{form_title}</h2>
-              <ErrorMessage message={error} />
             </div>
 
             {type === "signup" && (
               <div className="input-box">
-                <label htmlFor="username" className="label">
-                  Username
-                </label>
-                <input
+                <InputWithError
+                  id="username"
                   type="text"
                   name="username"
+                  label="Username"
                   className="input"
+                  placeholder="username"
+                  errors={InputError.username}
                   value={formData.username}
                   onChange={handleChange}
                   disabled={loading}
@@ -129,50 +137,53 @@ function FormComponent({
             )}
 
             <div className="input-box">
-              <label htmlFor="email" className="label">
-                Email
-              </label>
-              <input
+              <InputWithError
+                id="email"
                 type="email"
                 name="email"
+                label="Email"
                 className="input"
+                placeholder="example@gmail.com"
                 value={formData.email}
+                error={InputError.email}
                 onChange={handleChange}
                 disabled={loading}
               />
             </div>
 
             <div className="input-box">
-              <label htmlFor="password" className="label">
-                Password
-              </label>
-              <input
+              <InputWithError
+                id="password"
                 type="password"
+                label="password"
                 name="password"
                 className="input"
                 value={formData.password}
+                error={InputError.password}
                 onChange={handleChange}
+                placeholder="password"
                 disabled={loading}
               />
             </div>
 
             {type === "signup" && (
               <div className="input-box">
-                <label htmlFor="confirmPassword" className="label">
-                  Confirm Password
-                </label>
-                <input
+                <InputWithError
+                  id="ConfirmPassword"
+                  label="confirm Password"
                   type="password"
                   name="confirmPassword"
                   className="input"
+                  placeholder="confirm your password"
                   value={formData.confirmPassword}
+                  error={InputError.ConfirmPassword}
                   onChange={handleChange}
                   disabled={loading}
                 />
               </div>
             )}
 
-            <button type="submit" disabled={loading}>
+            <button type="submit" className="submit" disabled={loading}>
               {loading ? "Processing..." : form_title}
             </button>
           </form>
@@ -188,30 +199,36 @@ function FormComponent({
             >
               {alternative_method}
             </button>
-         
-  <GoogleLogin  style={{ width: "100%" }}
-    onSuccess={async (credentialResponse) => {
-      const idToken = credentialResponse.credential;
-    
-      console.log("Google ID Token:", idToken);
-      try {
-           const response = await axios.post(
-          "http://localhost:8000/api/google-auth/",
-          { idToken },
-          { withCredentials: true, headers: { "Content-Type": "application/json" } }
-        );
-        // Handle successful login
-        navigate("/dashboard");
-      } catch (error) {
-        setError(error.response?.data?.error || error.message || "Something went wrong");
-      
-    };    }}
-    onError={() => { 
-      setError("Google authentication failed. Please try again.");
-     }}
-  />
-  
-</div>
+
+            <GoogleLogin
+              style={{ width: "100%" }}
+              onSuccess={async (credentialResponse) => {
+                const idToken = credentialResponse.credential;
+
+                try {
+                  const response = await axios.post(
+                    "http://localhost:8000/api/google-auth/",
+                    { idToken },
+                    {
+                      withCredentials: true,
+                      headers: { "Content-Type": "application/json" },
+                    }
+                  );
+                  // Handle successful login
+                  navigate("/dashboard");
+                } catch (error) {
+                  setError(
+                    error.response?.data?.error ||
+                      error.message ||
+                      "Something went wrong"
+                  );
+                }
+              }}
+              onError={() => {
+                setError("Google authentication failed. Please try again.");
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
