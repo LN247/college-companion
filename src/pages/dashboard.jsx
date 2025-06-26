@@ -247,4 +247,4 @@ const SampleDashboard = () => {
   );
 };
 
-export { SampleDashboard };
+export default SampleDashboard;
