@@ -1,0 +1,150 @@
+:root {
+  --primary-orange: #ff8c42;
+  --primary-white: #ffffff;
+  --primary-darkblue: #0a2342;
+}
+
+body,
+.about-us {
+  background-color: var(--primary-white);
+  color: var(--primary-darkblue);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  background-color: var(--primary-darkblue);
+  color: var(--primary-white);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.tagline {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 2rem;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: var(--primary-orange);
+  font-size: 2rem;
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 4px;
+  background-color: var(--primary-orange);
+  margin: 0.5rem auto;
+}
+
+.app-description {
+  max-width: 800px;
+  margin: 2rem auto;
+  text-align: center;
+  line-height: 1.8;
+}
+
+.contributors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.contributor-card {
+  background-color: var(--primary-white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: calc(0.1s * var(--i));
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contributor-img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-bottom: 4px solid var(--primary-orange);
+}
+
+.contributor-info {
+  padding: 1.5rem;
+}
+
+.contributor-name {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.contributor-role {
+  color: var(--primary-orange);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.footer {
+  background-color: var(--primary-darkblue);
+  color: var(--primary-white);
+  text-align: center;
+  padding: 2rem 0;
+  margin-top: 3rem;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .app-description {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .contributors {
+    grid-template-columns: 1fr;
+  }
+}

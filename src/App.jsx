@@ -7,6 +7,7 @@ import Resources from './pages/Resources';
 import LoginForm from "./pages/LoginForm";
 import SignupForm from "./pages/SignupForm";
 import Notfound from "./pages/Notfound";
+import AboutUs from "./pages/AboutUs";
 import Dashboard from "./pages/dashboard";
 import SemesterPlan from "./pages/SemesterPlan";
 import Progress from "./pages/Progress";
@@ -40,6 +41,8 @@ const AppContent = () => {
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/calendar" element={<AcademicCalendar />} />
         <Route path="*" element={<Notfound />} />
+        <Route path="/about" element={<AboutUs />} />
+
         <Route
           path="/add-semester"
           element={
