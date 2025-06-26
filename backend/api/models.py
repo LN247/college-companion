@@ -40,7 +40,6 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-
 #defining a custom class user to fit app requirements 
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=150, unique=False, null=True, blank=True)
@@ -65,7 +64,6 @@ class IsSuperUserOrReadOnly(BasePermission):
             return True
         # Allow only safe methods (GET, HEAD, OPTIONS) for normal users
         return request.method in ["GET", "HEAD", "OPTIONS"]
-
 
 
 class UserProfile(models.Model):

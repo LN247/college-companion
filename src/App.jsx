@@ -1,6 +1,9 @@
 import React from "react";
 
 import { Routes, Route } from "react-router-dom";
+import Resources from './pages/Resources';
+
+
 import LoginForm from "./pages/LoginForm";
 import SignupForm from "./pages/SignupForm";
 import Notfound from "./pages/Notfound";
@@ -17,6 +20,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import { LoadingProvider } from "./context/LoadingContext";
 import { useLoading } from "./context/LoadingContext";
+import Notifications from "./pages/notifications";
 import { AdminProvider } from "./context/AdminContext";
 import AcademicCalendar from "./components/AcademicCalendar";
 import { UserProvider } from "./context/UserContext";
@@ -26,10 +30,15 @@ import Unauthorised from "./pages/Unauthorised";
 const AppContent = () => {
   const { isLoading } = useLoading();
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <>
       <Routes>
         <Route path="/" element={<Homepage />} />
+        <Route path="/resources" element={<Resources />} />
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/calendar" element={<AcademicCalendar />} />
         <Route path="*" element={<Notfound />} />
@@ -94,6 +103,14 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <HelpCenter />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
             </ProtectedRoute>
           }
         />
