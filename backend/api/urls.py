@@ -10,7 +10,8 @@ from .views import (
     ReactionViewSet,
     GroupChatViewSet,
     GroupMembershipViewSet,
-    GroupMessageViewSet
+    GroupMessageViewSet,
+    DailyResourceView
 )
 
 
@@ -51,5 +52,6 @@ urlpatterns = [
     path('generate-timetable/', GenerateTimetable.as_view(), name='generate-timetable'),
     path('community/proposals/', CommunityProposalView.as_view(), name='community-proposals'),
     path('community/proposals/<int:course_id>/', CommunityProposalView.as_view(), name='course-community-proposals'),
+    path('resources/daily/', DailyResourceView.as_view(), name='daily-resources'),
 ]
    

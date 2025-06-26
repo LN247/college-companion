@@ -17,13 +17,13 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .models import UserPreferences, Course, StudyBlock,CustomUser,UserProfile, GroupChat, GroupMembership, GroupMessage
+from .models import UserPreferences, Course, StudyBlock,CustomUser,UserProfile, GroupChat, GroupMembership, GroupMessage, Resource
 from .scheduler import generate_timetable
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.http import JsonResponse
 import json
 import os
@@ -44,9 +44,12 @@ from .serializers import (
     ReactionSerializer,
     ReactionCreateSerializer,
     GroupChatSerializer,
-    GroupMessageSerializer
+    GroupMessageSerializer,
+    ResourceSerializer
 )
 from .utilities.Propose_community import propose_community
+from django.db import models
+import random
 
 
 
@@ -595,3 +598,30 @@ class GroupMessageViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class DailyResourceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user_profile = getattr(request.user, 'profile', None)
+        if not user_profile:
+            return Response({'error': 'User profile not found.'}, status=400)
+        major = user_profile.major
+        minor = user_profile.minor
+
+        # Get all resources for user's major/minor, fallback to general resources
+        resources = Resource.objects.filter(
+            models.Q(major=major) | models.Q(minor=minor) | (models.Q(major__isnull=True) & models.Q(minor__isnull=True))
+        )
+        if not resources.exists():
+            return Response({'resources': []})
+
+        # Daily rotation: select a subset based on the day
+        today = date.today().toordinal()
+        resources = list(resources)
+        random.seed(today + request.user.id)
+        random.shuffle(resources)
+        daily_resources = resources[:5]  # Return up to 5 resources per day
+
+        serializer = ResourceSerializer(daily_resources, many=True)
+        return Response({'resources': serializer.data})

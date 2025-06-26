@@ -397,3 +397,27 @@ class GroupMessage(models.Model):
 
     def __str__(self):
         return f"{self.user.username}: {self.content[:20]}..."
+
+class Resource(models.Model):
+    RESOURCE_TYPES = [
+        ('roadmap', 'Roadmap'),
+        ('advice', 'Expert Advice'),
+        ('orientation', 'Orientation'),
+        ('event', 'Event/Workshop'),
+        ('link', 'Useful Link'),
+        ('other', 'Other'),
+    ]
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    url = models.URLField(blank=True, null=True)
+    type = models.CharField(max_length=20, choices=RESOURCE_TYPES)
+    major = models.CharField(max_length=100, blank=True, null=True)
+    minor = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.type}) for {self.major or 'All Majors'}"
