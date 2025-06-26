@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import UserAnalytics from "../components/UserAnalytics";
-import { useContext } from "react";
 import {
   FaCalendar,
   FaChartLine,
@@ -33,13 +32,12 @@ import {
   Avatar,
   useMediaQuery,
   useTheme,
+  Card,
+  CardContent,
 } from "@mui/material";
 import "../Styles/Dashboard.css";
-import { Card, CardContent } from "@mui/material";
 import { onMessageListener } from "../utils/firebase";
 import UserContext from "../context/UserContext";
-
-
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -48,10 +46,7 @@ const Dashboard = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [timeLeft, setTimeLeft] = useState({});
   const navigate = useNavigate();
-   const { user, setUser } = useContext(UserContext);
-
-
-
+  const { user, setUser } = useContext(UserContext);
 
   const [showRelativeTime, setShowRelativeTime] = useState(true);
 
@@ -65,10 +60,7 @@ const Dashboard = () => {
   ];
 
   const API_BASE = "http://localhost:8000/api";
-
   const semesterEnd = "2025-06-26T23:59:59"; // Example semester end date
-
-
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -77,17 +69,11 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-
-
-
   useEffect(() => {
     onMessageListener().then((payload) => {
-      // Show notification or update UI
       alert(`New notification: ${payload.notification.title}`);
     });
   }, []);
-
-
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -101,59 +87,6 @@ const Dashboard = () => {
     setAnchorEl(null);
   };
 
-  const renderMobileMenu = (
-       <React.Fragment>
-
-    <Drawer
-      anchor="left"
-      open={mobileOpen}
-      onClose={handleDrawerToggle}
-      ModalProps={{ keepMounted: true }}
-    >
-      <Box className="mobileDrawer">
-        <IconButton onClick={handleDrawerToggle} className="closeButton">
-          <FaTimes />
-        </IconButton>
-        <List>
-          {navItems.map((item) => (
-            <ListItem key={item.name} disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  navigate(item.route);
-                  setMobileOpen(false);
-                }}
-              >
-                <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
-                <ListItemText primary={item.name} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-    </Drawer>
-          </React.Fragment>
-
-  );
-
-  const renderDesktopMenu = (
-       <React.Fragment>
-    <Box className="desktopMenu">
-      {navItems.map((item) => (
-        <div
-          key={item.name}
-          className="menuItem"
-          onClick={() => navigate(item.route)}
-          style={{ cursor: "pointer" }}
-        >
-          {item.icon}
-          <span>{item.name}</span>
-        </div>
-      ))}
-    </Box>
-       </React.Fragment>
-
-  );
-
   // Function to calculate time left until semester end
   const calculateTimeLeft = () => {
     const difference = +new Date(semesterEnd) - +new Date();
@@ -165,10 +98,10 @@ const Dashboard = () => {
         seconds: Math.floor((difference / 1000) % 60),
       };
     }
-    return { days:0 , hours: 0, minutes: 0, seconds: 0 };
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   };
 
-  // Mock data - replace with actual API calls
+  // Mock data - recent activities (declared only once)
   const recentActivities = [
     {
       action: "Created a study plan",
@@ -196,7 +129,6 @@ const Dashboard = () => {
       type: "reminder",
     },
   ];
-  // navigation icons
 
   const tipOfTheDay = {
     tip: "Break your study sessions into 25-minute intervals with 5-minute breaks for better focus.",
@@ -219,35 +151,42 @@ const Dashboard = () => {
 
   const getActivityIcon = (type) => {
     switch (type) {
-      case "plan": return <FaCalendar />;
-      case "timetable": return <FaTable />;
-      case "assignment": return <FaGraduationCap />;
-      case "group": return <FaUserCircle />;
-      case "reminder": return <FaBell />;
-      default: return <FaClock />;
+      case "plan":
+        return <FaCalendar />;
+      case "timetable":
+        return <FaTable />;
+      case "assignment":
+        return <FaGraduationCap />;
+      case "group":
+        return <FaUserCircle />;
+      case "reminder":
+        return <FaBell />;
+      default:
+        return <FaClock />;
     }
   };
 
-  const recentActivities = [
-    { action: "Created a study plan", timestamp: new Date(Date.now() - 7200000), type: "plan" },
-    { action: "Updated timetable", timestamp: new Date(Date.now() - 86400000), type: "timetable" },
-    { action: "Completed assignment", timestamp: new Date(Date.now() - 172800000), type: "assignment" },
-    { action: "Joined study group", timestamp: new Date(Date.now() - 259200000), type: "group" },
-    { action: "Set exam reminder", timestamp: new Date(Date.now() - 345600000), type: "reminder" },
-  ];
-
   const renderMobileMenu = (
-    <Drawer anchor="left" open={mobileOpen} onClose={handleDrawerToggle} ModalProps={{ keepMounted: true }}>
+    <Drawer
+      anchor="left"
+      open={mobileOpen}
+      onClose={handleDrawerToggle}
+      ModalProps={{ keepMounted: true }}
+    >
       <Box className="mobileDrawer">
         <IconButton onClick={handleDrawerToggle} className="closeButton">
           <FaTimes />
         </IconButton>
         <List>
           {navItems.map((item) => (
-            <ListItem button key={item.name} onClick={() => {
-              navigate(item.route);
-              setMobileOpen(false);
-            }}>
+            <ListItem
+              button
+              key={item.name}
+              onClick={() => {
+                navigate(item.route);
+                setMobileOpen(false);
+              }}
+            >
               <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
               <ListItemText primary={item.name} />
             </ListItem>
@@ -260,7 +199,12 @@ const Dashboard = () => {
   const renderDesktopMenu = (
     <Box className="desktopMenu">
       {navItems.map((item) => (
-        <div key={item.name} className="menuItem" onClick={() => navigate(item.route)} style={{ cursor: "pointer" }}>
+        <div
+          key={item.name}
+          className="menuItem"
+          onClick={() => navigate(item.route)}
+          style={{ cursor: "pointer" }}
+        >
           {item.icon}
           <span>{item.name}</span>
         </div>
@@ -269,18 +213,23 @@ const Dashboard = () => {
   );
 
   return (
-
-
     <div className="dashboardContainer">
       {/* App Bar */}
       <AppBar position="static" className="appBar">
         <Toolbar>
           {isMobile && (
-            <IconButton edge="start" color="inherit" onClick={handleDrawerToggle} className="menuButton">
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={handleDrawerToggle}
+              className="menuButton"
+            >
               <FaBars />
             </IconButton>
           )}
-          <Typography variant="h6" className="title">Academic Dashboard</Typography>
+          <Typography variant="h6" className="title">
+            Academic Dashboard
+          </Typography>
           <div className="countdown">
             <span>{timeLeft.days}d</span>
             <span>{timeLeft.hours}h</span>
@@ -288,7 +237,12 @@ const Dashboard = () => {
             <span>{timeLeft.seconds}s</span>
             <Typography variant="caption">Until Semester End</Typography>
           </div>
-          <IconButton edge="end" color="inherit" onClick={handleProfileMenuOpen} className="profileButton">
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleProfileMenuOpen}
+            className="profileButton"
+          >
             <FaUserCircle />
           </IconButton>
           <Menu
@@ -303,8 +257,8 @@ const Dashboard = () => {
             <MenuItem onClick={handleMenuClose}>
               <div className="userInfo">
                 <Avatar className="avatar">
-            {user && user.username ? String(user.username).charAt(0) : '?'}
-        </Avatar>
+                  {user && user.username ? String(user.username).charAt(0) : "?"}
+                </Avatar>
 
                 <div>
                   <Typography variant="subtitle1">{user.username}</Typography>
@@ -314,7 +268,7 @@ const Dashboard = () => {
             </MenuItem>
             <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
             <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
@@ -341,7 +295,10 @@ const Dashboard = () => {
         <div className="activity-section">
           <div className="section-header">
             <h2>Recent Activity</h2>
-            <button className="time-toggle" onClick={() => setShowRelativeTime(!showRelativeTime)}>
+            <button
+              className="time-toggle"
+              onClick={() => setShowRelativeTime(!showRelativeTime)}
+            >
               {showRelativeTime ? "Show Absolute Time" : "Show Relative Time"}
             </button>
           </div>
@@ -351,7 +308,9 @@ const Dashboard = () => {
                 <div className="activity-icon">{getActivityIcon(activity.type)}</div>
                 <div className="activity-content">
                   <p>{activity.action}</p>
-                  <span className="timestamp">{formatTimestamp(activity.timestamp)}</span>
+                  <span className="timestamp">
+                    {formatTimestamp(activity.timestamp)}
+                  </span>
                 </div>
               </div>
             ))}
@@ -375,7 +334,6 @@ const Dashboard = () => {
         </div>
       </main>
     </div>
-
   );
 };
 
