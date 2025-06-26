@@ -1,8 +1,8 @@
-import React from 'react';
-import { DAYS, TIME_SLOTS } from '../consatants/timetableConstants';
+import React from "react";
+import { DAYS, TIME_SLOTS } from "../consatants/timetableConstants";
 
 const getTimeSlotIndex = (time) => {
-  const hour = parseInt(time.split(':')[0]);
+  const hour = parseInt(time.split(":")[0]);
   return hour - 7; // Start from 7 AM
 };
 
@@ -51,7 +51,7 @@ const FixedTimetable = ({ courses }) => {
                       <div className="course-event">
                         <div className="course-name">{course.name}</div>
                         <div className="course-time">
-                          {course.startTime} - {course.endTime}
+                          {course.start_time} - {course.end_time}
                         </div>
                         <div className="course-semester">{course.semester}</div>
                       </div>

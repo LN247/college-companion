@@ -1,105 +1,194 @@
 from datetime import datetime, time, timedelta
-from .models import FixedClassSchedule, Semester
-from .models import StudyBlock
-from .models import UserPreferences
-from .task import send_study_notification
+import uuid
+from .models import FixedClassSchedule, Semester, StudyBlock, UserPreferences
 
 
 def generate_timetable(user, semester_start, semester_end, semester_id):
-    # Get user preferences
+
+
+
+
+    deleted_count = StudyBlock.objects.filter(
+        user=user,
+        semester_id=semester_id
+    ).delete()[0]
+
+
+    # Get preferences
     prefs = UserPreferences.objects.get(user=user)
     off_days = [day.lower() for day in prefs.get_off_days_list()]
-    notification_min= prefs. notification_reminder_minutes
+
+
+    # Convert preferred times
     preferred_start_time = prefs.study_start_min
     preferred_end_time = prefs.study_end_max
+    if not isinstance(preferred_start_time, time):
+        preferred_start_time = datetime.strptime(preferred_start_time, '%H:%M:%S').time()
+    if not isinstance(preferred_end_time, time):
+        preferred_end_time = datetime.strptime(preferred_end_time, '%H:%M:%S').time()
 
-    print(off_days, preferred_end_time, preferred_start_time)
 
-    # Get user's fixed class schedule for the provided semester
-    fixed_class_schedules = FixedClassSchedule.objects.filter(user=user, semester=semester_id)
+    # Fetch fixed classes and extract distinct courses
+    fixed_schedules = FixedClassSchedule.objects.filter(
+        user=user,
+        semester=semester_id
+    ).select_related('course')
 
-    print(fixed_class_schedules)
+    # Get distinct courses from fixed schedules
+    courses = set()
+    for schedule in fixed_schedules:
+        courses.add(schedule.course)
+
+
+
+    course_rotation_index = 0
+
+    # Precompute fixed classes by day
+    fixed_classes_by_day = {}
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    for day in days:
+        fixed_classes_by_day[day] = []
+
+    for schedule in fixed_schedules:
+        if schedule.day in fixed_classes_by_day:
+            fixed_classes_by_day[schedule.day].append(schedule)
 
     study_blocks = []
+    processed_days = 0
+    skipped_days = 0
 
-    for class_schedule in fixed_class_schedules:
-        print(f"Processing class schedule: {class_schedule}")  # Added
+    for day in days:
 
-        day = class_schedule.day.lower()
-        start_time = class_schedule.start_time
-        end_time = class_schedule.end_time
-        course = class_schedule.course
 
-        print(f"Day: {day}, Start time: {start_time}, End time: {end_time}, Course: {course}")  # Added
+        # Case-insensitive off day check
+        if day.lower() in off_days:
 
-        if day in off_days:
-            print(f"Skipping {day} because it's an off day. Off days are: {off_days}")  # Modified
+            skipped_days += 1
             continue
 
-        # Time conversion and comparison issues:
-        print(f"Original start_time: {start_time}, Original end_time: {end_time}")
+        # Get free time slots
+        fixed_classes_today = fixed_classes_by_day[day]
+        free_slots = get_free_time_slots(day, fixed_classes_today, preferred_start_time, preferred_end_time)
 
-        if not isinstance(start_time, time):
-            start_time = datetime.strptime(str(start_time), '%H:%M:%S').time()
-            print(f"Converted start_time: {start_time}")
-        if not isinstance(end_time, time):
-            end_time = datetime.strptime(str(end_time), '%H:%M:%S').time()
-            print(f"Converted end_time: {end_time}")
+        if free_slots:
 
-        if preferred_start_time and preferred_end_time:
-            print(
-                f"Preferred study times are set. preferred_start_time: {preferred_start_time}, preferred_end_time: {preferred_end_time}")
+            processed_days += 1
 
-            if not isinstance(preferred_start_time, time):
-                preferred_start_time = datetime.strptime(preferred_start_time, '%H:%M:%S').time()
-                print(f"Converted preferred_start_time: {preferred_start_time}")
-            if not isinstance(preferred_end_time, time):
-                preferred_end_time = datetime.strptime(preferred_end_time, '%H:%M:%S').time()
-                print(f"Converted preferred_end_time: {preferred_end_time}")
+            for i, slot in enumerate(free_slots, 1):
+                print(f"  Slot {i}: {slot[0].strftime('%H:%M')} - {slot[1].strftime('%H:%M')}")
 
-            if start_time >= preferred_start_time and end_time <= preferred_end_time:
-                print("Class is within preferred study times. Creating study block.")
+            # Get course list
+            course_list = list(courses)
+            if not course_list:
+
+                continue
+
+
+            for slot in free_slots:
+                slot_start, slot_end = slot
+
+                # Get next course in rotation
+                course = course_list[course_rotation_index % len(course_list)]
+                course_rotation_index += 1
+
+
+                # Create and save study block
                 study_block = StudyBlock(
                     user=user,
                     course=course,
-                    semester_id=semester_id,
+                    semester=Semester.objects.get(pk=semester_id),
                     day=day,
-                    start_time=start_time,
-                    end_time=end_time,
+                    start_time=slot_start,
+                    end_time=slot_end,
                 )
                 try:
                     study_block.save()
                     study_blocks.append(study_block)
-                    print(f"Created and saved study block: {study_block}")
+
                 except Exception as e:
-                    print(f"Error saving study block: {e}")
+                    print(f"  ❌ Error saving study block: {e}")
 
-                # Schedule notification
-                notification_time = datetime.combine(semester_start, start_time) - timedelta(minutes=notification_min)
-                # Schedule the task
-                send_study_notification.apply_async(args=[study_block.id], eta=notification_time)
 
-            else:
-                print("Class is outside preferred study times. Skipping.")
-                continue
-        else:
-            print("Preferred study times are not set. Creating study block.")
-            study_block = StudyBlock(
-                user=user,
-                course=course,
-                semester=Semester.objects.get(pk=semester_id),
-                day=day,
-                start_time=start_time,
-                end_time=end_time,
-            )
-            try:
-                study_block.save()
-                study_blocks.append(study_block)
-                print(f"Created and saved study block: {study_block}")
-            except Exception as e:
-                print(f"Error saving study block: {e}")
 
-            notification_time = datetime.combine(semester_start, start_time) - timedelta(minutes=notification_min)
-            send_study_notification.apply_async(args=[study_block.id], eta=notification_time)
+
+
 
     return study_blocks
+
+
+def get_free_time_slots(day, fixed_classes, preferred_start, preferred_end):
+    intervals = []
+
+
+    if not fixed_classes:
+
+
+     for cls in fixed_classes:
+        start = cls.start_time
+        end = cls.end_time
+
+        if not isinstance(start, time):
+            start = datetime.strptime(str(start), '%H:%M:%S').time()
+        if not isinstance(end, time):
+            end = datetime.strptime(str(end), '%H:%M:%S').time()
+
+        # Clip class times to preferred window
+        clipped_start = max(start, preferred_start)
+        clipped_end = min(end, preferred_end)
+
+        # Only add if valid time slot
+        if clipped_start < clipped_end:
+            intervals.append((clipped_start, clipped_end))
+
+
+    # Sort by start time
+    intervals.sort(key=lambda x: x[0])
+
+    # Merge overlapping intervals
+    merged = []
+    for start, end in intervals:
+        if not merged:
+            merged.append((start, end))
+        else:
+            last_start, last_end = merged[-1]
+            if start <= last_end:  # Overlaps
+                merged[-1] = (last_start, max(last_end, end))
+
+            else:
+                merged.append((start, end))
+
+    # Calculate free slots within preferred window
+    free_slots = []
+    current_start = preferred_start
+
+    # Slot before first class
+    if merged:
+        first_class_start = merged[0][0]
+        if current_start < first_class_start:
+            slot = (current_start, first_class_start)
+            free_slots.append(slot)
+
+
+    # Slots between classes
+    for i in range(len(merged) - 1):
+        current_end = merged[i][1]
+        next_start = merged[i + 1][0]
+
+        if current_end < next_start:
+            slot = (current_end, next_start)
+            free_slots.append(slot)
+
+
+    # Slot after last class
+    if merged:
+        last_class_end = merged[-1][1]
+        if last_class_end < preferred_end:
+            slot = (last_class_end, preferred_end)
+            free_slots.append(slot)
+
+    elif preferred_start < preferred_end:  # No classes at all
+        slot = (preferred_start, preferred_end)
+        free_slots.append(slot)
+
+
+    return free_slots

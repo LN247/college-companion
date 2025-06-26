@@ -81,7 +81,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,
                 max_age=timedelta(days=7, hours=23, minutes=59),
-                domain='localhost'
+                domain='127.0.0.1/'
 
             )
 
@@ -92,7 +92,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,
                 max_age = timedelta(days=12, hours=23, minutes=59),
-                domain='localhost'
+                domain='127.0.0.1/'
             )
 
             return response
@@ -432,7 +432,7 @@ class GenerateTimetable(APIView):
         for block in study_blocks:
             study_block = StudyBlock.objects.create(
                 user=user,
-                course=block['course'],
+                course=block.course,
                 date=block['date'],
                 start_time=block['start_time'],
                 end_time=block['end_time']

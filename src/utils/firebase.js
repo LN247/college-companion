@@ -20,7 +20,6 @@ export const requestForToken = async () => {
       vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
     });
     if (currentToken) {
-      console.log("FCM Token:", currentToken);
       return currentToken;
     } else {
       console.log("No registration token available.");

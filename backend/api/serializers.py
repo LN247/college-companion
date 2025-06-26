@@ -75,7 +75,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
             model = Course
-            fields = ['id', 'name', 'credits', 'semester','code','academicLevel']  # Include semester in fields
+            fields = ['id', 'name', 'credits', 'semester','code','academicLevel'] 
 
 
 
@@ -87,10 +87,11 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 class FixedClassScheduleSerializer(serializers.ModelSerializer):
+    course_name = serializers.CharField(source='course.name', read_only=True)
     class Meta:
         model = FixedClassSchedule
-        fields = ['course', 'day', 'start_time', 'end_time', 'semester', 'difficulty_level']
-        # read_only_fields = ['user'] # Removed read_only_fields so user will be handled during serializer.save()
+        fields = ['course', 'day', 'start_time', 'end_time', 'semester', 'difficulty_level', 'course_name']
+        read_only_fields = ['user', 'course_name']
 
     def create(self, validated_data):
         return FixedClassSchedule.objects.create(**validated_data)
@@ -99,7 +100,7 @@ class FixedClassScheduleSerializer(serializers.ModelSerializer):
 class StudyBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyBlock
-        fields = ['id', 'course', 'date', 'start_time', 'end_time', 'is_completed', 'is_notified']
+        fields = ['id', 'course',  'start_time', 'end_time', 'is_completed', 'is_notified']
         read_only_fields = ['user']
 
 

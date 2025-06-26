@@ -22,11 +22,11 @@ if ("serviceWorker" in navigator) {
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
     </GoogleOAuthProvider>
-  </React.StrictMode>
+  
 );

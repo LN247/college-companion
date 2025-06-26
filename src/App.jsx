@@ -14,12 +14,14 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AddSemester from "./pages/AddSemester.jsx";
 import UserProfileForm from "./pages/UserProfileForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import { LoadingProvider } from "./context/LoadingContext";
-import ChatPage  from  "./pages/ChatPage"
 import { useLoading } from "./context/LoadingContext";
 import { AdminProvider } from "./context/AdminContext";
 import AcademicCalendar from "./components/AcademicCalendar";
-import {UserProvider} from "./context/UserContext";
+import { UserProvider } from "./context/UserContext";
+import ChatPage from "./pages/ChatPage";
+import Unauthorised from "./pages/Unauthorised";
 
 const AppContent = () => {
   const { isLoading } = useLoading();
@@ -31,6 +33,7 @@ const AppContent = () => {
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/calendar" element={<AcademicCalendar />} />
         <Route path="*" element={<Notfound />} />
+        <Route path="/not-authorized" element={<Unauthorised />} />
         <Route
           path="/add-semester"
           element={
@@ -97,20 +100,17 @@ const AppContent = () => {
         <Route
           path="/admin-dashboard"
           element={
-            <ProtectedRoute>
+            <AdminProtectedRoute>
               <AdminProvider>
                 <AdminDashboard />
               </AdminProvider>
-            </ProtectedRoute>
+            </AdminProtectedRoute>
           }
         />
-
-        <Route path="*" element={<Notfound />} />
       </Routes>
     </>
   );
 };
-
 
 const AppProviders = ({ children }) => {
   return (
@@ -128,6 +128,5 @@ function App() {
     </AppProviders>
   );
 }
-
 
 export default App;
