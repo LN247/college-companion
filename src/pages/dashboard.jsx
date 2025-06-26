@@ -39,8 +39,6 @@ import { Card, CardContent } from "@mui/material";
 import { onMessageListener } from "../utils/firebase";
 import UserContext from "../context/UserContext";
 
-
-
 const Dashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -48,10 +46,7 @@ const Dashboard = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [timeLeft, setTimeLeft] = useState({});
   const navigate = useNavigate();
-   const { user, setUser } = useContext(UserContext);
-
-
-
+  const { user, setUser } = useContext(UserContext);
 
   const [showRelativeTime, setShowRelativeTime] = useState(true);
 
@@ -68,8 +63,6 @@ const Dashboard = () => {
 
   const semesterEnd = "2025-06-26T23:59:59"; // Example semester end date
 
-
-
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
@@ -77,17 +70,12 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-
-
-
   useEffect(() => {
     onMessageListener().then((payload) => {
       // Show notification or update UI
       alert(`New notification: ${payload.notification.title}`);
     });
   }, []);
-
-
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -102,56 +90,53 @@ const Dashboard = () => {
   };
 
   const renderMobileMenu = (
-       <React.Fragment>
-
-    <Drawer
-      anchor="left"
-      open={mobileOpen}
-      onClose={handleDrawerToggle}
-      ModalProps={{ keepMounted: true }}
-    >
-      <Box className="mobileDrawer">
-        <IconButton onClick={handleDrawerToggle} className="closeButton">
-          <FaTimes />
-        </IconButton>
-        <List>
-          {navItems.map((item) => (
-            <ListItem key={item.name} disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  navigate(item.route);
-                  setMobileOpen(false);
-                }}
-              >
-                <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
-                <ListItemText primary={item.name} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-    </Drawer>
-          </React.Fragment>
-
+    <React.Fragment>
+      <Drawer
+        anchor="left"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{ keepMounted: true }}
+      >
+        <Box className="mobileDrawer">
+          <IconButton onClick={handleDrawerToggle} className="closeButton">
+            <FaTimes />
+          </IconButton>
+          <List>
+            {navItems.map((item) => (
+              <ListItem key={item.name} disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    navigate(item.route);
+                    setMobileOpen(false);
+                  }}
+                >
+                  <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.name} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
+    </React.Fragment>
   );
 
   const renderDesktopMenu = (
-       <React.Fragment>
-    <Box className="desktopMenu">
-      {navItems.map((item) => (
-        <div
-          key={item.name}
-          className="menuItem"
-          onClick={() => navigate(item.route)}
-          style={{ cursor: "pointer" }}
-        >
-          {item.icon}
-          <span>{item.name}</span>
-        </div>
-      ))}
-    </Box>
-       </React.Fragment>
-
+    <React.Fragment>
+      <Box className="desktopMenu">
+        {navItems.map((item) => (
+          <div
+            key={item.name}
+            className="menuItem"
+            onClick={() => navigate(item.route)}
+            style={{ cursor: "pointer" }}
+          >
+            {item.icon}
+            <span>{item.name}</span>
+          </div>
+        ))}
+      </Box>
+    </React.Fragment>
   );
 
   // Function to calculate time left until semester end
@@ -165,7 +150,7 @@ const Dashboard = () => {
         seconds: Math.floor((difference / 1000) % 60),
       };
     }
-    return { days:0 , hours: 0, minutes: 0, seconds: 0 };
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   };
 
   // Mock data - replace with actual API calls
@@ -220,8 +205,6 @@ const Dashboard = () => {
   const handleLogout = () => {};
 
   return (
-
-
     <div className="dashboardContainer">
       {/* App Bar */}
       <AppBar position="static" className="appBar">
@@ -270,8 +253,10 @@ const Dashboard = () => {
             <MenuItem onClick={handleMenuClose}>
               <div className="userInfo">
                 <Avatar className="avatar">
-            {user && user.username ? String(user.username).charAt(0) : '?'}
-        </Avatar>
+                  {user && user.username
+                    ? String(user.username).charAt(0)
+                    : "?"}
+                </Avatar>
 
                 <div>
                   <Typography variant="subtitle1">{user.username}</Typography>
@@ -350,7 +335,6 @@ const Dashboard = () => {
         </div>
       </main>
     </div>
-
   );
 };
 

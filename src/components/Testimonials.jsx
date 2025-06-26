@@ -1,116 +1,63 @@
 import React from "react";
-import { Card, CardContent } from "./ui/card";
-import { Star, Quote } from "lucide-react";
 import "../Styles/Testimonials.css";
 
 const Testimonials = () => {
   const testimonials = [
     {
-      name: "Sarah Chen",
-      role: "Computer Science Major",
-      university: "MIT",
-      image: "photo-1649972904349-6e44c42644a7",
-      rating: 5,
-      text: "This app completely transformed my college experience. The semester planning feature helped me graduate a semester early while maintaining a 3.9 GPA!",
-    },
-    {
-      name: "Marcus Rodriguez",
-      role: "Business Administration",
+      name: "Sarah Johnson",
+      role: "Computer Science Student",
       university: "Stanford University",
-      image: "photo-1519389950473-47ba0277781c",
-      rating: 5,
-      text: "The community feature connected me with amazing study partners. We're still friends three years after graduation. Absolutely life-changing!",
+      image: "https://i.pravatar.cc/150?img=1",
+      quote: "College Companion has transformed how I manage my academic life. The semester planning feature is a game-changer!",
     },
     {
-      name: "Emily Johnson",
-      role: "Pre-Med Student",
-      university: "Harvard University",
-      image: "photo-1488590528505-98d2b5aba04b",
-      rating: 5,
-      text: "Daily tips kept me motivated during the toughest semesters. The personalized advice felt like having a mentor in my pocket 24/7.",
+      name: "Michael Chen",
+      role: "Business Major",
+      university: "NYU",
+      image: "https://i.pravatar.cc/150?img=2",
+      quote: "The study group feature helped me connect with amazing peers. It's like having a built-in support system!",
+    },
+    {
+      name: "Emily Rodriguez",
+      role: "Engineering Student",
+      university: "MIT",
+      image: "https://i.pravatar.cc/150?img=3",
+      quote: "The daily insights and tips have significantly improved my study habits and productivity.",
     },
   ];
 
   return (
     <section className="testimonials-section">
       <div className="testimonials-container">
-        {/* Header */}
         <div className="testimonials-header">
-          <div className="testimonials-tagline">
-            <span>💬 Student Stories</span>
-          </div>
-
           <h2 className="testimonials-title">
-            Trusted by Students
-            <span className="testimonials-title-highlight">Worldwide</span>
+            What Our Students Say
           </h2>
-
-          <p className="testimonials-description">
-            See how students from top universities are using our platform to
-            achieve academic excellence and build meaningful connections.
+          <p className="testimonials-subtitle">
+            Join thousands of students who have transformed their college experience
           </p>
         </div>
 
-        {/* Testimonials Grid */}
         <div className="testimonials-grid">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="testimonial-card">
-              <CardContent className="testimonial-card-content">
-                {/* Quote Icon */}
-                <div className="testimonial-quote-icon">
-                  <Quote />
-                </div>
-
-                {/* Rating */}
-                <div className="testimonial-rating">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} />
-                  ))}
-                </div>
-
-                {/* Testimonial Text */}
-                <blockquote className="testimonial-text">
-                  "{testimonial.text}"
-                </blockquote>
-
-                {/* Author Info */}
+            <div key={index} className="testimonial-card">
+              <div className="testimonial-content">
+                <p className="testimonial-quote">"{testimonial.quote}"</p>
                 <div className="testimonial-author">
                   <img
-                    src={`https://images.unsplash.com/${testimonial.image}?w=64&h=64&fit=crop&crop=face`}
+                    src={testimonial.image}
                     alt={testimonial.name}
-                    className="testimonial-author-image"
+                    className="testimonial-image"
                   />
-                  <div className="testimonial-author-info">
-                    <div className="testimonial-author-name">
-                      {testimonial.name}
-                    </div>
-                    <div className="testimonial-author-role">
-                      {testimonial.role}
-                    </div>
-                    <div className="testimonial-author-university">
-                      {testimonial.university}
-                    </div>
+                  <div className="testimonial-info">
+                    <h3 className="testimonial-name">{testimonial.name}</h3>
+                    <p className="testimonial-role">{testimonial.role}</p>
+                    <p className="testimonial-university">{testimonial.university}</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
-        </div>
-
-        {/* CTA Section */}
-        <div className="testimonials-cta">
-          <h3 className="testimonials-cta-title">
-            Ready to Join Thousands of Successful Students?
-          </h3>
-          <p className="testimonials-cta-description">
-            Start your journey to academic excellence today. Join our community
-            and discover the tools that will transform your college experience.
-          </p>
-
-          <div className="testimonials-cta-buttons">
-            <button className="cta-button primary">Start Now</button>
-            <button className="cta-button secondary">Schedule Demo</button>
-          </div>
         </div>
       </div>
     </section>

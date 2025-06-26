@@ -3,15 +3,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem; /* roughly equal to Tailwind’s gap-2 */
-  white-space: nowrap;
-  border-radius: 0.375rem; /* rounded-md */
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  transition: background-color 0.3s, color 0.3s;
-  outline: none;
-  border: none;
-  /* Additional styles to mimic focus rings, etc. */
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  gap: 0.5rem;
 }
 
 .button:focus-visible {
@@ -20,8 +16,8 @@
 }
 
 .button:disabled {
-  pointer-events: none;
   opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Force inline SVG icons to be non-interactive and to size correctly */
@@ -37,10 +33,11 @@
 /* Default Variant */
 .button--default {
   background-color: #f68712;
-  color: #ffffff;
+  color: white;
+  border: none;
 }
 .button--default:hover {
-  background-color: rgba(246, 135, 18, 0.9);
+  background-color: #e67a0a;
 }
 
 /* Destructive Variant */
@@ -54,12 +51,12 @@
 
 /* Outline Variant */
 .button--outline {
-  background-color: #ffffff;
-  color: #1f2937;
-  border: 1px solid #d1d5db;
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
 }
 .button--outline:hover {
-  background-color: #f3f4f6;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Secondary Variant */
@@ -94,8 +91,8 @@
 /* We use separate classes prefixed with "button-size-" for clarity. */
 
 .button-size-default {
-  height: 2.5rem; /* h-10 (40px) */
-  padding: 0.5rem 1rem; /* py-2 px-4 */
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
 }
 
 .button-size-sm {
@@ -104,8 +101,8 @@
 }
 
 .button-size-lg {
-  height: 2.75rem; /* h-11 (44px) */
-  padding: 0.5rem 2rem; /* py-2 px-8 */
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
 }
 
 .button-size-icon {

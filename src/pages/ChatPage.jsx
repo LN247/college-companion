@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../Styles/ChatStyles.css";
 import StudyGroupList from "../components/StudyGroupList";
 import ChatWindow from "../components/ChatWindow";
 import MessageInput from "../components/MessageInput";
 import CreateGroupModal from "../components/CreateGroupModal";
+import { useWebSocket } from '../hooks/UseWebSocket';
 
 function ChatPage() {
   const [theme, setTheme] = useState("light"); // "light" or "dark"
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // New state for modal
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const fileInputRef = useRef(null);
   const [allGroups, setAllGroups] = useState([
     { 
       id: "1", 
@@ -78,39 +82,18 @@ function ChatPage() {
   ]);
 
   const currentUser = { id: "user1", name: "You" }; // Mock current user
+  const { sendMessage, lastMessage, connectionStatus } = useWebSocket('ws://localhost:8000/ws/chat/');
 
   useEffect(() => {
     document.body.className = theme;
   }, [theme]);
 
-  // Load mock messages when a group is selected (for demonstration)
   useEffect(() => {
-    if (selectedGroup) {
-      // In a real application, you'd fetch messages from a backend
-      setMessages([
-        {
-          id: 1,
-          sender: "Sophia",
-          content: "Hey everyone, are we meeting at the library today?",
-          time: "10:00 AM",
-        },
-        {
-          id: 2,
-          sender: "Ethan",
-          content: "Yes, I'll be there in 10 minutes.",
-          time: "10:05 AM",
-        },
-        {
-          id: 3,
-          sender: "Olivia",
-          content: "Sounds good, see you there!",
-          time: "10:07 AM",
-        },
-      ]);
-    } else {
-      setMessages([]);
+    if (lastMessage !== null) {
+      const data = JSON.parse(lastMessage.data);
+      setMessages(prevMessages => [...prevMessages, data]);
     }
-  }, [selectedGroup]);
+  }, [lastMessage]);
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
@@ -120,16 +103,51 @@ function ChatPage() {
     setSelectedGroup(group);
   };
 
-  const handleSendMessage = (newMessageContent) => {
-    if (!selectedGroup || !selectedGroup.isJoined || !selectedGroup.isOpen) return;
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFilePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFilePreview(null);
+      }
+    }
+  };
 
-    const newMessage = {
-      id: messages.length + 1,
-      sender: currentUser.name,
-      content: newMessageContent,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  const handleSendMessage = (message) => {
+    if (message.trim() || selectedFile) {
+      const messageData = {
+        message: message,
+        username: currentUser.name,
+        timestamp: new Date().toISOString(),
+        file: selectedFile ? {
+          name: selectedFile.name,
+          type: selectedFile.type,
+          size: selectedFile.size,
+          preview: filePreview
+        } : null
+      };
+      sendMessage(JSON.stringify(messageData));
+      setSelectedFile(null);
+      setFilePreview(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleJoinLeaveGroup = (groupId) => {
@@ -204,6 +222,12 @@ function ChatPage() {
 
   return (
     <div className="chat-container">
+      <div className="chat-header">
+        <h1>Study Group Chat</h1>
+        <div className="connection-status">
+          Status: {connectionStatus}
+        </div>
+      </div>
       <div className="sidebar">
         <h2>Study Groups</h2>
         <StudyGroupList
@@ -230,7 +254,26 @@ function ChatPage() {
             />
             {selectedGroup.isJoined && selectedGroup.isOpen ? (
               <div className="chat-input">
-                <MessageInput onSendMessage={handleSendMessage} />
+                {selectedFile && (
+                  <div className="file-preview">
+                    {filePreview ? (
+                      <img src={filePreview} alt="Preview" className="image-preview" />
+                    ) : (
+                      <div className="file-info">
+                        <span>{selectedFile.name}</span>
+                        <span className="file-size">({(selectedFile.size / 1024).toFixed(1)} KB)</span>
+                      </div>
+                    )}
+                    <button className="remove-file" onClick={handleRemoveFile}>
+                      ×
+                    </button>
+                  </div>
+                )}
+                <MessageInput 
+                  onSendMessage={handleSendMessage}
+                  fileInputRef={fileInputRef}
+                  onFileSelect={handleFileSelect}
+                />
               </div>
             ) : (
               <div className="chat-input disabled-input">

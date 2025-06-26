@@ -12,9 +12,15 @@ import "../Styles/Hero.css";
 import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
-  // Import useNavigate from react-router-dom
-
   const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    try {
+      navigate(path);
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
+  };
 
   return (
     <section className="hero">
@@ -42,7 +48,7 @@ const Hero = () => {
             <div className="hero-buttons">
               <Button
                 className="hero-button primary"
-                onClick={() => navigate("/signup")}
+                onClick={() => handleNavigation("/signup")}
               >
                 <UserPlus className="icon" />
                 Sign Up Free
@@ -51,7 +57,7 @@ const Hero = () => {
               <Button
                 variant="outline"
                 className="hero-button secondary"
-                onClick={() => navigate("/login")}
+                onClick={() => handleNavigation("/login")}
               >
                 <LogIn className="icon" />
                 Login
