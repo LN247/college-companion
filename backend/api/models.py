@@ -261,3 +261,211 @@ class UserPreferences(models.Model):
 def create_user_preferences(sender, instance, created, **kwargs):
     if created:
         UserPreferences.objects.create(user=instance)
+
+
+
+
+class Group(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.CASCADE,
+        related_name='created_groups'
+    )
+    cover_image = models.ImageField(
+        upload_to='group_covers/', 
+        null=True, 
+        blank=True
+    )
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return self.name
+
+class GroupMembership(models.Model):
+    ROLE_CHOICES = [
+        ('member', 'Member'),
+        ('moderator', 'Moderator'),
+        ('admin', 'Admin'),
+    ]
+    
+    user = models.ForeignKey(
+       CustomUser, 
+        on_delete=models.CASCADE,
+        related_name='group_memberships'
+    )
+    group = models.ForeignKey(
+        Group, 
+        on_delete=models.CASCADE,
+        related_name='memberships'
+    )
+    joined_at = models.DateTimeField(auto_now_add=True)
+    role = models.CharField(
+        max_length=10, 
+        choices=ROLE_CHOICES, 
+        default='member'
+    )
+    last_read = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('user', 'group')
+        ordering = ['-joined_at']
+    
+    def __str__(self):
+        return f"{self.user.username} in {self.group.name}"
+
+def message_file_path(instance, filename):
+    return f'messages/user_{instance.message.sender.id}/{filename}'
+
+class FileUpload(models.Model):
+    FILE_TYPES = [
+        ('image', 'Image'),
+        ('video', 'Video'),
+        ('audio', 'Audio'),
+        ('document', 'Document'),
+        ('other', 'Other'),
+    ]
+    
+    file = models.FileField(
+        upload_to=message_file_path,
+        validators=[validate_file_size],
+       
+    )
+    file_type = models.CharField(max_length=10, choices=FILE_TYPES)
+    file_size = models.IntegerField()
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+    
+    def __str__(self):
+        return f"{self.file_type} file ({self.file_size} bytes)"
+    
+    def save(self, *args, **kwargs):
+        if not self.file_size:
+            self.file_size = self.file.size
+        super().save(*args, **kwargs)
+
+class Message(models.Model):
+    sender = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.CASCADE,
+        related_name='sent_messages'
+    )
+    group = models.ForeignKey(
+        Group, 
+        on_delete=models.CASCADE,
+        related_name='messages'
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['timestamp']
+    
+    def __str__(self):
+        return f"Message from {self.sender.username} at {self.timestamp}"
+    
+    def mark_as_read(self, user):
+        membership = GroupMembership.objects.get(
+            user=user, 
+            group=self.group
+        )
+        if membership.last_read < self.timestamp:
+            membership.last_read = self.timestamp
+            membership.save()
+
+class MessageContent(models.Model):
+    CONTENT_TYPES = [
+        ('text', 'Text'),
+        ('image', 'Image'),
+        ('video', 'Video'),
+        ('audio', 'Audio'),
+        ('file', 'File'),
+    ]
+    
+    message = models.ForeignKey(
+        Message,
+        on_delete=models.CASCADE,
+        related_name='contents'
+    )
+    content_type = models.CharField(max_length=10, choices=CONTENT_TYPES)
+    content = models.TextField(blank=True, null=True)
+    file = models.ForeignKey(
+        FileUpload,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        validators=[validate_file_size],
+        related_name='message_contents'
+    )
+    order = models.PositiveIntegerField(default=0)
+    
+    class Meta:
+        ordering = ['order']
+    
+    def __str__(self):
+        return f"{self.content_type} content for message {self.message.id}"
+    
+
+class Reaction(models.Model):
+  
+    
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='reactions'
+    )
+    message = models.ForeignKey(
+        Message,
+        on_delete=models.CASCADE,
+        related_name='reactions'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('user', 'message')
+        ordering = ['created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} reacted {self.reaction_type} to message {self.message.id}"
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # Ensure only one reaction per user per message
+            existing_reaction = Reaction.objects.filter(
+                user=self.user, 
+                message=self.message
+            ).first()
+            if existing_reaction:
+                existing_reaction.delete()
+
+class GroupChat(models.Model):
+    name = models.CharField(max_length=100)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='created_chats')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+class GroupMembership(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='group_memberships')
+    group = models.ForeignKey(GroupChat, on_delete=models.CASCADE, related_name='memberships')
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'group')
+
+    def __str__(self):
+        return f"{self.user.username} in {self.group.name}"
+
+class GroupMessage(models.Model):
+    group = models.ForeignKey(GroupChat, on_delete=models.CASCADE, related_name='messages')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='group_messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}: {self.content[:20]}..."
