@@ -1,40 +1,37 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import "./Resources.css";
+<div className="resources-container">
+  <div className="resource-card tech-card">
+    <h2 className="resource-title">Tech & Engineering</h2>
+    <ul className="resource-list">
+      {techRoadmaps.map((item, i) => (
+        <li key={i}><a href={item.link} target="_blank" rel="noopener noreferrer">{item.title}</a></li>
+      ))}
+    </ul>
+  </div>
 
-const Resources = () => {
-  const navigate = useNavigate();
+  <div className="resource-card academic-card">
+    <h2 className="resource-title">Academic Resources</h2>
+    <ul className="resource-list">
+      {academicLinks.map((item, i) => (
+        <li key={i}><a href={item.link} target="_blank" rel="noopener noreferrer">{item.title}</a></li>
+      ))}
+    </ul>
+  </div>
 
-  const features = [
-    { title: "Study Planner", description: "Plan your semester easily." },
-    { title: "Task Manager", description: "Track your daily tasks efficiently." },
-    { title: "AI Assistant", description: "Ask questions and get instant answers." },
-    { title: "Style Tips", description: "Get daily style & outfit suggestions." },
-    { title: "Study Groups", description: "Connect with your perfect study partner." },
-    { title: "Progress Charts", description: "Visualize your academic progress." },
-  ];
+  <div className="resource-card business-card">
+    <h2 className="resource-title">Business & Accounting</h2>
+    <ul className="resource-list">
+      {businessResources.map((item, i) => (
+        <li key={i}><a href={item.link} target="_blank" rel="noopener noreferrer">{item.title}</a></li>
+      ))}
+    </ul>
+  </div>
 
-  return (
-    <div className="resources-page">
-      <h1 className="page-title">College Companion Resources</h1>
-
-      {/* 👇 Go Back Button */}
-      <button className="go-back-btn" onClick={() => navigate(-1)}>
-        ⬅ Go Back
-      </button>
-
-      <div className="resources-container">
-        <div className="card-grid">
-          {features.map((item, index) => (
-            <div key={index} className="feature-card">
-              <h3 className="feature-title">{item.title}</h3>
-              <p className="feature-description">{item.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Resources;
+  <div className="resource-card expert-card">
+    <h2 className="resource-title">Expert Advice</h2>
+    <ul className="resource-list">
+      {expertAdvice.map((item, i) => (
+        <li key={i}><a href={item.link} target="_blank" rel="noopener noreferrer">{item.title}</a></li>
+      ))}
+    </ul>
+  </div>
+</div>
