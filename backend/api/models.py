@@ -11,6 +11,7 @@ from django.dispatch import receiver
 from datetime import date
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from rest_framework.permissions import BasePermission
+from .Validation import validate_file_size
 
 
 
@@ -66,10 +67,24 @@ class IsSuperUserOrReadOnly(BasePermission):
         return request.method in ["GET", "HEAD", "OPTIONS"]
 
 
+
+
+
+class Discipline(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    type = models.CharField(max_length=10, choices=[('MAJOR', 'Major'), ('MINOR', 'Minor')])
+    last_updated = models.DateTimeField(auto_now=True)
+    class Meta:
+        verbose_name_plural = "Disciplines"
+
+
+
+
+
 class UserProfile(models.Model):
     user=models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
-    major = models.CharField(max_length=100, blank=True, null=True)
-    minor = models.CharField(max_length=100, blank=True, null=True)
+    major = models.ForeignKey(Discipline, related_name='major_users', on_delete=models.SET_NULL, null=True)
+    minor = models.ForeignKey(Discipline, related_name='minor_users', on_delete=models.SET_NULL, null=True)
     graduation_year = models.PositiveIntegerField(blank=True, null=True)
     level = models.CharField(max_length=20, default='Undergraduate', )
     profile_picture = models.FilePathField(path='profile_pictures/', blank=True, null=True)
@@ -143,7 +158,6 @@ class Semester(models.Model):
 
 
 class Course(models.Model):
-
     user = models.ForeignKey(
     settings.AUTH_USER_MODEL,
     on_delete=models.CASCADE,
@@ -184,8 +198,6 @@ class Course(models.Model):
     
 
 class FixedClassSchedule(models.Model):
-   
-    
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='fixed_classes')
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='fixed_schedules')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='fixed_schedules')
@@ -467,3 +479,38 @@ class GroupMessage(models.Model):
 
     def __str__(self):
         return f"{self.user.username}: {self.content[:20]}..."
+
+
+
+
+
+
+
+
+class Roadmap(models.Model):
+    source_url = models.URLField("Source URL")
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    difficulty = models.CharField(max_length=50)
+    duration = models.CharField(max_length=50)
+    tags = models.JSONField()
+    rating = models.FloatField()
+    downloads = models.PositiveIntegerField()
+
+class ExpertAdvice(models.Model):
+    source_url = models.URLField("Source URL")
+    expert = models.CharField(max_length=255)
+    expert_title = models.CharField(max_length=255)
+    advice_title = models.CharField(max_length=255)
+    content = models.TextField()
+    category = models.CharField(max_length=100)
+    read_time = models.CharField(max_length=50)
+    featured = models.BooleanField(default=False)
+
+class CollegeResource(models.Model):
+    source_url = models.URLField("Source URL")
+    title = models.CharField(max_length=255)
+    type = models.CharField(max_length=100)
+    description = models.TextField()
+    category = models.CharField(max_length=100)
+    useful = models.PositiveIntegerField()

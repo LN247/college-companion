@@ -47,8 +47,6 @@ const Dashboard = () => {
   const [timeLeft, setTimeLeft] = useState({});
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
-  const { user, setUser } = useContext(UserContext);
-
   const [showRelativeTime, setShowRelativeTime] = useState(true);
 
   const navItems = [
@@ -150,7 +148,6 @@ const Dashboard = () => {
       };
     }
     return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   };
 
   // Mock data - recent activities (declared only once)
@@ -217,52 +214,6 @@ const Dashboard = () => {
         return <FaClock />;
     }
   };
-
-  const renderMobileMenu = (
-    <Drawer
-      anchor="left"
-      open={mobileOpen}
-      onClose={handleDrawerToggle}
-      ModalProps={{ keepMounted: true }}
-    >
-      <Box className="mobileDrawer">
-        <IconButton onClick={handleDrawerToggle} className="closeButton">
-          <FaTimes />
-        </IconButton>
-        <List>
-          {navItems.map((item) => (
-            <ListItem
-              button
-              key={item.name}
-              onClick={() => {
-                navigate(item.route);
-                setMobileOpen(false);
-              }}
-            >
-              <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
-              <ListItemText primary={item.name} />
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-    </Drawer>
-  );
-
-  const renderDesktopMenu = (
-    <Box className="desktopMenu">
-      {navItems.map((item) => (
-        <div
-          key={item.name}
-          className="menuItem"
-          onClick={() => navigate(item.route)}
-          style={{ cursor: "pointer" }}
-        >
-          {item.icon}
-          <span>{item.name}</span>
-        </div>
-      ))}
-    </Box>
-  );
 
   return (
     <div className="dashboardContainer">

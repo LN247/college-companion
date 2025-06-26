@@ -9,8 +9,14 @@ from .models import (
     Message,
     MessageContent,
     FileUpload,
-    Reaction
+    Reaction,
+    Roadmap,
+    ExpertAdvice,
+    CollegeResource,
+    Discipline,
+    UserProfile,
 )
+
 from django.contrib.auth import get_user_model
 
 
@@ -80,19 +86,16 @@ class SemesterSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class CourseSerializer(serializers.ModelSerializer):
-
-
-
     class Meta:
             model = Course
             fields = ['id', 'name', 'credits', 'semester','code','academicLevel'] 
-
-
 
     def create(self, validated_data):
         # Set the creator to the current user
         validated_data['created_by'] = self.context['request'].user
         return super().create(validated_data)
+
+
 
 
 
@@ -107,11 +110,14 @@ class FixedClassScheduleSerializer(serializers.ModelSerializer):
         return FixedClassSchedule.objects.create(**validated_data)
 
 
+
 class StudyBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyBlock
-        fields = ['id', 'course',  'start_time', 'end_time', 'is_completed', 'is_notified']
+        fields = ['id', 'course',  'start_time', 'end_time', 'day', 'semester']
         read_only_fields = ['user']
+
+
 
 
 
@@ -125,6 +131,10 @@ class UserPreferencesSerializer(serializers.ModelSerializer):
             'study_start_min', 'study_end_max', 'notification_reminder_minutes','semester'
         ]
         read_only_fields = ['user']
+
+
+
+
 class FileUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileUpload
@@ -281,3 +291,79 @@ class GroupMessageSerializer(serializers.ModelSerializer):
         model = GroupMessage
         fields = ['id', 'group', 'user', 'content', 'timestamp']
         read_only_fields = ['user', 'timestamp']
+
+
+
+
+
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    major = serializers.CharField(write_only=True, required=False)
+    minor = serializers.CharField(write_only=True, required=False)
+    
+    class Meta:
+        model = UserProfile
+        fields = ['major', 'minor', 'bio', 'profile_picture']  # Add other fields as needed
+        
+    def validate_major(self, value):
+        """Ensure major is a valid discipline"""
+        if value and not Discipline.objects.filter(name=value, type='MAJOR').exists():
+            # Create if doesn't exist
+            Discipline.objects.create(name=value, type='MAJOR')
+        return value
+        
+    def validate_minor(self, value):
+        """Ensure minor is a valid discipline"""
+        if value and not Discipline.objects.filter(name=value, type='MINOR').exists():
+            # Create if doesn't exist
+            Discipline.objects.create(name=value, type='MINOR')
+        return value
+
+
+
+
+
+class DisciplineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Discipline
+        fields = ['id', 'name', 'type']
+
+
+
+class RoadmapSerializer(serializers.ModelSerializer):
+    disciplines = DisciplineSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Roadmap
+        fields = [
+            'id', 'source_url', 'title', 'description', 
+            'difficulty', 'duration', 'tags', 'rating', 
+            'downloads', 'disciplines'
+        ]
+
+class ExpertAdviceSerializer(serializers.ModelSerializer):
+    disciplines = DisciplineSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = ExpertAdvice
+        fields = [
+            'id', 'source_url', 'expert', 'expert_title',
+            'advice_title', 'content', 'category', 
+            'read_time', 'featured', 'disciplines'
+        ]
+
+class CollegeResourceSerializer(serializers.ModelSerializer):
+    disciplines = DisciplineSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = CollegeResource
+        fields = [
+            'id', 'source_url', 'title', 'type',
+            'description', 'category', 'useful', 'disciplines'
+        ]
+
+class UserResourcesSerializer(serializers.Serializer):
+    roadmaps = RoadmapSerializer(many=True)
+    expert_advice = ExpertAdviceSerializer(many=True)
+    college_resources = CollegeResourceSerializer(many=True)
