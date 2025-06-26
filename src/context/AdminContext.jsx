@@ -14,7 +14,6 @@ export const AdminProvider = ({ children }) => {
     const fetchSemestersAndCourses = async () => {
       setLoading(true);
       try {
-
         const coursesResponse = await axios.get(`${API_BASE}/courses/`);
         const semestersResponse = await axios.get(`${API_BASE}/semesters/`);
 
@@ -32,13 +31,11 @@ export const AdminProvider = ({ children }) => {
     fetchSemestersAndCourses();
   }, []);
 
-
-
   // Functions (same as original, without types)
   const addSemester = (semester) => {
     const newSemester = {
       ...semester,
-      id: semester.id
+      id: semester.id,
     };
     setSemesters((prev) => [...prev, newSemester]);
   };

@@ -10,8 +10,7 @@ from django.conf import settings
 from django.dispatch import receiver
 from datetime import date
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-
-
+from rest_framework.permissions import BasePermission
 
 
 
@@ -42,7 +41,7 @@ class CustomUserManager(BaseUserManager):
 
 
 
-#defining a custom class user to fit app requirements
+#defining a custom class user to fit app requirements 
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=150, unique=False, null=True, blank=True)
     email = models.EmailField(unique=True)
@@ -52,7 +51,6 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
 
-from rest_framework.permissions import BasePermission
 
 
 class IsSuperUserOrReadOnly(BasePermission):
@@ -72,7 +70,6 @@ class IsSuperUserOrReadOnly(BasePermission):
 
 class UserProfile(models.Model):
     user=models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
-    username = models.CharField(max_length=150, unique=False, null=True, blank=True)
     major = models.CharField(max_length=100, blank=True, null=True)
     minor = models.CharField(max_length=100, blank=True, null=True)
     graduation_year = models.PositiveIntegerField(blank=True, null=True)
@@ -80,7 +77,6 @@ class UserProfile(models.Model):
     profile_picture = models.FilePathField(path='profile_pictures/', blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     fcm_token = models.CharField(max_length=200, blank=True)
-
 
 
 
