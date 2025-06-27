@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "../Styles/ChatStyles.css";
+import axiosInstance from "../api/axiosInstance";
 import StudyGroupList from "../components/StudyGroupList";
 import ChatWindow from "../components/ChatWindow";
 import MessageInput from "../components/MessageInput";
@@ -14,101 +15,81 @@ function ChatPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const fileInputRef = useRef(null);
+  const [allGroups, setAllGroups] = useState([]);
+  const [currentUser, setCurrentUser] = useState({ id: null, name: "" });
 
-
-
-
-
-
-
-
-  const [allGroups, setAllGroups] = useState([
-    { 
-      id: "1", 
-      name: "Calculus Study Group", 
-      course: "Math 101", 
-      isJoined: true, 
-      isAdmin: true, 
-      isOpen: true, 
-      creatorId: "user1",
-      members: [
-        { id: "user1", name: "You", avatar: "", isAdmin: true },
-        { id: "user2", name: "Sophia", avatar: "", isAdmin: false },
-        { id: "user3", name: "Ethan", avatar: "", isAdmin: false },
-      ],
-    },
-    { 
-      id: "2", 
-      name: "Physics Study Group", 
-      course: "Physics 201", 
-      isJoined: false, 
-      isAdmin: false, 
-      isOpen: true, 
-      creatorId: "user2",
-      members: [
-        { id: "user2", name: "Sophia", avatar: "", isAdmin: true },
-        { id: "user1", name: "You", avatar: "", isAdmin: false },
-      ],
-    },
-    { 
-      id: "3", 
-      name: "Chemistry Study Group", 
-      course: "Chemistry 101", 
-      isJoined: true, 
-      isAdmin: false, 
-      isOpen: true, 
-      creatorId: "user3",
-      members: [
-        { id: "user3", name: "Ethan", avatar: "", isAdmin: true },
-        { id: "user1", name: "You", avatar: "", isAdmin: false },
-      ],
-    },
-    { 
-      id: "4", 
-      name: "History Study Group", 
-      course: "History 101", 
-      isJoined: false, 
-      isAdmin: false, 
-      isOpen: true, 
-      creatorId: "user4",
-      members: [
-        { id: "user4", name: "Olivia", avatar: "", isAdmin: true },
-      ],
-    },
-    { 
-      id: "5", 
-      name: "English Study Group", 
-      course: "English 101", 
-      isJoined: false, 
-      isAdmin: false, 
-      isOpen: false, 
-      creatorId: "user1",
-      members: [
-        { id: "user1", name: "You", avatar: "", isAdmin: true },
-      ],
-    }, 
-  ]);
-
-  const currentUser = { id: "user1", name: "You" }; // Mock current user
+  // Fetch user info, groups, and memberships on mount
+  useEffect(() => {
+    axiosInstance.get("/user/info/").then(res => {
+      setCurrentUser({ id: res.data.id, name: res.data.username });
+    });
+    axiosInstance.get("/group-memberships/").then(res => {
+      // You may need to adjust this mapping based on your API response
+      setAllGroups(res.data.map(m => ({
+        ...m.group, // assuming group-memberships returns {id, group: {...}}
+        isJoined: true // user is a member of these groups
+      })));
+    });
+    // Optionally, fetch all available groups and merge with memberships
+    // axiosInstance.get("/group-chats/").then(res => { ... });
+  }, []);
 
   // WebSocket handlers
   const handleMessageReceived = useCallback((data) => {
-    console.log('Message received:', data);
     if (data.type === 'chat_message' && data.message) {
       setMessages(prevMessages => [...prevMessages, data.message]);
     }
   }, []);
 
-  const handleReadReceipt = useCallback((data) => {
-    console.log('Read receipt received:', data);
-  }, []);
+  const handleReadReceipt = useCallback((data) => {}, []);
 
-  // Connect to WebSocket only when a group is selected
   const { sendMessage, sendReadReceipt, connectionStatus } = useWebSocket(
     selectedGroup ? selectedGroup.id : null,
     handleMessageReceived,
     handleReadReceipt
   );
+
+  // Load messages for selected group
+  useEffect(() => {
+    if (!selectedGroup) return;
+    axiosInstance.get(`/group-messages/?group=${selectedGroup.id}`)
+      .then(res => setMessages(res.data));
+  }, [selectedGroup]);
+
+  // Join a group
+  const handleJoinGroup = async (groupId) => {
+    try {
+      await axiosInstance.post("/group-memberships/", { group: groupId });
+      setAllGroups(groups =>
+        groups.map(g => g.id === groupId ? { ...g, isJoined: true } : g)
+      );
+      if (selectedGroup && selectedGroup.id === groupId) {
+        setSelectedGroup(g => ({ ...g, isJoined: true }));
+      }
+    } catch (e) {
+      alert("Failed to join group.");
+    }
+  };
+
+  // Leave a group
+  const handleLeaveGroup = async (groupId) => {
+    try {
+      // Find the membership id for this group
+      const membershipRes = await axiosInstance.get("/group-memberships/");
+      const membership = membershipRes.data.find(m => m.group.id === groupId);
+      if (membership) {
+        await axiosInstance.delete(`/group-memberships/${membership.id}/`);
+        setAllGroups(groups =>
+          groups.map(g => g.id === groupId ? { ...g, isJoined: false } : g)
+        );
+        if (selectedGroup && selectedGroup.id === groupId) {
+          setSelectedGroup(g => ({ ...g, isJoined: false }));
+        }
+      }
+    } catch (e) {
+      alert("Failed to leave group.");
+    }
+  };
 
   useEffect(() => {
     document.body.className = theme;
@@ -120,7 +101,6 @@ function ChatPage() {
 
   const handleSelectGroup = (group) => {
     setSelectedGroup(group);
-    // Clear messages when switching groups
     setMessages([]);
   };
 
@@ -143,15 +123,10 @@ function ChatPage() {
 
   const handleSendMessage = (message) => {
     if (message.trim() && selectedGroup) {
-      // Send message in the format expected by Django Channels backend
       sendMessage(message, currentUser.id);
-      
-      // Clear file selection
       setSelectedFile(null);
       setFilePreview(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -160,19 +135,6 @@ function ChatPage() {
     setFilePreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
-    }
-  };
-
-  const handleJoinLeaveGroup = (groupId) => {
-    setAllGroups((prevGroups) =>
-      prevGroups.map((group) =>
-        group.id === groupId
-          ? { ...group, isJoined: !group.isJoined }
-          : group
-      )
-    );
-    if (selectedGroup && selectedGroup.id === groupId) {
-      setSelectedGroup((prevSelectedGroup) => ({ ...prevSelectedGroup, isJoined: !prevSelectedGroup.isJoined }));
     }
   };
 
@@ -247,7 +209,9 @@ function ChatPage() {
           allGroups={allGroups}
           currentUser={currentUser}
           onSelectGroup={handleSelectGroup}
-          onJoinLeaveGroup={handleJoinLeaveGroup}
+          onJoinLeaveGroup={(groupId, isJoined) =>
+            isJoined ? handleLeaveGroup(groupId) : handleJoinGroup(groupId)
+          }
           onToggleGroupOpen={handleToggleGroupOpen}
           onCreateGroupClick={() => setIsCreateModalOpen(true)} // Open modal
         />
