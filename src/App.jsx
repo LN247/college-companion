@@ -14,6 +14,10 @@ import UserProfileForm from "./pages/UserProfileForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { LoadingProvider } from "./context/LoadingContext";
 import { useLoading } from "./context/LoadingContext";
+import LoadingScreen from "@/components/Loadingpage.jsx";
+
+
+
 
 const AppContent = () => {
   const { isLoading } = useLoading();
@@ -43,14 +47,7 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/college-life"
-          element={
-            <ProtectedRoute>
-              <CollegeLife />
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="/semester-plan"
           element={
