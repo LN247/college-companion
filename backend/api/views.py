@@ -17,7 +17,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .models import UserPreferences, Course, StudyBlock,CustomUser,UserProfile, GroupChat, GroupMembership, GroupMessage, Resource
+from .models import UserPreferences, Course, StudyBlock,CustomUser,UserProfile, GroupChat, GroupMembership, GroupMessage, Resource, Event
 from .scheduler import generate_timetable
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken
@@ -45,7 +45,8 @@ from .serializers import (
     ReactionCreateSerializer,
     GroupChatSerializer,
     GroupMessageSerializer,
-    ResourceSerializer
+    ResourceSerializer,
+    EventSerializer
 )
 from .utilities.Propose_community import propose_community
 from django.db import models
@@ -73,7 +74,7 @@ class RegistrationView(CreateAPIView):
 class LoginView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = [] 
-    
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
 
@@ -160,7 +161,7 @@ class CookieTokenRefreshView(TokenRefreshView):
      
 
 
-
+     
 
 
 class GoogleAuthView(APIView):
@@ -186,20 +187,20 @@ class GoogleAuthView(APIView):
                 except CustomUser.DoesNotExist:
                     user = CustomUser.objects.create(
                         email=email,
-                        username=email 
+                        username=email
                     )
                     user.set_unusable_password()  
                     user.save()
 
                 # Generate JWT tokens
-                refresh = RefreshToken.for_user(user)
-                access_token = str(refresh.access_token)
+                    refresh = RefreshToken.for_user(user)
+                    access_token = str(refresh.access_token)
 
-                response = Response({
+                    response = Response({
                         'user': CustomUserSerializer(user).data
                     }, status=status.HTTP_200_OK)
 
-                response.set_cookie(
+                    response.set_cookie(
                     key='access_token',
                     value=access_token,
                     samesite='None',
@@ -207,7 +208,7 @@ class GoogleAuthView(APIView):
                     secure=True
                     )
 
-                response.set_cookie(
+                    response.set_cookie(
                     key='refresh_token',
                     value=str(refresh),
                     samesite='None',
@@ -625,3 +626,13 @@ class DailyResourceView(APIView):
 
         serializer = ResourceSerializer(daily_resources, many=True)
         return Response({'resources': serializer.data})
+
+class EventViewSet(viewsets.ModelViewSet):
+    serializer_class = EventSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Event.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

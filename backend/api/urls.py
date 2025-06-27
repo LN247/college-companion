@@ -11,7 +11,8 @@ from .views import (
     GroupChatViewSet,
     GroupMembershipViewSet,
     GroupMessageViewSet,
-    DailyResourceView
+    DailyResourceView,
+    EventViewSet
 )
 
 
@@ -36,6 +37,8 @@ messages_router.register(r'reactions', ReactionViewSet, basename='message-reacti
 router.register(r'group-chats', GroupChatViewSet, basename='groupchat')
 router.register(r'group-memberships', GroupMembershipViewSet, basename='groupmembership')
 router.register(r'group-messages', GroupMessageViewSet, basename='groupmessage')
+
+router.register(r'events', EventViewSet, basename='event')
 
 urlpatterns = [
     path('', include(router.urls)),

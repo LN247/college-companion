@@ -95,12 +95,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
     'api',
-    'chat',
     'rest_framework',
     'channels',
-    'channels_redis',  # Uncomment if using Redis for channel layers
+    
 ]
 
 

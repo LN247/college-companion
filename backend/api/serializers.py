@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from django.contrib.auth import  authenticate
-from .models import CustomUser, Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences, GroupChat, GroupMembership, GroupMessage, Resource
+from .models import CustomUser, Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences, GroupChat, GroupMembership, GroupMessage, Resource, Event
 from rest_framework import serializers
 from .models import (
     Group,
@@ -253,3 +253,9 @@ class ResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resource
         fields = ['id', 'title', 'description', 'url', 'type', 'major', 'minor', 'created_at']
+
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ['id', 'user', 'title', 'description', 'start_time', 'end_time', 'color']
+        read_only_fields = ['user']

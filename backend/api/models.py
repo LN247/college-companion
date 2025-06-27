@@ -8,7 +8,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import date
-
+from django.conf import settings
 
 
 DAY_CHOICES = [
@@ -260,7 +260,7 @@ class FileUpload(models.Model):
     
     file = models.FileField(
         upload_to=message_file_path,
-        validators=[validate_file_size],
+        
        
     )
     file_type = models.CharField(max_length=10, choices=FILE_TYPES)
@@ -327,7 +327,6 @@ class MessageContent(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        validators=[validate_file_size],
         related_name='message_contents'
     )
     order = models.PositiveIntegerField(default=0)
@@ -421,3 +420,14 @@ class Resource(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.type}) for {self.major or 'All Majors'}"
+
+class Event(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='events')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    color = models.CharField(max_length=7, default='#1E88E5')  # Hex color for UI
+
+    def __str__(self):
+        return self.title
