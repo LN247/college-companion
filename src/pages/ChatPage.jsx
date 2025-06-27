@@ -196,15 +196,15 @@ function ChatPage() {
   };
 
   return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <h1>Study Group Chat</h1>
-        <div className="connection-status">
-          Status: {selectedGroup ? `${connectionStatus} to ${selectedGroup.name}` : 'No group selected'}
+    <div className="chat-container modern-chat">
+      <aside className="sidebar modern-sidebar">
+        <div className="sidebar-header">
+          <h2>Study Groups</h2>
+          <button onClick={toggleTheme} className="theme-toggle modern-theme-toggle" aria-label="Switch theme">
+            <span className="theme-toggle-icon" />
+            {theme === "light" ? "Dark" : "Light"} Mode
+          </button>
         </div>
-      </div>
-      <div className="sidebar">
-        <h2>Study Groups</h2>
         <StudyGroupList
           allGroups={allGroups}
           currentUser={currentUser}
@@ -213,57 +213,77 @@ function ChatPage() {
             isJoined ? handleLeaveGroup(groupId) : handleJoinGroup(groupId)
           }
           onToggleGroupOpen={handleToggleGroupOpen}
-          onCreateGroupClick={() => setIsCreateModalOpen(true)} // Open modal
+          onCreateGroupClick={() => setIsCreateModalOpen(true)}
         />
-        <button onClick={toggleTheme} className="theme-toggle">
-          Switch to {theme === "light" ? "Dark" : "Light"} Mode
-        </button>
-      </div>
-      <div className="main-content">
-        {selectedGroup ? (
-          <>
-            <ChatWindow
-              selectedGroup={selectedGroup}
-              messages={messages}
-              currentUser={currentUser}
-              members={selectedGroup.members}
-              onToggleAdmin={handleToggleAdmin}
-            />
-            {selectedGroup.isJoined && selectedGroup.isOpen ? (
-              <div className="chat-input">
-                {selectedFile && (
-                  <div className="file-preview">
-                    {filePreview ? (
-                      <img src={filePreview} alt="Preview" className="image-preview" />
-                    ) : (
-                      <div className="file-info">
-                        <span>{selectedFile.name}</span>
-                        <span className="file-size">({(selectedFile.size / 1024).toFixed(1)} KB)</span>
-                      </div>
-                    )}
-                    <button className="remove-file" onClick={handleRemoveFile}>
-                      ×
-                    </button>
-                  </div>
-                )}
-                <MessageInput 
-                  onSendMessage={handleSendMessage}
-                  fileInputRef={fileInputRef}
-                  onFileSelect={handleFileSelect}
-                />
-              </div>
-            ) : (
-              <div className="chat-input disabled-input">
-                <p>{!selectedGroup.isJoined ? "Join the group to send messages." : "This group is currently closed."}</p>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="placeholder-chat">
-            <p className="no-group-selected">Select a study group to start chatting.</p>
+      </aside>
+      <main className="main-content modern-main-content">
+        <header className="chat-header modern-chat-header">
+          <div className="chat-title-group">
+            <h1>Study Group Chat</h1>
+            <div className="connection-status modern-connection-status">
+              {selectedGroup ? (
+                <>
+                  <span className="status-dot status-dot--active" />
+                  Connected to <b>{selectedGroup.name}</b>
+                </>
+              ) : (
+                <>
+                  <span className="status-dot status-dot--inactive" />
+                  No group selected
+                </>
+              )}
+            </div>
           </div>
-        )}
-      </div>
+        </header>
+        <section className="chat-section">
+          {selectedGroup ? (
+            <>
+              <ChatWindow
+                selectedGroup={selectedGroup}
+                messages={messages}
+                currentUser={currentUser}
+                members={selectedGroup.members}
+                onToggleAdmin={handleToggleAdmin}
+              />
+              {selectedGroup.isJoined && selectedGroup.isOpen ? (
+                <div className="chat-input modern-chat-input">
+                  {selectedFile && (
+                    <div className="file-preview modern-file-preview">
+                      {filePreview ? (
+                        <img src={filePreview} alt="Preview" className="image-preview modern-image-preview" />
+                      ) : (
+                        <div className="file-info modern-file-info">
+                          <span>{selectedFile.name}</span>
+                          <span className="file-size">{(selectedFile.size / 1024).toFixed(1)} KB</span>
+                        </div>
+                      )}
+                      <button className="remove-file modern-remove-file" onClick={handleRemoveFile} aria-label="Remove file">
+                        ×
+                      </button>
+                    </div>
+                  )}
+                  <MessageInput 
+                    onSendMessage={handleSendMessage}
+                    fileInputRef={fileInputRef}
+                    onFileSelect={handleFileSelect}
+                  />
+                </div>
+              ) : (
+                <div className="chat-input disabled-input modern-disabled-input">
+                  <p>{!selectedGroup.isJoined ? "Join the group to send messages." : "This group is currently closed."}</p>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="placeholder-chat modern-placeholder-chat">
+              <div className="placeholder-content">
+                <img src="/src/assets/Notfound-background.jpeg" alt="No group selected" className="placeholder-image" />
+                <p className="no-group-selected modern-no-group-selected">Select a study group to start chatting.</p>
+              </div>
+            </div>
+          )}
+        </section>
+      </main>
       <CreateGroupModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
