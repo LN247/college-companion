@@ -55,7 +55,7 @@ class UserInfoView(RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
-
+    
 
 
 
@@ -221,7 +221,7 @@ class GoogleAuthView(APIView):
                     secure=False,
                     max_age=timedelta(days=12, hours=23, minutes=59),
 
-                )
+                  )    
                 
                 # Example: return user info
                 return Response({'email': user.email}, status=status.HTTP_200_OK)
