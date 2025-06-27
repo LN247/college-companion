@@ -22,6 +22,7 @@ import AcademicCalendar from "./components/AcademicCalendar";
 import { UserProvider } from "./context/UserContext";
 import ChatPage from "./pages/ChatPage";
 import Unauthorised from "./pages/Unauthorised";
+import AIAssistant   from "@/pages/AIAssistant.jsx";
 const AppContent = () => {
   const { isLoading } = useLoading();
 

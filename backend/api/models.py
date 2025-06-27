@@ -8,7 +8,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models.signals import post_save
 from django.conf import settings
 from django.dispatch import receiver
-from datetime import date
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from rest_framework.permissions import BasePermission
 from .Validation import validate_file_size

@@ -93,7 +93,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,
                 max_age=timedelta(days=7, hours=23, minutes=59),
-                domain='127.0.0.1/'
+                domain='localhost'
 
             )
 
@@ -104,7 +104,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,
                 max_age = timedelta(days=12, hours=23, minutes=59),
-                domain='127.0.0.1/'
+                domain='localhost'
             )
 
             return response

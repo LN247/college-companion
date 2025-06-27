@@ -37,7 +37,6 @@ import {
 } from "@mui/material";
 import "../Styles/Dashboard.css";
 import UserContext from "../context/UserContext";
-import AIAssistant   from "../components/AIAssistant.jsx";
 import {useToast} from "@/hooks/use-toast.js";
 
 const Dashboard = () => {
@@ -126,7 +125,7 @@ const Dashboard = () => {
             <FaTimes />
           </IconButton>
           <List>
-              <AIAssistant/>
+
             {navItems.map((item) => (
               <ListItem key={item.name} disablePadding>
                 <ListItemButton
