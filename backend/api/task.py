@@ -1,9 +1,10 @@
 # tasks.py
 from celery import shared_task
-from django.utils import timezone
-from .models import StudyBlock, FixedClassSchedule
+from .models import StudyBlock
 from django.conf import settings
+
 import requests
+
 
 
 @shared_task
@@ -53,3 +54,8 @@ def send_class_time_reminder(block_id):
 
 
     pass
+
+
+
+
+

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import UserAnalytics from "../components/UserAnalytics";
-import { useContext } from "react";
 import {
   FaCalendar,
   FaChartLine,
@@ -16,6 +15,7 @@ import {
   FaQuestionCircle,
 } from "react-icons/fa";
 import axios from "axios";
+import { onMessageListener } from "../utils/firebase";
 import {
   AppBar,
   Toolbar,
@@ -33,13 +33,13 @@ import {
   Avatar,
   useMediaQuery,
   useTheme,
+  Card,
+  CardContent,
 } from "@mui/material";
 import "../Styles/Dashboard.css";
-import { Card, CardContent } from "@mui/material";
-import { onMessageListener } from "../utils/firebase";
 import UserContext from "../context/UserContext";
-
-
+import AIAssistant   from "../components/AIAssistant.jsx";
+import {useToast} from "@/hooks/use-toast.js";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -48,11 +48,7 @@ const Dashboard = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [timeLeft, setTimeLeft] = useState({});
   const navigate = useNavigate();
-   const { user, setUser } = useContext(UserContext);
-
-
-
-
+  const { user, setUser } = useContext(UserContext);
   const [showRelativeTime, setShowRelativeTime] = useState(true);
 
   const navItems = [
@@ -64,11 +60,9 @@ const Dashboard = () => {
     { name: "Help Center", icon: <FaQuestionCircle />, route: "/help" },
   ];
 
-  const API_BASE = "http://localhost:8000/api";
 
-  const semesterEnd = "2025-06-26T23:59:59"; // Example semester end date
-
-
+  const semesterEnd = "2025-06-28T23:59:59";
+  const {addtoast}=useToast();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -78,16 +72,35 @@ const Dashboard = () => {
   }, []);
 
 
+    const [notifications, setNotifications] = useState([]);
+     useEffect(() => {
+    const listen = async () => {
+      try {
+        const payload = await onMessageListener();
+        const incoming = {
+          title: payload.notification.title,
+          body: payload.notification.body,
+          timestamp: new Date().toISOString(),
+        };
 
+        setNotifications((prev) => {
+          const updated = [incoming, ...prev];
+          localStorage.setItem("notifications", JSON.stringify(updated));
+          return updated;
+        });
 
-  useEffect(() => {
-    onMessageListener().then((payload) => {
-      // Show notification or update UI
-      alert(`New notification: ${payload.notification.title}`);
-    });
-  }, []);
+           addtoast({
+          title: incoming.title,
+          description: incoming.body,
+          variant: "default",
+        });
+      } catch (error) {
+        console.error("Notification listener error:", error);
+      }
+    };
 
-
+    listen();
+  }, );
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -102,56 +115,55 @@ const Dashboard = () => {
   };
 
   const renderMobileMenu = (
-       <React.Fragment>
-
-    <Drawer
-      anchor="left"
-      open={mobileOpen}
-      onClose={handleDrawerToggle}
-      ModalProps={{ keepMounted: true }}
-    >
-      <Box className="mobileDrawer">
-        <IconButton onClick={handleDrawerToggle} className="closeButton">
-          <FaTimes />
-        </IconButton>
-        <List>
-          {navItems.map((item) => (
-            <ListItem key={item.name} disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  navigate(item.route);
-                  setMobileOpen(false);
-                }}
-              >
-                <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
-                <ListItemText primary={item.name} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-    </Drawer>
-          </React.Fragment>
-
+    <React.Fragment>
+      <Drawer
+        anchor="left"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{ keepMounted: true }}
+      >
+        <Box className="mobileDrawer">
+          <IconButton onClick={handleDrawerToggle} className="closeButton">
+            <FaTimes />
+          </IconButton>
+          <List>
+              <AIAssistant/>
+            {navItems.map((item) => (
+              <ListItem key={item.name} disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    navigate(item.route);
+                    setMobileOpen(false);
+                  }}
+                >
+                  <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.name} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
+    </React.Fragment>
   );
 
   const renderDesktopMenu = (
-       <React.Fragment>
-    <Box className="desktopMenu">
-      {navItems.map((item) => (
-        <div
-          key={item.name}
-          className="menuItem"
-          onClick={() => navigate(item.route)}
-          style={{ cursor: "pointer" }}
-        >
-          {item.icon}
-          <span>{item.name}</span>
-        </div>
-      ))}
-    </Box>
-       </React.Fragment>
+    <React.Fragment>
 
+      <Box className="desktopMenu">
+        {navItems.map((item) => (
+          <div
+            key={item.name}
+            className="menuItem"
+            onClick={() => navigate(item.route)}
+            style={{ cursor: "pointer" }}
+          >
+            {item.icon}
+            <span>{item.name}</span>
+          </div>
+        ))}
+      </Box>
+    </React.Fragment>
   );
 
   // Function to calculate time left until semester end
@@ -165,10 +177,10 @@ const Dashboard = () => {
         seconds: Math.floor((difference / 1000) % 60),
       };
     }
-    return { days:0 , hours: 0, minutes: 0, seconds: 0 };
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   };
 
-  // Mock data - replace with actual API calls
+  // Mock data - recent activities (declared only once)
   const recentActivities = [
     {
       action: "Created a study plan",
@@ -196,7 +208,6 @@ const Dashboard = () => {
       type: "reminder",
     },
   ];
-  // navigation icons
 
   const tipOfTheDay = {
     tip: "Break your study sessions into 25-minute intervals with 5-minute breaks for better focus.",
@@ -217,11 +228,24 @@ const Dashboard = () => {
     return date.toLocaleString();
   };
 
-  const handleLogout = () => {};
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case "plan":
+        return <FaCalendar />;
+      case "timetable":
+        return <FaTable />;
+      case "assignment":
+        return <FaGraduationCap />;
+      case "group":
+        return <FaUserCircle />;
+      case "reminder":
+        return <FaBell />;
+      default:
+        return <FaClock />;
+    }
+  };
 
   return (
-
-
     <div className="dashboardContainer">
       {/* App Bar */}
       <AppBar position="static" className="appBar">
@@ -236,11 +260,9 @@ const Dashboard = () => {
               <FaBars />
             </IconButton>
           )}
-
           <Typography variant="h6" className="title">
             Academic Dashboard
           </Typography>
-
           <div className="countdown">
             <span>{timeLeft.days}d</span>
             <span>{timeLeft.hours}h</span>
@@ -248,7 +270,6 @@ const Dashboard = () => {
             <span>{timeLeft.seconds}s</span>
             <Typography variant="caption">Until Semester End</Typography>
           </div>
-
           <IconButton
             edge="end"
             color="inherit"
@@ -257,7 +278,6 @@ const Dashboard = () => {
           >
             <FaUserCircle />
           </IconButton>
-
           <Menu
             anchorEl={anchorEl}
             anchorOrigin={{ vertical: "top", horizontal: "right" }}
@@ -270,8 +290,10 @@ const Dashboard = () => {
             <MenuItem onClick={handleMenuClose}>
               <div className="userInfo">
                 <Avatar className="avatar">
-            {user && user.username ? String(user.username).charAt(0) : '?'}
-        </Avatar>
+                  {user && user.username
+                    ? String(user.username).charAt(0)
+                    : "?"}
+                </Avatar>
 
                 <div>
                   <Typography variant="subtitle1">{user.username}</Typography>
@@ -286,15 +308,11 @@ const Dashboard = () => {
         </Toolbar>
       </AppBar>
 
-      {/* Mobile Navigation Drawer */}
       {isMobile && renderMobileMenu}
 
-      {/* Main Content */}
       <main className="mainContent">
-        {/* Desktop Navigation */}
         {!isMobile && renderDesktopMenu}
 
-        {/* Welcome Message */}
         <div className="welcome-section">
           <h1>Welcome, {user?.name || "Student"}</h1>
           <p className="date">
@@ -307,10 +325,9 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* User Analytics */}
         <UserAnalytics />
 
-        {/* Activity Feed */}
+
         <div className="activity-section">
           <div className="section-header">
             <h2>Recent Activity</h2>
@@ -325,7 +342,7 @@ const Dashboard = () => {
             {recentActivities.map((activity, index) => (
               <div key={index} className="activity-item">
                 <div className="activity-icon">
-                  {activity.type === "plan" ? <FaCalendar /> : <FaClock />}
+                  {getActivityIcon(activity.type)}
                 </div>
                 <div className="activity-content">
                   <p>{activity.action}</p>
@@ -338,19 +355,23 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Tip of the Day */}
         <div className="tip-section">
-          <Card className="tip-card">
-            <h2>Tip of the Day</h2>
+          <Card className="tip-card styled-tip-card">
+            <h2 className="tip-heading">✨ Tip of the Day ✨</h2>
             <CardContent>
-              <p className="tip-text">{tipOfTheDay.tip}</p>
-              <p className="tip-author">— {tipOfTheDay.author}</p>
+              {tipOfTheDay ? (
+                <>
+                  <p className="tip-text">"{tipOfTheDay.tip}"</p>
+                  <p className="tip-author">— {tipOfTheDay.author}</p>
+                </>
+              ) : (
+                <p className="tip-text">Loading tip...</p>
+              )}
             </CardContent>
           </Card>
         </div>
       </main>
     </div>
-
   );
 };
 

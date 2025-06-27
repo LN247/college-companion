@@ -36,16 +36,3 @@
   --active-tab-text: #38bdf8;
   --inactive-tab-text: #cbd5e1;
 }
-
-.dark-theme {
-  --slider-track-bg: 240 5% 26%;
-  --slider-range-bg: 240 5.9% 90%;
-  --slider-thumb-border: 240 5.9% 90%;
-  --slider-focus-ring: 240 5.9% 90%;
-}
-.light-theme {
-  --slider-track-bg: 220 14% 96%;
-  --slider-range-bg: 220 78% 46%;
-  --slider-thumb-border: 220 78% 46%;
-  --slider-focus-ring: 220 78% 46%;
-}

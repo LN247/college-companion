@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, {useState} from "react";
 import { Routes, Route } from "react-router-dom";
 import LoginForm from "./pages/LoginForm";
 import SignupForm from "./pages/SignupForm";
@@ -15,23 +14,31 @@ import AddSemester from "./pages/AddSemester.jsx";
 import UserProfileForm from "./pages/UserProfileForm";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import { LoadingProvider } from "./context/LoadingContext";
-import ChatPage  from  "./pages/ChatPage"
 import { useLoading } from "./context/LoadingContext";
+import Notifications from "./pages/notifications";
 import { AdminProvider } from "./context/AdminContext";
 import AcademicCalendar from "./components/AcademicCalendar";
-import {UserProvider} from "./context/UserContext";
-
+import { UserProvider } from "./context/UserContext";
+import ChatPage from "./pages/ChatPage";
+import Unauthorised from "./pages/Unauthorised";
 const AppContent = () => {
   const { isLoading } = useLoading();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <>
       <Routes>
         <Route path="/" element={<Homepage />} />
+
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/calendar" element={<AcademicCalendar />} />
         <Route path="*" element={<Notfound />} />
+        <Route path="/not-authorized" element={<Unauthorised />} />
         <Route
           path="/add-semester"
           element={
@@ -48,9 +55,10 @@ const AppContent = () => {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
+          <ProtectedRoute><Dashboard />
+          </ProtectedRoute>
+
+
           }
         />
 
@@ -96,22 +104,27 @@ const AppContent = () => {
           }
         />
         <Route
-          path="/admin-dashboard"
+          path="/notifications"
           element={
             <ProtectedRoute>
-              <AdminProvider>
-                <AdminDashboard />
-              </AdminProvider>
+              <Notifications />
             </ProtectedRoute>
           }
         />
-
-        <Route path="*" element={<Notfound />} />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <AdminProtectedRoute>
+              <AdminProvider>
+                <AdminDashboard />
+              </AdminProvider>
+            </AdminProtectedRoute>
+          }
+        />
       </Routes>
-    </ErrorBoundary>
+    </>
   );
 };
-
 
 const AppProviders = ({ children }) => {
   return (
@@ -121,14 +134,15 @@ const AppProviders = ({ children }) => {
   );
 };
 
-// Then in App:
 function App() {
+
+
+
   return (
     <AppProviders>
       <AppContent />
     </AppProviders>
   );
 }
-
 
 export default App;

@@ -107,8 +107,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
-
+    'channels',
+    'channels_redis',  
 ]
+
+
+
+
+
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -202,8 +209,25 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_MAX_LOOP_INTERVAL = 300
 CELERY_RESULT_EXPIRES = 3600
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://localhost:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# Cache timeout settings
+USER_RESOURCES_CACHE_TIMEOUT = 21600
+
+
+
 
 # Notification settings
 STUDY_NOTIFICATION_ADVANCE_MINUTES = 10

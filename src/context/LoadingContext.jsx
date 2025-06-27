@@ -1,23 +1,22 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
 const LoadingContext = createContext({
   isLoading: false,
   setIsLoading: () => {},
-  loadingMessage: '',
+  loadingMessage: "",
   setLoadingMessage: () => {},
 });
 
 export const LoadingProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('Loading, please wait...');
-
-  // Reset loading state after initial mount
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
+  const [loadingMessage, setLoadingMessage] = useState(
+    "Loading, please wait..."
+  );
 
   return (
-    <LoadingContext.Provider value={{ isLoading, setIsLoading, loadingMessage, setLoadingMessage }}>
+    <LoadingContext.Provider
+      value={{ isLoading, setIsLoading, loadingMessage, setLoadingMessage }}
+    >
       {children}
     </LoadingContext.Provider>
   );
@@ -26,7 +25,7 @@ export const LoadingProvider = ({ children }) => {
 export const useLoading = () => {
   const context = useContext(LoadingContext);
   if (!context) {
-    throw new Error('useLoading must be used within a LoadingProvider');
+    throw new Error("useLoading must be used within a LoadingProvider");
   }
   return context;
-}; 
+};

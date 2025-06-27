@@ -1,15 +1,16 @@
+from django.contrib.auth.models import User
+from rest_framework import generics, permissions, status, viewsets
+from rest_framework.decorators import action
+from django.db.models import Q
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
-from .serializers import CustomUserSerializer,RegistrationSerializer,LoginSerializer, GoogleAuthSerializer
-from .models import CustomUser
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from .models import UserPreferences, Course, StudyBlock,CustomUser,UserProfile
+from .models import UserProfile, GroupChat, GroupMessage
+from rest_framework.views import APIView
 from .scheduler import generate_timetable
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken
@@ -17,7 +18,6 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from datetime import datetime, timedelta ,date
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
@@ -26,15 +26,27 @@ import os
 from .task import send_study_notification
 from rest_framework import viewsets
 from .authentication import CookieJWTAuthentication
-from .models import Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences
+from .models import (CustomUser,Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences,Group,GroupMembership, Message,MessageContent,FileUpload,Reaction)
 from django.conf import settings
 from .serializers import (
     SemesterSerializer, CourseSerializer, FixedClassScheduleSerializer,
-    StudyBlockSerializer, UserPreferencesSerializer
+    StudyBlockSerializer, UserPreferencesSerializer,GroupSerializer,
+    GroupCreateSerializer,
+    GroupMembershipSerializer,
+    GroupJoinSerializer,
+    GroupRoleUpdateSerializer,
+    MessageSerializer,
+    MessageCreateSerializer,
+    ReactionSerializer,
+   ReactionCreateSerializer,
+    GroupChatSerializer, GroupMessageSerializer, CustomUserSerializer,
+    RegistrationSerializer, LoginSerializer, GoogleAuthSerializer
 )
 
 
 
+
+from .utilities.Propose_community import propose_community
 
 class UserInfoView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
@@ -81,7 +93,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,
                 max_age=timedelta(days=7, hours=23, minutes=59),
-                domain='localhost'
+                domain='127.0.0.1/'
 
             )
 
@@ -92,7 +104,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,
                 max_age = timedelta(days=12, hours=23, minutes=59),
-                domain='localhost'
+                domain='127.0.0.1/'
             )
 
             return response
@@ -403,6 +415,206 @@ class UserPreferencesViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return GroupCreateSerializer
+        return GroupSerializer
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Group.objects.filter(
+            memberships__user=user
+        ).order_by('-created_at')
+    
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+    
+    @action(detail=True, methods=['post'])
+    def join(self, request, pk=None):
+        group = self.get_object()
+        serializer = GroupJoinSerializer(data=request.data)
+        if serializer.is_valid():
+            user_id = serializer.validated_data['user_id']
+            user = get_object_or_404(User, id=user_id)
+            
+            if not group.memberships.filter(user=user).exists():
+                GroupMembership.objects.create(
+                    user=user,
+                    group=group,
+                    role='member'
+                )
+                return Response({'status': 'user added to group'}, status=status.HTTP_201_CREATED)
+            return Response({'error': 'user already in group'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['post'])
+    def update_role(self, request, pk=None):
+        group = self.get_object()
+        serializer = GroupRoleUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            user_id = serializer.validated_data['user_id']
+            role = serializer.validated_data['role']
+            
+            # Check if requester is admin
+            requester_membership = group.memberships.get(user=request.user)
+            if requester_membership.role != 'admin':
+                return Response(
+                    {'error': 'Only group admins can update roles'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            membership = get_object_or_404(
+                group.memberships,
+                user_id=user_id
+            )
+            membership.role = role
+            membership.save()
+            
+            return Response(
+                GroupMembershipSerializer(membership).data,
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['get'])
+    def members(self, request, pk=None):
+        group = self.get_object()
+        memberships = group.memberships.all()
+        serializer = GroupMembershipSerializer(memberships, many=True)
+        return Response(serializer.data)
+
+class MessageViewSet(viewsets.ModelViewSet):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        group_id = self.kwargs.get('group_pk')
+        user = self.request.user
+        
+        # Verify user is a member of the group
+        if not GroupMembership.objects.filter(
+            group_id=group_id,
+            user=user
+        ).exists():
+            return Message.objects.none()
+        
+        return Message.objects.filter(group_id=group_id).order_by('timestamp')
+    
+    def create(self, request, *args, **kwargs):
+        group_id = kwargs.get('group_pk')
+        group = get_object_or_404(Group, id=group_id)
+        
+        # Verify user is a member of the group
+        if not group.memberships.filter(user=request.user).exists():
+            return Response(
+                {'error': 'You are not a member of this group'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        serializer = MessageCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            content_type = serializer.validated_data['content_type']
+            content = serializer.validated_data.get('content', '')
+            file = serializer.validated_data.get('file')
+            
+            # Create message
+            message = Message.objects.create(
+                sender=request.user,
+                group=group
+            )
+            
+            # Handle file upload if present
+            file_upload = None
+            if file:
+                file_upload = FileUpload.objects.create(
+                    file=file,
+                    file_type=content_type,
+                    file_size=file.size
+                )
+            
+            # Create message content
+            MessageContent.objects.create(
+                message=message,
+                content_type=content_type,
+                content=content,
+                file=file_upload
+            )
+            
+            # Mark as read for sender
+            membership = group.memberships.get(user=request.user)
+            membership.last_read = message.timestamp
+            membership.save()
+            
+            return Response(
+                self.serializer_class(message, context={'request': request}).data,
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['post'])
+    def mark_read(self, request, group_pk=None, pk=None):
+        message = self.get_object()
+        membership = get_object_or_404(
+            GroupMembership,
+            group_id=group_pk,
+            user=request.user
+        )
+        
+        if membership.last_read < message.timestamp:
+            membership.last_read = message.timestamp
+            membership.save()
+        
+        return Response({'status': 'message marked as read'})
+
+class ReactionViewSet(viewsets.ModelViewSet):
+    serializer_class = ReactionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        message_id = self.kwargs.get('message_pk')
+        return Reaction.objects.filter(message_id=message_id)
+    
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return ReactionCreateSerializer
+        return ReactionSerializer
+    
+    def perform_create(self, serializer):
+        message_id = self.kwargs.get('message_pk')
+        message = get_object_or_404(Message, id=message_id)
+        
+        # Verify user is a member of the group
+        if not message.group.memberships.filter(user=self.request.user).exists():
+            return Response(
+                {'error': 'You are not a member of this group'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        serializer.save(
+            user=self.request.user,
+            message=message
+        )
+
+class GroupSearchView(generics.ListAPIView):
+    serializer_class = GroupSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        query = self.request.query_params.get('q', '')
+        user = self.request.user
+        
+        if not query:
+            return Group.objects.none()
+        
+        return Group.objects.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query),
+            memberships__user=user
+        ).distinct()[:20]
 
 
 
@@ -432,8 +644,8 @@ class GenerateTimetable(APIView):
         for block in study_blocks:
             study_block = StudyBlock.objects.create(
                 user=user,
-                course=block['course'],
-                date=block['date'],
+                course=block.course,
+                day=block['day'],
                 start_time=block['start_time'],
                 end_time=block['end_time']
             )
@@ -450,3 +662,67 @@ class GenerateTimetable(APIView):
             )
 
         return JsonResponse({'status': 'success', 'blocks_created': len(study_blocks)}, status=status.HTTP_200_OK)
+
+class CommunityProposalView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id=None):
+        """
+        Get community proposals for the authenticated user.
+        Optionally filter by course_id.
+        """
+        result = propose_community(request.user.id, course_id)
+        return Response(result, status=status.HTTP_200_OK if result['status'] == 'success' else status.HTTP_400_BAD_REQUEST)
+
+class GroupChatViewSet(viewsets.ModelViewSet):
+    queryset = GroupChat.objects.all()
+    serializer_class = GroupChatSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+class GroupMembershipViewSet(viewsets.ModelViewSet):
+    queryset = GroupMembership.objects.all()
+    serializer_class = GroupMembershipSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        group_id = request.data.get('group')
+        if GroupMembership.objects.filter(user=request.user, group_id=group_id).exists():
+            return Response({'detail': 'Already a member'}, status=status.HTTP_400_BAD_REQUEST)
+        membership = GroupMembership.objects.create(user=request.user, group_id=group_id)
+        return Response(GroupMembershipSerializer(membership).data, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        membership = self.get_object()
+        if membership.user != request.user:
+            return Response({'detail': 'Not allowed'}, status=status.HTTP_403_FORBIDDEN)
+        membership.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class GroupMessageViewSet(viewsets.ModelViewSet):
+    queryset = GroupMessage.objects.all()
+    serializer_class = GroupMessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+
+
+
+
+from .serializers import UserProfileSerializer
+
+class UserProfileUpdateView(RetrieveUpdateAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user
+    
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        

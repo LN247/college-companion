@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "../Styles/ChatStyles.css";
 import StudyGroupList from "../components/StudyGroupList";
 import ChatWindow from "../components/ChatWindow";
 import MessageInput from "../components/MessageInput";
 import CreateGroupModal from "../components/CreateGroupModal";
-import { useWebSocket } from '../hooks/UseWebSocket';
+import useWebSocket from '../hooks/UseWebSocket';
 
 function ChatPage() {
   const [theme, setTheme] = useState("light"); // "light" or "dark"
@@ -14,6 +14,14 @@ function ChatPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const fileInputRef = useRef(null);
+
+
+
+
+
+
+
+
   const [allGroups, setAllGroups] = useState([
     { 
       id: "1", 
@@ -82,18 +90,29 @@ function ChatPage() {
   ]);
 
   const currentUser = { id: "user1", name: "You" }; // Mock current user
-  const { sendMessage, lastMessage, connectionStatus } = useWebSocket('ws://localhost:8000/ws/chat/');
+
+  // WebSocket handlers
+  const handleMessageReceived = useCallback((data) => {
+    console.log('Message received:', data);
+    if (data.type === 'chat_message' && data.message) {
+      setMessages(prevMessages => [...prevMessages, data.message]);
+    }
+  }, []);
+
+  const handleReadReceipt = useCallback((data) => {
+    console.log('Read receipt received:', data);
+  }, []);
+
+  // Connect to WebSocket only when a group is selected
+  const { sendMessage, sendReadReceipt, connectionStatus } = useWebSocket(
+    selectedGroup ? selectedGroup.id : null,
+    handleMessageReceived,
+    handleReadReceipt
+  );
 
   useEffect(() => {
     document.body.className = theme;
   }, [theme]);
-
-  useEffect(() => {
-    if (lastMessage !== null) {
-      const data = JSON.parse(lastMessage.data);
-      setMessages(prevMessages => [...prevMessages, data]);
-    }
-  }, [lastMessage]);
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
@@ -101,6 +120,8 @@ function ChatPage() {
 
   const handleSelectGroup = (group) => {
     setSelectedGroup(group);
+    // Clear messages when switching groups
+    setMessages([]);
   };
 
   const handleFileSelect = (event) => {
@@ -121,19 +142,11 @@ function ChatPage() {
   };
 
   const handleSendMessage = (message) => {
-    if (message.trim() || selectedFile) {
-      const messageData = {
-        message: message,
-        username: currentUser.name,
-        timestamp: new Date().toISOString(),
-        file: selectedFile ? {
-          name: selectedFile.name,
-          type: selectedFile.type,
-          size: selectedFile.size,
-          preview: filePreview
-        } : null
-      };
-      sendMessage(JSON.stringify(messageData));
+    if (message.trim() && selectedGroup) {
+      // Send message in the format expected by Django Channels backend
+      sendMessage(message, currentUser.id);
+      
+      // Clear file selection
       setSelectedFile(null);
       setFilePreview(null);
       if (fileInputRef.current) {
@@ -225,7 +238,7 @@ function ChatPage() {
       <div className="chat-header">
         <h1>Study Group Chat</h1>
         <div className="connection-status">
-          Status: {connectionStatus}
+          Status: {selectedGroup ? `${connectionStatus} to ${selectedGroup.name}` : 'No group selected'}
         </div>
       </div>
       <div className="sidebar">

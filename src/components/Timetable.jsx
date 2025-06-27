@@ -1,108 +1,108 @@
-import React, { useState } from 'react';
-import FixedTimetable from './FixedTimetable';
-import GeneratedTimetable from './GeneratedTimetable';
-import { Button } from '../components/ui/Button';
-import {Eye, BookOpen, Clock, Calendar, Table} from 'lucide-react';
-import '../Styles/Timetable.css';
-import {Card} from "./ui/card";
-const Timetable = ({ courses, generatedSchedule = [] }) => {
-  const [viewType, setViewType] = useState('fixed'); // Tracks the selected timetable view
+import React, { useState } from "react";
+import FixedTimetable from "./FixedTimetable";
+import GeneratedTimetable from "./GeneratedTimetable";
+import { Button } from "../components/ui/Button";
+import { BookOpen, Clock, Calendar, Table } from "lucide-react";
+import "../Styles/Timetable.css";
+import { Card } from "./ui/card";
+import UserContext from "../context/UserContext";
 
-    // Calculate the total number of courses
-  const courseCount = Array.isArray(courses) ? courses.length : 0;
+const Timetable = () => {
+  const { userTimetable, semesterTimetable, isLoading } =
+    React.useContext(UserContext) || {};
 
-  // Calculate the number of study sessions
-  const studyCount = Array.isArray(generatedSchedule)
-    ? generatedSchedule.filter((e) => e.type === 'study').length
+  const [activeTab, setActiveTab] = useState("fixed");
+
+  const currentData = activeTab === "fixed" ? semesterTimetable : userTimetable;
+
+  const courseCount = Array.isArray(currentData)
+    ? new Set(currentData.map((item) => item.course_id)).size
     : 0;
 
-  // Calculate the total hours for the schedule
-  const totalHours = Array.isArray(generatedSchedule)
-    ? generatedSchedule.reduce((total, event) => {
-        const duration = (new Date(event.end).getTime() - new Date(event.start).getTime()) / (1000 * 60 * 60);
-        return total + duration;
+  const studyCount = Array.isArray(currentData)
+    ? currentData.filter((e) => e.type === "study").length || currentData.length
+    : 0;
+
+  const totalHours = Array.isArray(currentData)
+    ? currentData.reduce((total, event) => {
+        const start = event.start_time || event.start;
+        const end = event.end_time || event.end;
+        if (start && end) {
+          const [sh, sm] = start.split(":").map(Number);
+          const [eh, em] = end.split(":").map(Number);
+          const duration = eh + em / 60 - (sh + sm / 60);
+          return total + duration;
+        }
+        return total;
       }, 0)
     : 0;
 
-   const [activeTab, setActiveTab] = useState('fixed');
-
-
-
-const switchTab = (tabName, currentTab, setTab) => {
-  if (currentTab !== tabName) {
-    setTab(tabName);
-  }
-};
+  const switchTab = (tabName, currentTab, setTab) => {
+    if (currentTab !== tabName) {
+      setTab(tabName);
+    }
+  };
 
   return (
     <div>
-      {/* Render the selected timetable */}
-
-        <div className="stats-container">
-      {/* Total Courses */}
-      <Card className="stat-card blue-card">
-        <div className="stat-content">
-          <BookOpen className="stat-icon blue-icon" />
-          <div>
-            <p className="stat-value blue-value">{courseCount}</p>
-            <p className="stat-label blue-label">Total Courses</p>
+      {/* Stats */}
+      <div className="stats-container">
+        <Card className="stat-card blue-card">
+          <div className="stat-content">
+            <BookOpen className="stat-icon blue-icon" />
+            <div>
+              <p className="stat-value blue-value">{courseCount}</p>
+              <p className="stat-label blue-label">Total Courses</p>
+            </div>
           </div>
-        </div>
-      </Card>
-
-      {/* Study Sessions */}
-      <Card className="stat-card green-card">
-        <div className="stat-content">
-          <Clock className="stat-icon green-icon" />
-          <div>
-            <p className="stat-value green-value">{studyCount}</p>
-            <p className="stat-label green-label">Study Sessions</p>
+        </Card>
+        <Card className="stat-card green-card">
+          <div className="stat-content">
+            <Clock className="stat-icon green-icon" />
+            <div>
+              <p className="stat-value green-value">{studyCount}</p>
+              <p className="stat-label green-label">Study Sessions</p>
+            </div>
           </div>
-        </div>
-      </Card>
-
-      {/* Weekly Hours */}
-      <Card className="stat-card purple-card">
-        <div className="stat-content">
-          <Calendar className="stat-icon purple-icon" />
-          <div>
-            <p className="stat-value purple-value">{Math.round(totalHours)}h</p>
-            <p className="stat-label purple-label">Weekly Hours</p>
+        </Card>
+        <Card className="stat-card purple-card">
+          <div className="stat-content">
+            <Calendar className="stat-icon purple-icon" />
+            <div>
+              <p className="stat-value purple-value">
+                {Math.round(totalHours)}h
+              </p>
+              <p className="stat-label purple-label">Weekly Hours</p>
+            </div>
           </div>
-        </div>
-      </Card>
-    </div>
+        </Card>
+      </div>
 
+      {/* Tab Navigation */}
+      <div className="tab-nav">
+        <Button
+          onClick={() => switchTab("fixed", activeTab, setActiveTab)}
+          variant={activeTab === "fixed" ? "default" : "outline"}
+          className="btn-tab"
+        >
+          <Table className="icon-small" />
+          Fixed Timetable
+        </Button>
+        <Button
+          onClick={() => switchTab("generated", activeTab, setActiveTab)}
+          variant={activeTab === "generated" ? "default" : "outline"}
+          className="btn-tab"
+        >
+          <Calendar className="icon-small" />
+          Generated Timetable
+        </Button>
+      </div>
 
-                {/* Tab Navigation */}
-        <div className="tab-nav">
-          <Button
-            onClick={() => switchTab('fixed', activeTab, setActiveTab)}
-            variant={activeTab === 'fixed' ? 'default' : 'outline'}
-            className="btn-tab"
-          >
-            <Table className="icon-small" />
-            Fixed Timetable
-          </Button>
-          <Button
-            onClick={() => switchTab('generated', activeTab, setActiveTab)}
-            variant={activeTab === 'generated' ? 'default' : 'outline'}
-            className="btn-tab"
-          >
-            <Calendar className="icon-small" />
-            Generated Timetable
-          </Button>
-        </div>
-
-
-
-      {activeTab === 'fixed' ? (
-        <FixedTimetable courses={courses} />
+      {activeTab === "fixed" ? (
+        <FixedTimetable courses={semesterTimetable} />
       ) : (
-        <GeneratedTimetable generatedSchedule={generatedSchedule} />
+        <GeneratedTimetable generatedSchedule={userTimetable} />
       )}
-
-
     </div>
   );
 };
