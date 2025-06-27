@@ -21,17 +21,57 @@ const StudySchedulePage = () => {
   const [customEvents, setCustomEvents] = useState([]);
   const [schedule, setSchedule] = useState({});
   const [courses, setCourses] = useState([]);
+  const [events, setEvents] = useState([]);
 
   const handleCustomEventAdd = (newEvent) => {
     setCustomEvents([...customEvents, newEvent]);
   };
 
-
+// add the api calls to add and delete the events
 
 
 const switchTab = (tabName, currentTab, setTab) => {
   if (currentTab !== tabName) {
     setActiveTab(tabName);
+  }
+};
+
+// Add a new event
+const addEvent = async (eventData) => {
+  const token = localStorage.getItem("access_token");
+  const response = await fetch("/api/events/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(eventData),
+  });
+  if (response.ok) {
+    const newEvent = await response.json();
+    setCustomEvents((prev) => [...prev, newEvent]);
+    return newEvent;
+  } else {
+    // handle error
+    return null;
+  }
+};
+
+// Delete an event by ID
+const deleteEvent = async (eventId) => {
+  const token = localStorage.getItem("access_token");
+  const response = await fetch(`/api/events/${eventId}/`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (response.ok) {
+    setCustomEvents((prev) => prev.filter((event) => event.id !== eventId));
+    return true;
+  } else {
+    // handle error
+    return false;
   }
 };
 
@@ -73,6 +113,9 @@ const switchTab = (tabName, currentTab, setTab) => {
         ) : (
           <AcademicCalendar events={customEvents} onEventAdd={handleCustomEventAdd} />
         )}
+
+        <button onClick={() => addEvent({ title: "New Event", ... })}>Add Event</button>
+        <button onClick={() => deleteEvent(event.id)}>Delete</button>
       </div>
     </div>
   )
