@@ -336,7 +336,7 @@ class FileUpload(models.Model):
     
     file = models.FileField(
         upload_to=message_file_path,
-        validators=[validate_file_size],
+        
        
     )
     file_type = models.CharField(max_length=10, choices=FILE_TYPES)
@@ -403,7 +403,6 @@ class MessageContent(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        validators=[validate_file_size],
         related_name='message_contents'
     )
     order = models.PositiveIntegerField(default=0)

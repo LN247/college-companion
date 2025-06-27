@@ -55,7 +55,7 @@ class UserInfoView(RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
-
+    
 
 
 
@@ -70,7 +70,7 @@ class RegistrationView(CreateAPIView):
 class LoginView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = [] 
-    
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
 
@@ -164,7 +164,7 @@ class CookieTokenRefreshView(TokenRefreshView):
      
 
 
-
+     
 
 
 class GoogleAuthView(APIView):
@@ -190,20 +190,20 @@ class GoogleAuthView(APIView):
                 except CustomUser.DoesNotExist:
                     user = CustomUser.objects.create(
                         email=email,
-                        username=email 
+                        username=email
                     )
                     user.set_unusable_password()  
                     user.save()
 
                 # Generate JWT tokens
-                refresh = RefreshToken.for_user(user)
-                access_token = str(refresh.access_token)
+                    refresh = RefreshToken.for_user(user)
+                    access_token = str(refresh.access_token)
 
-                response = Response({
+                    response = Response({
                         'user': CustomUserSerializer(user).data
                     }, status=status.HTTP_200_OK)
 
-                response.set_cookie(
+                    response.set_cookie(
                     key='access_token',
                     value=access_token,
                     samesite='Lax',
@@ -213,7 +213,7 @@ class GoogleAuthView(APIView):
 
                     )
 
-                response.set_cookie(
+                    response.set_cookie(
                     key='refresh_token',
                     value=str(refresh),
                     samesite='Lax',
@@ -221,7 +221,7 @@ class GoogleAuthView(APIView):
                     secure=False,
                     max_age=timedelta(days=12, hours=23, minutes=59),
 
-                )
+                  )    
                 
                 # Example: return user info
                 return Response({'email': user.email}, status=status.HTTP_200_OK)

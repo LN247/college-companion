@@ -14,8 +14,8 @@ export const UserProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [semesters, setSemesters] = useState([]);
   const [semesterTimetable,setSemesterTimetable]=useState([]);
-  const [userTimetable,setuserTimetable]=useState([])
-
+  const [userTimetable,setuserTimetable]=useState([]);
+  const [events, setEvents] = useState([]);
   const loadingIndicator = useLoading();
 
   useEffect(() => {
@@ -46,6 +46,9 @@ export const UserProvider = ({ children }) => {
         })
         setuserTimetable(GeneratedTimetable.data);
 
+    //fetch the event from the backend and set the events and export events 
+
+
     } catch (error) {
       console.error("Auth check failed:", error);
       setError(error);
@@ -57,16 +60,30 @@ export const UserProvider = ({ children }) => {
   fetchData();
 }, []);
 
+// Fetch events from backend
+useEffect(() => {
+  const fetchEvents = async () => {
+    try {
+      const token = localStorage.getItem("access_token"); // or your auth logic
+      const response = await fetch("/api/events/", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setEvents(data); // Set the events state
+      } else {
+        setEvents([]);
+      }
+    } catch (error) {
+      setEvents([]);
+    }
+  };
 
-
-
-
-
-
-
-
-
-
+  fetchEvents();
+}, []);
 
 useEffect(() => {
   console.log("Updated user from state:", user); // Logs updated user after re-render
@@ -74,13 +91,16 @@ useEffect(() => {
 
   return (
      <UserContext.Provider value={{ user, setUser,semesters,
-         isLoading,semesterTimetable,userTimetable, error, loadingIndicator }}>
+         isLoading,semesterTimetable,userTimetable, error, loadingIndicator, events, setEvents }}>
     {children || <React.Fragment />}
   </UserContext.Provider>
   );
 };
 
 export default UserContext;
+
+// Export events for use elsewhere if needed
+export { events };
 
 
 
