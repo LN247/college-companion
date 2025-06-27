@@ -1,571 +1,431 @@
-import React, {
-  useState,
-  useCallback,
-  useMemo,
-  useEffect,
-  useRef,
-} from "react";
-import {
-  BookOpen,
-  Hash,
-  GraduationCap,
-  Plus,
-  Edit3,
-  Trash2,
-  Save,
-  X,
-  Contact,
-  Users,
-  Calendar,
-  Clock,
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import React, { useContext, useState, useEffect, useRef } from "react";
+import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/card";
+import { Label } from "../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/Select";
 import axios from "axios";
-import { Button } from "./ui/Button";
-import InputWithError from "./InputwithError";
-import TableCellInput from "./TabelCellInput";
-import "../Styles/CourseManager.css";
+import { Plus, Trash2, BookOpen, Edit3, Save, X, Clock, Calendar } from "lucide-react";
+import "../Styles/CourseForm.css";
+import userContext from "../context/UserContext";
 
-function CourseForm({ onFormComplete, semesterId }) {
-  // List of courses and editing state
-  const [courses, setCourses] = useState([]);
-  const [editingIndex, setEditingIndex] = useState(null);
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-  // Course inputs and errors
-  const [courseName, setCourseName] = useState("");
-  const [courseCode, setCourseCode] = useState("");
-  const [credits, setCredits] = useState("");
-  const [difficulty, setDifficulty] = useState("");
-  const [timings, setTimings] = useState("");
+const CourseForm = ({ semester, level,onFormComplete }) => {
+  const formRef = useRef(null);
+  const API_BASE = "http://localhost:8000/api";
+  const [courses, setCourses] = useState([]); // Fetched courses
+  const [selectedCourses, setSelectedCourses] = useState([]); // User-selected courses
+  const [editingId, setEditingId] = useState(null);
+  const [isCourseStepComplete, setIsCourseStepComplete] = useState(false);
+  const [currentCourse, setCurrentCourse] = useState({
+    course: "",
+    day: "",
+    start_time: "",
+    end_time: "",
+    difficulty_level:"",
+    semester:semester.semesterId,
 
-  const API_BASE = "http://127.0.0.1:8000/api";
-
-  const totalFields = 5;
-  const countCompletedFields = (data) => {
-    return Object.values(data).filter((value) => value.trim() !== "").length;
-  };
-  const isCourseFormComplete = () => {
-    return (
-      countCompletedFields({ courseName, courseCode, credits, difficulty, timings }) ===
-      totalFields
-    );
-  };
-
-  // Track previous completion status to avoid infinite loop
-  const prevComplete = useRef(isCourseFormComplete());
-
-  useEffect(() => {
-    // Form is only complete if there are at least 6 courses
-    const complete = courses.length >= 6;
-    if (prevComplete.current !== complete) {
-      prevComplete.current = complete;
-      onFormComplete(complete);
-    }
-  }, [courses, onFormComplete]);
-
-  const [courseErrors, setCourseErrors] = useState({});
-
-  // Editable row state & errors
-  const [editRow, setEditRow] = useState({
-    courseName: "",
-    courseCode: "",
-    credits: "",
-    difficulty: "",
-    timings: "",
   });
-  const [editErrors, setEditErrors] = useState({});
 
-  // Validation helpers
-  const validateCourse = useCallback((inputs) => {
-    const errors = {};
-    if (!inputs.courseName.trim())
-      errors.courseName = "Course Name is required";
-    if (!inputs.courseCode.trim())
-      errors.courseCode = "Course Code is required";
-    if (inputs.credits === "") errors.credits = "Credits is required";
-    else if (isNaN(inputs.credits) || Number(inputs.credits) < 0)
-      errors.credits = "Credits must be 0 or more";
-    if (!inputs.difficulty.trim()) errors.difficulty = "Difficulty is required";
-    if (!inputs.timings.trim()) errors.timings = "Timings is required";
-    return errors;
-  }, []);
 
-  // Handle Add Course submit
-  const handleAddCourse = useCallback(
-    async (e) => {
-      e.preventDefault();
 
-      const courseErrors = validateCourse({
-        courseName,
-        courseCode,
-        credits,
-        difficulty,
-        timings,
-      });
 
-      setCourseErrors(courseErrors);
+// Dynamically find the name of the selected course
+const selectedCourseName = courses.find((c) => c.id === currentCourse.name)  ;
 
-      if (Object.keys(courseErrors).length > 0) return;
 
-      try {
-        // Check if course already exists
-        const courseExists = courses.some(
-          (course) =>
-            course.courseCode === courseCode || course.courseName === courseName
-        );
-        if (courseExists) {
-          setCourseErrors((prev) => ({
-            ...prev,
-            courseName: "Course with this name or code already exists.",
-          }));
-          return;
-        }
-        // Add new course to the list
-        if (courses.length >= 10) {
-          setCourseErrors((prev) => ({
-            ...prev,
-            courseName: "You can only add up to 10 courses.",
-          }));
-          return;
-        }
-
-        const response = await axios.post(
-          `${API_BASE}/courses/`,
-          {
-            course_name: courseName,
-            course_code: courseCode,
-            course_credits: credits,
-            course_timings: timings,
-            semester: semesterId,
-          },
-          { withCredentials: true }
-        );
-
-        setCourses((prev) => [
-          ...prev,
-          { courseName, courseCode, credits, timings, difficulty, semester: semesterId },
-        ]);
-        setCourseName("");
-        setCourseCode("");
-        setCredits("");
-        setTimings("");
-        setDifficulty("");
-        setCourseErrors({});
-      } catch (error) {
-        setCourseErrors((prev) => ({
-          ...prev,
-          courseName: "Failed to add course. Please try again.",
-        }));
-      }
-    },
-    [courseName, courseCode, credits, difficulty, timings, validateCourse, courses]
-  );
-
-  // Start editing a row
-  const handleEditClick = useCallback(
-    (index) => {
-      setEditingIndex(index);
-      setEditRow({ ...courses[index] });
-      setEditErrors({});
-    },
-    [courses]
-  );
-
-  // Cancel editing
-  const handleCancelEdit = useCallback(() => {
-    setEditingIndex(null);
-    setEditErrors({});
-  }, []);
-
-  // Save edited course
-  const handleSaveEdit = useCallback(
-    (index) => {
-      const errors = validateCourse(editRow);
-      setEditErrors(errors);
-
-      if (Object.keys(errors).length > 0) return;
-
-      // Make API call to save edited course
+  // Fetch courses based on semester and level
+  useEffect(() => {
+    if (semester && level) {
       axios
-        .put(`/api/courses/${courses[index].id}/`, {
-          ...editRow,
-          withCredentials: true,
-        })
+        .get(`http://localhost:8000/api/courses/?semester=Spring&academicLevel=${level}`,{withCredentials: true})
         .then((response) => {
-          // Update local state with edited course
-          setCourses((prev) => {
-            const newCourses = [...prev];
-            newCourses[index] = { ...editRow };
-            return newCourses;
-          });
-          setEditingIndex(null);
+          const fetchedCourses = Array.isArray(response.data) ? response.data : response.data.courses || [];
+          setCourses(fetchedCourses);
         })
         .catch((error) => {
-          console.error("Failed to save course:", error);
-          setEditErrors((prev) => ({
-            ...prev,
-            courseName: "Failed to save course. Please try again.",
-          }));
+          console.error("Error fetching courses:", error);
         });
-    },
-    [editRow, validateCourse]
-  );
+    }
+  }, [semester, level]);
 
-  // Delete course
-  const handleDelete = useCallback(
-    (index) => {
-      if (window.confirm("Are you sure you want to delete this course?")) {
-        // Make API call to delete course if needed
-        axios
-          .delete(`/api/courses/${courses[index].id}/`, {
-            withCredentials: true,
-          })
-          .catch((error) => {
-            console.error("Failed to delete course:", error);
-          });
-        // Update local state
-        setCourses((prev) => prev.filter((_, i) => i !== index));
-        if (editingIndex === index) handleCancelEdit();
-      }
-    },
-    [editingIndex, handleCancelEdit]
-  );
 
-  const generateSchedule = () => {
-    // Logic to generate course schedule
-    console.log("Generating schedule for courses:", courses);
-  };
+    useEffect(() => {
+    if (selectedCourses.length >= 2) {
+      setIsCourseStepComplete(true);
+      onFormComplete(true);
+    } else {
+      setIsCourseStepComplete(false);
+      onFormComplete(false);
+    }
+  }, [selectedCourses, onFormComplete]);
 
-  // Handlers for input fields
-  const courseHandlers = {
-    setCourseName,
-    setCourseCode,
-    setCredits,
-    setDifficulty,
-    setTimings,
-  };
 
-  // Generate course list rows
-  const courseList = useMemo(() => {
-    return courses.map((course, index) => {
-      const isEditing = editingIndex === index;
-      return (
-        <tr key={index} className="table-row">
-          <td className="table-cell">
-            {isEditing ? (
-              <TableCellInput
-                label="Course Name"
-                value={editRow.courseName}
-                onChange={(e) =>
-                  setEditRow((prev) => ({
-                    ...prev,
-                    courseName: e.target.value,
-                  }))
-                }
-                error={editErrors.courseName}
-              />
-            ) : (
-              <span className="course-name">{course.courseName}</span>
-            )}
-          </td>
-          <td className="table-cell">
-            {isEditing ? (
-              <TableCellInput
-                label="Course Code"
-                value={editRow.courseCode}
-                onChange={(e) =>
-                  setEditRow((prev) => ({
-                    ...prev,
-                    courseCode: e.target.value,
-                  }))
-                }
-                error={editErrors.courseCode}
-              />
-            ) : (
-              <span className="course-code">{course.courseCode}</span>
-            )}
-          </td>
-          <td className="table-cell">
-            {isEditing ? (
-              <TableCellInput
-                label="Credits"
-                type="number"
-                min="0"
-                value={editRow.credits}
-                onChange={(e) =>
-                  setEditRow((prev) => ({
-                    ...prev,
-                    credits: e.target.value,
-                  }))
-                }
-                error={editErrors.credits}
-              />
-            ) : (
-              <span className="course-credits">{course.credits}</span>
-            )}
-          </td>
-          <td className="table-cell">
-            {isEditing ? (
-              <TableCellInput
-                label="Timings"
-                value={editRow.timings}
-                onChange={(e) =>
-                  setEditRow((prev) => ({
-                    ...prev,
-                    timings: e.target.value,
-                  }))
-                }
-                error={editErrors.timings}
-              />
-            ) : (
-              <span className="course-timings">{course.timings}</span>
-            )}
-          </td>
-          <td className="table-cell">
-            {isEditing ? (
-              <TableCellInput
-                label="Difficulty"
-                value={editRow.difficulty}
-                onChange={(e) =>
-                  setEditRow((prev) => ({
-                    ...prev,
-                    difficulty: e.target.value,
-                  }))
-                }
-                error={editErrors.difficulty}
-              />
-            ) : (
-              <span className="course-difficulty">{course.difficulty}</span>
-            )}
-          </td>
-          <td className="table-cell actions-cell">
-            <div className="action-buttons">
-              {isEditing ? (
-                <>
-                  <Button
-                    onClick={() => handleSaveEdit(index)}
-                    type="button"
-                    size="sm"
-                    className="action-btn save-btn"
-                    aria-label="Save course"
-                  >
-                    <Save className="action-icon" />
-                  </Button>
-                  <Button
-                    onClick={handleCancelEdit}
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="action-btn cancel-btn"
-                    aria-label="Cancel editing"
-                  >
-                    <X className="action-icon" />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    onClick={() => handleEditClick(index)}
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="action-btn edit-btn"
-                    aria-label="Edit course"
-                  >
-                    <Edit3 className="action-icon" />
-                  </Button>
-                  <Button
-                    onClick={() => handleDelete(index)}
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="action-btn delete-btn"
-                    aria-label="Delete course"
-                  >
-                    <Trash2 className="action-icon" />
-                  </Button>
-                </>
-              )}
-            </div>
-          </td>
-        </tr>
-      );
+
+
+  // Reset form
+  const resetForm = () => {
+    setCurrentCourse({
+      course: "",
+      day: "",
+      start_time: "",
+      end_time: "",
+      difficulty_level: '',
+      semester:semester.semesterId,
     });
-  }, [
-    courses,
-    editingIndex,
-    editRow,
-    editErrors,
-    handleSaveEdit,
-    handleCancelEdit,
-    handleEditClick,
-    handleDelete,
-  ]);
+    setEditingId(null);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Add a new course
+  const addCourse = () => {
+    if (!currentCourse.course || !currentCourse.day || !currentCourse.start_time || !currentCourse.end_time|| !currentCourse.difficulty_level
+) {
+      alert("Please fill in all fields before adding the course.");
+      return;
+    }
+
+    // Check for time conflicts
+    const hasConflict = selectedCourses.some(existingCourse =>
+      existingCourse.day === currentCourse.day &&
+      ((currentCourse.start_time >= existingCourse.start_time && currentCourse.start_time < existingCourse.end_time) ||
+       (currentCourse.end_time > existingCourse.start_time && currentCourse.end_time <= existingCourse.end_time) ||
+       (currentCourse.start_time <= existingCourse.start_time && currentCourse.end_time >= existingCourse.end_time))
+    );
+
+    if (hasConflict) {
+      alert("Time conflict detected! Please choose a different time slot.");
+      return;
+    }
+
+    const newCourse = {
+      ...currentCourse,
+       day: currentCourse.day,
+      start_time: currentCourse.start_time,
+      end_time: currentCourse.end_time,
+      difficulty_level: currentCourse.difficulty_level,
+      semester: parseInt(semester.semesterId, 10)
+
+    };
+
+    setSelectedCourses([...selectedCourses, newCourse]);
+    resetForm();
+  };
+
+  // Remove a course
+  const removeCourse = (id) => {
+    setSelectedCourses(selectedCourses.filter(course => course.id !== id));
+    if (editingId === id) {
+      resetForm();
+    }
+  };
+
+  // Start editing a course
+  const startEdit = (course) => {
+    setCurrentCourse({ ...course ,semester:semester.semesterId,difficulty_level:course.level||"Medium"});
+    setEditingId(course.id);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Save edited course
+  const saveEdit = () => {
+    if (!currentCourse.course || !currentCourse.day || !currentCourse.startTime || !currentCourse.endTime) {
+      alert("Please fill in all fields before saving.");
+      return;
+    }
+
+    // Check for time conflicts (excluding the course being edited)
+    const hasConflict = selectedCourses.some(existingCourse =>
+      existingCourse.id !== editingId &&
+      existingCourse.day === currentCourse.day &&
+      ((currentCourse.start_time >= existingCourse.start_time && currentCourse.start_time < existingCourse.end_time) ||
+       (currentCourse.end_time > existingCourse.start_time && currentCourse.end_time <= existingCourse.end_time) ||
+       (currentCourse.start_time <= existingCourse.start_time && currentCourse.end_time >= existingCourse.end_time))
+    );
+
+    if (hasConflict) {
+      alert("Time conflict detected! Please choose a different time slot.");
+      return;
+    }
+
+    setSelectedCourses(selectedCourses.map(course =>
+      course.id === editingId ? { ...currentCourse } : course
+    ));
+    resetForm();
+  };
+
+  // Update current course form
+  const updateCurrentCourse = (field, value) => {
+    setCurrentCourse(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Format time for display
+  const formatTime = (time) => {
+    return new Date(`2000-01-01T${time}`).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (selectedCourses.length === 0) {
+    alert("Please add at least one course before submitting.");
+    return;
+  }
+
+  try {
+    await axios.post(
+      `${API_BASE}/fixed-schedules/`,
+       selectedCourses ,
+      { withCredentials: true }
+    );
+
+
+    resetForm();
+    alert(
+      `Successfully added ${selectedCourses.length} course${
+        selectedCourses.length !== 1 ? "s" : ""
+      } to your schedule!`
+    );
+    console.log("Submitted Courses:", selectedCourses);
+  } catch (error) {
+
+    alert("Failed to add courses. Please try again.");
+    console.error("Error submitting courses:", error);
+  }
+};
+
 
   return (
-    <div className="course-manager">
-      <div className="course-manager-container">
-        {/* Header Section */}
-        <div className="course-manager-header">
-          <h1 className="course-manager-title">Course Manager</h1>
-          <p className="course-manager-subtitle">
-            Manage your academic courses and create your perfect schedule
-          </p>
-        </div>
-
-        {/* Stats Section */}
-        <div className="course-stats">
-          <div className="stat-card">
-            <div className="stat-number">{courses.length}</div>
-            <div className="stat-label">Total Courses</div>
+    <div className="course-form">
+      {/* Header Section */}
+      <div className="form-header">
+        <div className="header-content">
+          <div className="header-icon-wrapper">
+            <BookOpen className="header-icon" />
           </div>
-          <div className="stat-card">
-            <div className="stat-number">{courses.reduce((sum, course) => sum + parseInt(course.credits || 0), 0)}</div>
-            <div className="stat-label">Total Credits</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">{courses.filter(course => course.difficulty === 'Easy').length}</div>
-            <div className="stat-label">Easy Courses</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">{courses.filter(course => course.difficulty === 'Hard').length}</div>
-            <div className="stat-label">Hard Courses</div>
+          <div className="header-text">
+            <h1>Course Management</h1>
+            <p>Add and manage your course schedule</p>
           </div>
         </div>
 
-        {/* Course Form Card */}
-        <div className="course-form-card">
-          <div className="course-form-header">
-            <div className="course-form-title">
-              <Plus />
-              Add New Course
+        <div className="stats-container">
+          <div className="stat-card">
+            <div className="stat-icon">
+              <BookOpen size={20} />
             </div>
-            <div className="course-form-description">
-              Enter course details to add to your schedule
+            <div className="stat-content">
+              <span className="stat-number">{selectedCourses.length}</span>
+              <span className="stat-label">Courses Added</span>
             </div>
-          </div>
-          <div className="course-form-content">
-            <form onSubmit={handleAddCourse}>
-              <div className="course-inputs">
-                <InputWithError
-                  id="courseName"
-                  label="Course Name"
-                  value={courseName}
-                  onChange={(e) => courseHandlers.setCourseName(e.target.value)}
-                  error={courseErrors.courseName}
-                  placeholder="e.g., Introduction to Programming"
-                  icon={BookOpen}
-                />
-
-                <div className="course-grid">
-                  <InputWithError
-                    id="courseCode"
-                    label="Course Code"
-                    value={courseCode}
-                    onChange={(e) => courseHandlers.setCourseCode(e.target.value)}
-                    error={courseErrors.courseCode}
-                    placeholder="e.g., CS101"
-                    icon={Hash}
-                  />
-                  <InputWithError
-                    id="credits"
-                    label="Credits"
-                    value={credits}
-                    onChange={(e) => courseHandlers.setCredits(e.target.value)}
-                    error={courseErrors.credits}
-                    type="number"
-                    min="0"
-                    placeholder="3"
-                    icon={GraduationCap}
-                  />
-                </div>
-
-                <div className="course-grid">
-                  <InputWithError
-                    id="timings"
-                    label="Course Timings"
-                    value={timings}
-                    onChange={(e) => courseHandlers.setTimings(e.target.value)}
-                    error={courseErrors.timings}
-                    placeholder="e.g., Mon/Wed 10:00-11:30"
-                    icon={Clock}
-                  />
-                  <InputWithError
-                    id="difficulty"
-                    label="Difficulty Level"
-                    value={difficulty}
-                    onChange={(e) => courseHandlers.setDifficulty(e.target.value)}
-                    error={courseErrors.difficulty}
-                    placeholder="e.g., Easy, Medium, Hard"
-                    icon={Contact}
-                  />
-                </div>
-              </div>
-
-              <Button type="submit" className="add-course-btn">
-                <Plus className="btn-icon" />
-                Add Course
-              </Button>
-            </form>
-          </div>
-        </div>
-
-        {/* Added Courses Section */}
-        <div className="courses-card">
-          <div className="card-header-emerald">
-            <div className="card-title">
-              <BookOpen className="header-icon" />
-              Course Schedule ({courses.length}{" "}
-              {courses.length === 1 ? "course" : "courses"})
-            </div>
-            <div className="header-description">
-              Manage your enrolled courses for this semester
-            </div>
-          </div>
-          <div className="card-content">
-            {courses.length === 0 ? (
-              <div className="empty-courses">
-                <BookOpen className="empty-icon" />
-                <p className="empty-text">No courses added yet</p>
-                <p className="empty-subtext">
-                  Add your first course using the form above
-                </p>
-              </div>
-            ) : (
-              <div className="courses-table-container">
-                <table className="courses-table">
-                  <thead>
-                    <tr className="table-header-row">
-                      <th className="table-header">Course Name</th>
-                      <th className="table-header">Course Code</th>
-                      <th className="table-header">Credits</th>
-                      <th className="table-header">Timings</th>
-                      <th className="table-header">Difficulty</th>
-                      <th className="table-header actions-header">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>{courseList}</tbody>
-                </table>
-                <Button
-                  disabled={!isCourseFormComplete() || !semesterId}
-                  onClick={generateSchedule}
-                  className="continue-btn"
-                >
-                  Generate Schedule
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       </div>
+
+      {/* Course Form Section */}
+      <Card className="form-card" ref={formRef}>
+        <div className="form-card-header">
+          <div className="form-title">
+            <BookOpen size={20} />
+            <h2>{editingId ? 'Edit Course' : 'Add New Course'}</h2>
+          </div>
+          {editingId && (
+            <Button
+              onClick={resetForm}
+              variant="ghost"
+              size="sm"
+              className="cancel-edit-btn"
+            >
+              <X size={16} />
+              Cancel Edit
+            </Button>
+          )}
+        </div>
+
+        <div className="form-grid">
+          <div className="form-group">
+            <Label className="form-label">
+              <BookOpen size={16} />
+              Course Name
+            </Label>
+              <Select
+                    onValueChange={(value) => setCurrentCourse({ ...currentCourse, course: value })}
+                    value={currentCourse.course || ""}
+                                     >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select a course" />
+                          </SelectTrigger>
+                       <SelectContent>
+                       {courses.map((course) => (
+                           <SelectItem key={course.id} value={course.id}>
+                             {course.name} {/* Display the course name */}
+                              </SelectItem>
+                       ))}
+                    </SelectContent>
+                    </Select>
+
+          </div>
+
+          <div className="form-group">
+            <Label className="form-label">
+              <Calendar size={16} />
+              Day of Week
+            </Label>
+            <Select
+              value={currentCourse.day}
+              onValueChange={(value) => updateCurrentCourse("day", value)}
+            >
+              <SelectTrigger className="form-select">
+                <SelectValue placeholder="Select a day" />
+              </SelectTrigger>
+              <SelectContent>
+                {DAYS.map((day) => (
+                  <SelectItem key={day} value={day}>
+                    {day}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="form-group">
+            <Label className="form-label">
+              <Clock size={16} />
+              Start Time
+            </Label>
+            <input
+              type="time"
+              className="form-input time-input"
+              value={currentCourse.start_time}
+              onChange={(e) => updateCurrentCourse("start_time", e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <Label className="form-label">
+              <Clock size={16} />
+              End Time
+            </Label>
+            <input
+              type="time"
+              className="form-input time-input"
+              value={currentCourse.end_time}
+              onChange={(e) => updateCurrentCourse("end_time", e.target.value)}
+            />
+          </div>
+        </div>
+
+              <div className="mb-4">
+  <Label htmlFor="difficulty_level">Difficulty Level</Label>
+  <Select
+    value={currentCourse.difficulty_level}
+    onValueChange={(value) => setCurrentCourse({
+      ...currentCourse,
+      difficulty_level: value
+    })}
+  >
+    <SelectTrigger>
+      <SelectValue placeholder="Select difficulty level" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="easy">Easy</SelectItem>
+      <SelectItem value="medium">Medium</SelectItem>
+      <SelectItem value="hard">Hard</SelectItem>
+    </SelectContent>
+  </Select>
+</div>
+
+
+        <div className="form-actions">
+          {editingId ? (
+            <Button onClick={saveEdit} className="primary-btn">
+              <Save size={16} />
+              Save Changes
+            </Button>
+          ) : (
+            <Button onClick={addCourse} className="primary-btn">
+              <Plus size={16} />
+              Add Course
+            </Button>
+          )}
+        </div>
+      </Card>
+
+      {/* Added Courses Section */}
+      {selectedCourses.length > 0 && (
+        <div className="added-courses-section">
+          <div className="section-header">
+            <h2>Added Courses</h2>
+            <span className="course-count">{selectedCourses.length} course{selectedCourses.length !== 1 ? 's' : ''}</span>
+          </div>
+
+          <div className="courses-grid">
+            {selectedCourses.map((course, index) => (
+              <Card key={course.id} className={`course-card ${editingId === course.id ? 'editing' : ''}`}>
+                <div className="course-card-header">
+                  <div className="course-number">
+                    <BookOpen size={16} />
+                    <span>Course {index + 1}</span>
+                  </div>
+                  <div className="course-actions">
+                    <Button
+                      onClick={() => startEdit(course)}
+                      variant="ghost"
+                      size="sm"
+                      className="edit-btn"
+                      disabled={editingId && editingId !== course.id}
+                    >
+                      <Edit3 size={16} />
+                    </Button>
+                    <Button
+                      onClick={() => removeCourse(course.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="delete-btn"
+                      disabled={editingId && editingId !== course.id}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="course-details">
+                  <div className="course-name">
+                    <h3>{selectedCourseName}</h3>
+                  </div>
+
+                  <div className="course-schedule">
+                    <div className="schedule-item">
+                      <Calendar size={14} />
+                      <span>{course.day}</span>
+                    </div>
+                    <div className="schedule-item">
+                      <Clock size={14} />
+                      <span>{formatTime(course.start_time)} - {formatTime(course.end_time)}</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          <div className="submit-section">
+            <Button onClick={handleSubmit} className="submit-btn" disabled={!isCourseStepComplete}>
+              <BookOpen size={16} />
+              Submit All Courses
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default CourseForm;

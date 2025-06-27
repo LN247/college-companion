@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../Styles/Dashboard.css";
+import UserAnalytics from "../components/UserAnalytics";
+import { useContext } from "react";
+import {
+  FaCalendar,
+  FaChartLine,
+  FaClock,
+  FaGraduationCap,
+  FaCalendarAlt,
+  FaBell,
+  FaTimes,
+  FaTable,
+  FaBars,
+  FaUserCircle,
+  FaQuestionCircle,
+} from "react-icons/fa";
+import axios from "axios";
 import {
   AppBar,
   Toolbar,
@@ -12,71 +27,48 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  ListItemButton,
   Typography,
   Box,
-  Grid,
-  Card,
-  CardContent,
   Avatar,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import {
-  FaBars,
-  FaUserCircle,
-  FaGraduationCap,
-  FaCalendarAlt,
-  FaChartLine,
-  FaTable,
-  FaBell,
-  FaQuestionCircle,
-  FaTimes,
-} from "react-icons/fa";
+import "../Styles/Dashboard.css";
+import { Card, CardContent } from "@mui/material";
+import { onMessageListener } from "../utils/firebase";
+import UserContext from "../context/UserContext";
 
-const SampleDashboard = () => {
+
+
+const Dashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [timeLeft, setTimeLeft] = useState({});
-  const user = { name: "John Doe", email: "john@university.edu" };
+  const navigate = useNavigate();
+   const { user, setUser } = useContext(UserContext);
 
-  // Semester end date (YYYY-MM-DD)
-  const semesterEnd = "2023-12-15";
 
-  // Navigation items
+
+
+  const [showRelativeTime, setShowRelativeTime] = useState(true);
+
   const navItems = [
-    { name: "College-Life", icon: <FaGraduationCap /> },
-    { name: "Semester-Plan", icon: <FaCalendarAlt /> },
-    { name: "Progress", icon: <FaChartLine /> },
-    { name: "Timetable", icon: <FaTable /> },
-    { name: "Notification", icon: <FaBell /> },
-    { name: "Help Center", icon: <FaQuestionCircle /> },
+    { name: "College-Life", icon: <FaGraduationCap />, route: "/chat" },
+    { name: "Semester-Plan", icon: <FaCalendarAlt />, route: "/semester-plan" },
+    { name: "Progress", icon: <FaChartLine />, route: "/progress" },
+    { name: "Timetable", icon: <FaTable />, route: "/timetable" },
+    { name: "Notification", icon: <FaBell />, route: "/notifications" },
+    { name: "Help Center", icon: <FaQuestionCircle />, route: "/help" },
   ];
 
-  // Recent activities data
-  const activities = [
-    { id: 1, action: "Submitted Math Assignment", time: "2 hours ago" },
-    { id: 2, action: "Completed Chemistry Quiz", time: "1 day ago" },
-    { id: 3, action: "Joined Programming Club", time: "3 days ago" },
-  ];
+  const API_BASE = "http://localhost:8000/api";
 
-  // Tips data
-  const tips = ["Plan your week every Monday morning"];
+  const semesterEnd = "2025-06-26T23:59:59"; // Example semester end date
 
-  // Calculate time until semester end
-  const calculateTimeLeft = () => {
-    const difference = +new Date(semesterEnd) - +new Date();
-    if (difference > 0) {
-      return {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-      };
-    }
-    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-  };
+
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -84,6 +76,18 @@ const SampleDashboard = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+
+
+
+  useEffect(() => {
+    onMessageListener().then((payload) => {
+      // Show notification or update UI
+      alert(`New notification: ${payload.notification.title}`);
+    });
+  }, []);
+
+
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -98,6 +102,8 @@ const SampleDashboard = () => {
   };
 
   const renderMobileMenu = (
+       <React.Fragment>
+
     <Drawer
       anchor="left"
       open={mobileOpen}
@@ -110,28 +116,112 @@ const SampleDashboard = () => {
         </IconButton>
         <List>
           {navItems.map((item) => (
-            <ListItem button key={item.name}>
-              <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
-              <ListItemText primary={item.name} />
+            <ListItem key={item.name} disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  navigate(item.route);
+                  setMobileOpen(false);
+                }}
+              >
+                <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItemButton>
             </ListItem>
           ))}
         </List>
       </Box>
     </Drawer>
+          </React.Fragment>
+
   );
 
   const renderDesktopMenu = (
+       <React.Fragment>
     <Box className="desktopMenu">
       {navItems.map((item) => (
-        <div key={item.name} className="menuItem">
+        <div
+          key={item.name}
+          className="menuItem"
+          onClick={() => navigate(item.route)}
+          style={{ cursor: "pointer" }}
+        >
           {item.icon}
           <span>{item.name}</span>
         </div>
       ))}
     </Box>
+       </React.Fragment>
+
   );
 
+  // Function to calculate time left until semester end
+  const calculateTimeLeft = () => {
+    const difference = +new Date(semesterEnd) - +new Date();
+    if (difference > 0) {
+      return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      };
+    }
+    return { days:0 , hours: 0, minutes: 0, seconds: 0 };
+  };
+
+  // Mock data - replace with actual API calls
+  const recentActivities = [
+    {
+      action: "Created a study plan",
+      timestamp: new Date(Date.now() - 7200000),
+      type: "plan",
+    },
+    {
+      action: "Updated timetable",
+      timestamp: new Date(Date.now() - 86400000),
+      type: "timetable",
+    },
+    {
+      action: "Completed assignment",
+      timestamp: new Date(Date.now() - 172800000),
+      type: "assignment",
+    },
+    {
+      action: "Joined study group",
+      timestamp: new Date(Date.now() - 259200000),
+      type: "group",
+    },
+    {
+      action: "Set exam reminder",
+      timestamp: new Date(Date.now() - 345600000),
+      type: "reminder",
+    },
+  ];
+  // navigation icons
+
+  const tipOfTheDay = {
+    tip: "Break your study sessions into 25-minute intervals with 5-minute breaks for better focus.",
+    author: "Pomodoro Technique",
+  };
+
+  const formatTimestamp = (date) => {
+    if (showRelativeTime) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      if (seconds < 60) return "just now";
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}h ago`;
+      const days = Math.floor(hours / 24);
+      return `${days}d ago`;
+    }
+    return date.toLocaleString();
+  };
+
+  const handleLogout = () => {};
+
   return (
+
+
     <div className="dashboardContainer">
       {/* App Bar */}
       <AppBar position="static" className="appBar">
@@ -179,9 +269,12 @@ const SampleDashboard = () => {
           >
             <MenuItem onClick={handleMenuClose}>
               <div className="userInfo">
-                <Avatar className="avatar">{user.name.charAt(0)}</Avatar>
+                <Avatar className="avatar">
+            {user && user.username ? String(user.username).charAt(0) : '?'}
+        </Avatar>
+
                 <div>
-                  <Typography variant="subtitle1">{user.name}</Typography>
+                  <Typography variant="subtitle1">{user.username}</Typography>
                   <Typography variant="body2">{user.email}</Typography>
                 </div>
               </div>
@@ -201,50 +294,64 @@ const SampleDashboard = () => {
         {/* Desktop Navigation */}
         {!isMobile && renderDesktopMenu}
 
-        {/* Dashboard Content */}
-        <Grid container spacing={3} className="contentGrid">
-          <Grid item xs={12} md={8}>
-            <Card className="card">
-              <CardContent>
-                <Typography variant="h5" gutterBottom className="cardHeader">
-                  Recent Activities
-                </Typography>
-                <div className="activityList">
-                  {activities.map((activity) => (
-                    <div key={activity.id} className="activityItem">
-                      <div className="activityDot"></div>
-                      <div>
-                        <Typography>{activity.action}</Typography>
-                        <Typography variant="body2" className="activityTime">
-                          {activity.time}
-                        </Typography>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </Grid>
+        {/* Welcome Message */}
+        <div className="welcome-section">
+          <h1>Welcome, {user?.name || "Student"}</h1>
+          <p className="date">
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+        </div>
 
-          <Grid item xs={12} md={4}>
-            <Card className="tipCard">
-              <CardContent>
-                <Typography variant="h5" gutterBottom className="cardHeader">
-                  Tip of the Day
-                </Typography>
-                <div className="tipContent">
-                  <div className="tipIcon">💡</div>
-                  <Typography>
-                    {tips[Math.floor(Math.random() * tips.length)]}
-                  </Typography>
+        {/* User Analytics */}
+        <UserAnalytics />
+
+        {/* Activity Feed */}
+        <div className="activity-section">
+          <div className="section-header">
+            <h2>Recent Activity</h2>
+            <button
+              className="time-toggle"
+              onClick={() => setShowRelativeTime(!showRelativeTime)}
+            >
+              {showRelativeTime ? "Show Absolute Time" : "Show Relative Time"}
+            </button>
+          </div>
+          <div className="activity-list">
+            {recentActivities.map((activity, index) => (
+              <div key={index} className="activity-item">
+                <div className="activity-icon">
+                  {activity.type === "plan" ? <FaCalendar /> : <FaClock />}
                 </div>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+                <div className="activity-content">
+                  <p>{activity.action}</p>
+                  <span className="timestamp">
+                    {formatTimestamp(activity.timestamp)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tip of the Day */}
+        <div className="tip-section">
+          <Card className="tip-card">
+            <h2>Tip of the Day</h2>
+            <CardContent>
+              <p className="tip-text">{tipOfTheDay.tip}</p>
+              <p className="tip-author">— {tipOfTheDay.author}</p>
+            </CardContent>
+          </Card>
+        </div>
       </main>
     </div>
+
   );
 };
 
-export default SampleDashboard;
+export default Dashboard;

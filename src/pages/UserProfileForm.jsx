@@ -1,10 +1,30 @@
 import React, { useState } from "react";
-import "../Styles/UserProfileForm.css"; // Adjust the path as necessary
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Input } from "../components/ui/Input";
+import { Label } from "../components/ui/label";
+import { Button } from "../components/ui/Button";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/Avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/Select";
+import { Camera, User } from "lucide-react";
+import { useToast } from "../hooks/use-toast";
+import "../Styles/UserProfileForm.css";
+import { requestForToken } from "../utils/firebase";
+import axios from "axios";
 
 function UserProfileForm() {
   const [formData, setFormData] = useState({
-    username: "",
-    Major: "",
+    major: "",
     minor: "",
     level: "",
     graduationYear: "",
@@ -13,108 +33,160 @@ function UserProfileForm() {
   });
 
   const [preview, setPreview] = useState(null);
+  const toast = useToast();
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (files && files[0]) {
-      setFormData({ ...formData, profilePicture: files[0] });
-      setPreview(URL.createObjectURL(files[0]));
+    const { name, value } = e.target;
+
+    if (e.target.type === "file") {
+      const file = e.target.files[0];
+      setFormData({ ...formData, profilePicture: file });
+      setPreview(URL.createObjectURL(file));
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleLevelChange = (value) => {
+    setFormData({ ...formData, level: value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    alert("Submitted!");
+    const token = await requestForToken();
+    if (token) {
+      await axios.post(
+        "http://localhost:8000/api/save-fcm-token/",
+        { token },
+        { withCredentials: true }
+      );
+    }
+    toast({
+      title: "Profile",
+      description: "Your profile  has been successfully updated.",
+    });
   };
 
   return (
-    <div className="profile-page">
-      <form className="profile-card" onSubmit={handleSubmit}>
-        <div className="profile-pic-wrapper">
-          <label htmlFor="profilePictureInput" className="profile-pic-label">
-            <img
-              src={
-                preview ||
-                "https://placehold.co/600x400.png?text=Profile+Picture"
-              }
-              alt="Profile"
-              className="profile-pic"
+    <div className="profile-form-container">
+      <Card className="profile-card">
+        <CardHeader className="card-header">
+          <div className="avatar-container">
+            <Avatar className="user-avatar">
+              <AvatarImage src={preview || ""} alt="Profile" />
+              <AvatarFallback className="avatar-fallback">
+                <User className="fallback-icon" />
+              </AvatarFallback>
+            </Avatar>
+            <label htmlFor="profilePictureInput" className="camera-button">
+              <Camera className="camera-icon" />
+            </label>
+            <input
+              type="file"
+              id="profilePictureInput"
+              name="profilePicture"
+              accept="image/*"
+              onChange={handleChange}
+              className="file-input"
             />
-            <div className="overlay">Add/Change</div>
-          </label>
-          <input
-            type="file"
-            id="profilePictureInput"
-            name="profilePicture"
-            accept="image/*"
-            onChange={handleChange}
-            hidden
-          />
-        </div>
+          </div>
+          <CardTitle className="card-title">Create Your Profile</CardTitle>
+        </CardHeader>
 
-        <h2>Signup Here</h2>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="profile-form">
+            <div className="form-group">
+              <Label htmlFor="major" className="form-label">
+                Major
+              </Label>
+              <Input
+                id="major"
+                name="major"
+                type="text"
+                placeholder="Your major field of study"
+                value={formData.major}
+                onChange={handleChange}
+                required
+                className="form-input"
+              />
+            </div>
 
-        <input
-          className="input-1"
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={formData.username}
-          onChange={handleChange}
-          required
-        />
+            <div className="form-group">
+              <Label htmlFor="minor" className="form-label">
+                Minor <span className="optional-text">(optional)</span>
+              </Label>
+              <Input
+                id="minor"
+                name="minor"
+                type="text"
+                placeholder="Your minor field of study"
+                value={formData.minor}
+                onChange={handleChange}
+                className="form-input"
+              />
+            </div>
 
-        <input
-          className="input-1"
-          type="text"
-          name="Major"
-          placeholder=" Major"
-          value={formData.Major}
-          onChange={handleChange}
-          required
-        />
+            <div className="form-group">
+              <Label htmlFor="level" className="form-label">
+                Academic Level
+              </Label>
+              <Select value={formData.level} onValueChange={handleLevelChange}>
+                <SelectTrigger className="select-trigger">
+                  <SelectValue placeholder="Select your academic level" />
+                </SelectTrigger>
+                <SelectContent className="select-content">
+                  <SelectItem value="Freshman L1">Freshman L1</SelectItem>
+                  <SelectItem value="Freshman L2">Freshman L2</SelectItem>
+                  <SelectItem value="Sophomore L1">Sophomore L1</SelectItem>
+                  <SelectItem value="Sophomore L2">Sophomore L2</SelectItem>
+                  <SelectItem value="Junior L1">Junior L1</SelectItem>
+                  <SelectItem value="Junior L2">Junior L2</SelectItem>
+                  <SelectItem value="Senior L1">Senior L1</SelectItem>
+                  <SelectItem value="Senior L2">Senior L2</SelectItem>
+                  <SelectItem value="Master">Master</SelectItem>
+                  <SelectItem value="PhD">PhD</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <input
-          className="input-1"
-          type="text"
-          name="minor"
-          placeholder="Minor (optional)"
-          value={formData.minor}
-          onChange={handleChange}
-          required
-        />
-        <input
-          className="input-1"
-          type="number"
-          name="level"
-          placeholder="Level"
-          value={formData.level}
-          onChange={handleChange}
-          required
-        />
+            <div className="form-group">
+              <Label htmlFor="graduationYear" className="form-label">
+                Expected Graduation Year
+              </Label>
+              <Input
+                id="graduationYear"
+                name="graduationYear"
+                type="number"
+                placeholder="e.g., 2025"
+                value={formData.graduationYear}
+                onChange={handleChange}
+                min="2020"
+                max="2030"
+                className="form-input"
+              />
+            </div>
 
-        <input
-          className="input-1"
-          type="number"
-          name="graduationYear"
-          placeholder="Graduation Year"
-          value={formData.graduationYear}
-          onChange={handleChange}
-        />
+            <div className="form-group">
+              <Label htmlFor="bio" className="form-label">
+                Bio
+              </Label>
+              <textarea
+                id="bio"
+                name="bio"
+                placeholder="Tell us about yourself, your interests, and goals..."
+                value={formData.bio}
+                onChange={handleChange}
+                rows={3}
+                className="form-textarea"
+              />
+            </div>
 
-        <textarea
-          className="input-1"
-          name="bio"
-          placeholder="Tell us about yourself"
-          value={formData.bio}
-          onChange={handleChange}
-        />
-
-        <button type="submit">Sign Up</button>
-      </form>
+            <Button type="submit" className="submit-button">
+              Create Profile
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
