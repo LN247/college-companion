@@ -1,108 +1,194 @@
-# utils/scheduler.py
-from datetime import datetime, timedelta, time, date
-from .models import UserPreferences, Course, StudyBlock,FixedClassSchedule
-from .models import CustomUser
-import json
+from datetime import datetime, time, timedelta
+import uuid
+from .models import FixedClassSchedule, Semester, StudyBlock, UserPreferences
 
 
-def generate_timetable(user, courses, start_date, end_date):
-    # Get user preferences
+def generate_timetable(user, semester_start, semester_end, semester_id):
+
+
+
+
+    deleted_count = StudyBlock.objects.filter(
+        user=user,
+        semester_id=semester_id
+    ).delete()[0]
+
+
+    # Get preferences
     prefs = UserPreferences.objects.get(user=user)
-    off_days = [day.lower() for day in UserPreferences.get_off_days_list(prefs.off_days)]
+    off_days = [day.lower() for day in prefs.get_off_days_list()]
 
-    # Get fixed class hours
-    fixed_hours = user.FixedClassSchedule.values_list('day', 'start_time', 'end_time')
-    fixed_hours = [{'day': day, 'start': start, 'end': end} for day, start, end in fixed_hours]
-    
-    # Calculate total study minutes per course
-    difficulty_weights = {'low': 1, 'medium': 2, 'high': 3, 'very_high': 4}
-    course_study_minutes = {}
-    
-    for course in courses:
-        base_minutes = course.credits * 60  # 1 hour per credit
-        course_study_minutes[course.id] = base_minutes * difficulty_weights[course.difficulty] * course.priority
-    
-    # Generate available time slots
-    available_slots = []
-    current_date = start_date
-    
-    while current_date <= end_date:
-        day_name = current_date.strftime('%A').lower()
-        
-        if day_name not in off_days:
-            # Get fixed hours for this day
-            day_hours = next((h for h in fixed_hours if h['day'].lower() == day_name), None)
-            
-            if day_hours:
-                start = datetime.strptime(day_hours['start'], '%H:%M').time()
-                end = datetime.strptime(day_hours['end'], '%H:%M').time()
-                available_slots.append({
-                    'date': current_date,
-                    'start': start,
-                    'end': end,
-                    'duration': (datetime.combine(date.today(), end) - datetime.combine(date.today(), start)).seconds // 60
-                })
-        current_date += timedelta(days=1)
-    
-    
 
-    # Sort courses by priority (highest first)
-    sorted_courses = sorted(courses, key=lambda c: c.priority, reverse=True)
-    
-    #python dictionary which stores the total number of  minutes allocated  per day
+    # Convert preferred times
+    preferred_start_time = prefs.study_start_min
+    preferred_end_time = prefs.study_end_max
+    if not isinstance(preferred_start_time, time):
+        preferred_start_time = datetime.strptime(preferred_start_time, '%H:%M:%S').time()
+    if not isinstance(preferred_end_time, time):
+        preferred_end_time = datetime.strptime(preferred_end_time, '%H:%M:%S').time()
 
-    daily_allocated = {}
 
-    # Assign study blocks
+    # Fetch fixed classes and extract distinct courses
+    fixed_schedules = FixedClassSchedule.objects.filter(
+        user=user,
+        semester=semester_id
+    ).select_related('course')
+
+    # Get distinct courses from fixed schedules
+    courses = set()
+    for schedule in fixed_schedules:
+        courses.add(schedule.course)
+
+
+
+    course_rotation_index = 0
+
+    # Precompute fixed classes by day
+    fixed_classes_by_day = {}
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    for day in days:
+        fixed_classes_by_day[day] = []
+
+    for schedule in fixed_schedules:
+        if schedule.day in fixed_classes_by_day:
+            fixed_classes_by_day[schedule.day].append(schedule)
+
     study_blocks = []
-    for course in sorted_courses:
-        remaining_minutes = course_study_minutes[course.id]
+    processed_days = 0
+    skipped_days = 0
 
-        while remaining_minutes > 0 and available_slots:
-            # Select the available slot with the longest duration
-            slot = max(available_slots, key=lambda s: s['duration'])
-            slot_date = slot['date']
+    for day in days:
 
-            # Determine how many minutes have already been scheduled for this day
-            allocated_today = daily_allocated.get(slot_date, 0)
-            # Calculate remaining allowed minutes for this day
-        allowed_today = 240 - allocated_today
-        
-        if allowed_today <= 0:
-            # If the day has hit the maximum, remove the slot and continue
-            available_slots.remove(slot)
+
+        # Case-insensitive off day check
+        if day.lower() in off_days:
+
+            skipped_days += 1
             continue
-        
-        # Determine study duration: up to 60 minutes or less if not enough time remains
-        study_duration = min(remaining_minutes, 60, slot['duration'], allowed_today)
 
-        # Create the study block
-        study_blocks.append({
-            'course': course,
-            'date': slot_date,
-            'start_time': slot['start'],
-            'end_time': (datetime.combine(slot_date, slot['start']) + timedelta(minutes=study_duration)).time()
-        })
-        
-        # Update the available slot and remaining study minutes for the course
-        slot['start'] = (datetime.combine(slot_date, slot['start']) + timedelta(minutes=study_duration)).time()
-        slot['duration'] -= study_duration
-        remaining_minutes -= study_duration
-        
-        # Track the total amount allocated for that day
-        daily_allocated[slot_date] = allocated_today + study_duration
-        
-        # Remove the slot if it's been fully used
-        if slot['duration'] <= 0:
-            available_slots.remove(slot)
-    
+        # Get free time slots
+        fixed_classes_today = fixed_classes_by_day[day]
+        free_slots = get_free_time_slots(day, fixed_classes_today, preferred_start_time, preferred_end_time)
+
+        if free_slots:
+
+            processed_days += 1
+
+            for i, slot in enumerate(free_slots, 1):
+                print(f"  Slot {i}: {slot[0].strftime('%H:%M')} - {slot[1].strftime('%H:%M')}")
+
+            # Get course list
+            course_list = list(courses)
+            if not course_list:
+
+                continue
+
+
+            for slot in free_slots:
+                slot_start, slot_end = slot
+
+                # Get next course in rotation
+                course = course_list[course_rotation_index % len(course_list)]
+                course_rotation_index += 1
+
+
+                # Create and save study block
+                study_block = StudyBlock(
+                    user=user,
+                    course=course,
+                    semester=Semester.objects.get(pk=semester_id),
+                    day=day,
+                    start_time=slot_start,
+                    end_time=slot_end,
+                )
+                try:
+                    study_block.save()
+                    study_blocks.append(study_block)
+
+                except Exception as e:
+                    print(f"  ❌ Error saving study block: {e}")
+
+
+
+
+
+
     return study_blocks
 
 
-def has_conflict(new_block, existing_blocks):
-    for block in existing_blocks:
-        if (new_block['date'] == block['date'] and 
-                not (new_block['end_time'] <= block['start_time'] or 
-                     new_block['start_time'] >= block['end_time'])):
-            return True
-    return False
+def get_free_time_slots(day, fixed_classes, preferred_start, preferred_end):
+    intervals = []
+
+
+    if not fixed_classes:
+
+
+     for cls in fixed_classes:
+        start = cls.start_time
+        end = cls.end_time
+
+        if not isinstance(start, time):
+            start = datetime.strptime(str(start), '%H:%M:%S').time()
+        if not isinstance(end, time):
+            end = datetime.strptime(str(end), '%H:%M:%S').time()
+
+        # Clip class times to preferred window
+        clipped_start = max(start, preferred_start)
+        clipped_end = min(end, preferred_end)
+
+        # Only add if valid time slot
+        if clipped_start < clipped_end:
+            intervals.append((clipped_start, clipped_end))
+
+
+    # Sort by start time
+    intervals.sort(key=lambda x: x[0])
+
+    # Merge overlapping intervals
+    merged = []
+    for start, end in intervals:
+        if not merged:
+            merged.append((start, end))
+        else:
+            last_start, last_end = merged[-1]
+            if start <= last_end:  # Overlaps
+                merged[-1] = (last_start, max(last_end, end))
+
+            else:
+                merged.append((start, end))
+
+    # Calculate free slots within preferred window
+    free_slots = []
+    current_start = preferred_start
+
+    # Slot before first class
+    if merged:
+        first_class_start = merged[0][0]
+        if current_start < first_class_start:
+            slot = (current_start, first_class_start)
+            free_slots.append(slot)
+
+
+    # Slots between classes
+    for i in range(len(merged) - 1):
+        current_end = merged[i][1]
+        next_start = merged[i + 1][0]
+
+        if current_end < next_start:
+            slot = (current_end, next_start)
+            free_slots.append(slot)
+
+
+    # Slot after last class
+    if merged:
+        last_class_end = merged[-1][1]
+        if last_class_end < preferred_end:
+            slot = (last_class_end, preferred_end)
+            free_slots.append(slot)
+
+    elif preferred_start < preferred_end:  # No classes at all
+        slot = (preferred_start, preferred_end)
+        free_slots.append(slot)
+
+
+    return free_slots

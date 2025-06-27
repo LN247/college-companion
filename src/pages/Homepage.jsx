@@ -10,9 +10,7 @@ function Homepage() {
   
   return (
     <>
-      <Debug>
         <Hero />
-      </Debug>
       <Features />
       <Testimonials />
       <Footer />

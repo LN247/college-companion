@@ -1,0 +1,96 @@
+/* No specific styles needed for context itself */
+/* But we'll add styles for components that use this context */
+
+/* Semester Card Styles */
+.semester-card {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: var(--card-bg);
+  transition: all 0.3s ease;
+}
+
+.semester-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.semester-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.semester-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.semester-active-badge {
+  background-color: var(--success-light);
+  color: var(--success-dark);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.semester-dates {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.semester-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Course Card Styles */
+.course-card {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: var(--card-bg-light);
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.course-code {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.course-name {
+  font-weight: 600;
+  margin: 8px 0;
+  color: var(--text-primary);
+}
+
+.course-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.course-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.course-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}

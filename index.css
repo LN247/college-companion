@@ -1,0 +1,38 @@
+:root {
+  /* Backgrounds */
+  --background-color: #ffffff;
+  --active-tab-bg: #e0f2fe;
+  --inactive-tab-bg: #f1f5f9;
+  --inactive-tab-hover: #e2e8f0;
+
+  --primary: #2563eb;
+  --success-light: #dcfce7;
+  --success-dark: #166534;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+  --card-bg: #ffffff;
+  --card-bg-light: #f8fafc;
+
+  /* Text colors */
+  --foreground-color: #1e293b;
+  --muted-foreground: #64748b;
+  --active-tab-text: #0ea5e9;
+  --inactive-tab-text: #334155;
+  --slider-track-bg: 220 14% 96%;
+  --slider-range-bg: 220 78% 46%;
+  --slider-thumb-border: 220 78% 46%;
+  --slider-focus-ring: 220 78% 46%;
+}
+
+.dark-theme {
+  --background-color: #0f172a;
+  --active-tab-bg: #0c4a6e;
+  --inactive-tab-bg: #1e293b;
+  --inactive-tab-hover: #334155;
+  --foreground-color: #f1f5f9;
+  --muted-foreground: #94a3b8;
+  --active-tab-text: #38bdf8;
+  --inactive-tab-text: #cbd5e1;
+}

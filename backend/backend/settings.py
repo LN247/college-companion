@@ -13,12 +13,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
-import os   
+import os
 
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -31,37 +30,41 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-#jwt configurations
+# jwt configurations
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-         
+
         "api.authentication.CookieJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
+        "rest_framework.permissions.IsAuthenticated",
     ],
 }
 # defines the lifetime of the access and refresh tokens
 # The access token is valid for 30 minutes, and the refresh token is valid for 1 day
 SIMPLE_JWT = {
-    
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=0.5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKEN":False,
-    "BLACKLIST_AFTER_ROTATION":False,
+
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7, hours=23, minutes=59),  # 5 days, 23 hours, 59 minutes
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=12),
+    "ROTATE_REFRESH_TOKEN": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    'ALGORITHM': 'HS256',
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+
 }
-
-
-
 
 # Your frontend URL (Vite/React)
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
     "http://127.0.0.1:5173",
-    
-]
 
+]
 
 CORS_ALLOW_HEADERS = [
     "accept",
@@ -69,18 +72,25 @@ CORS_ALLOW_HEADERS = [
     "authorization",
     "content-type",
     "dnt",
-    "origin",
+    "origin"
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
 ]
 
+#
+CSRF_TRUSTED_ORIGINS=[
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+]
 
-# 
+
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_SECURE = False  # or True in productio
-SESSION_COOKIE_SECURE = False  # or True in production
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_DOMAIN = None
+CSRF_COOKIE_DOMAIN = None
 SESSION_COOKIE_HTTPONLY = True
 
 # Application definition
@@ -96,9 +106,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'api',
-    'rest_framework',
     'channels',
-    
+    'channels_redis',  
 ]
 
 
@@ -108,7 +117,7 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -136,11 +145,7 @@ TEMPLATES = [
     },
 ]
 
-
-
-
 WSGI_APPLICATION = 'backend.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -151,7 +156,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -171,7 +175,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -182,7 +185,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -196,11 +198,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS settings
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS=True
-
-AUTH_USER_MODEL='api.CustomUser'
 
 
+AUTH_USER_MODEL = 'api.CustomUser'
 
 # Celery settings
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
@@ -208,21 +208,38 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-CELERY_RESULT_EXPIRES = 3600 
+CELERY_BEAT_MAX_LOOP_INTERVAL = 300
+CELERY_RESULT_EXPIRES = 3600
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://localhost:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# Cache timeout settings
+USER_RESOURCES_CACHE_TIMEOUT = 21600
+
+
+
 
 # Notification settings
 STUDY_NOTIFICATION_ADVANCE_MINUTES = 10
 
-
-
 # Firebase Cloud Messaging settings
+
+
+
 
 
 # Load credentials from file
 BASE_DIR = Path(__file__).resolve().parent.parent
 FIREBASE_CREDENTIAL_PATH = BASE_DIR / "serviceAccountKey.json"
-
 
 if not FIREBASE_CREDENTIAL_PATH.exists():
     raise FileNotFoundError("Firebase service account file missing")

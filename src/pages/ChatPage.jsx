@@ -14,6 +14,14 @@ function ChatPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const fileInputRef = useRef(null);
+
+
+
+
+
+
+
+
   const [allGroups, setAllGroups] = useState([
     { 
       id: "1", 

@@ -1,0 +1,35 @@
+:root {
+  --primary-color: #3b82f6;      /* Primary color for checked state */
+  --input-color: #0c0d0e;        /* Background for unchecked state */
+  --background-color: #ffffff;   /* Thumb background color */
+  --ring-color: #93c5fd;         /* Focus ring color */
+  --ring-offset-color: #f9fafb;  /* Focus ring offset color */
+}
+
+
+.textarea-field {
+  display: flex;
+  min-height: 80px;
+  width: 90%;
+  border-radius: 8px;
+  border: 1px solid var(--ring-color);
+  background-color: var(--background-color);
+  padding: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.textarea-field::placeholder {
+  color: var(--text-primary);
+}
+
+.textarea-field:focus {
+  border-color: var(--ring-color);
+  box-shadow: 0 0 5px var(--ring-color);
+}
+
+.textarea-field:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

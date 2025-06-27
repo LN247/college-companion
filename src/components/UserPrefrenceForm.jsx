@@ -13,7 +13,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/ui/Select";
+} from "../components/ui/select";
 import { Button } from "../components/ui/Button";
 import { Slider } from "../components/ui/slider";
 import { Trash2, Plus } from "lucide-react";
@@ -27,7 +27,6 @@ const StepUserPreferencesForm = ({ onFormComplete }) => {
   const [studyEndTime, setStudyEndTime] = useState("");
   const [selectedCourses, setSelectedCourses] = useState([
     {
-      id: "1",
       courseId: "",
       startTime: "",
       endTime: "",
