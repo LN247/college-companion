@@ -16,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingScreen from "./pages/Loadingpage";
 import { LoadingProvider } from "./context/LoadingContext";
 import { useLoading } from "./context/LoadingContext";
+import ChatPage from "./pages/ChatPage";
 
 const AppContent = () => {
   const { isLoading } = useLoading();
@@ -37,6 +38,7 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="chat" element={<ChatPage/>}/>
         <Route
           path="/dashboard"
           element={
@@ -48,9 +50,8 @@ const AppContent = () => {
         <Route
           path="/college-life"
           element={
-            <ProtectedRoute>
               <CollegeLife />
-            </ProtectedRoute>
+          
           }
         />
         <Route
