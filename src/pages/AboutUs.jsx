@@ -53,6 +53,11 @@ const AboutUs = () => {
             </div>
           ))}
         </div>
+
+        {/* Mission statement added below contributors */}
+        <p className="team-mission">
+          We are a team of passionate second-year Software Engineering students from the ICT University. Our mission is to solve real problems faced by university students by building practical digital tools to help them navigate College life.
+        </p>
       </main>
     </div>
   );
