@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { Calendar, GraduationCap } from "lucide-react";
+import { Calendar, GraduationCap, Plus, Users, Clock, BookOpen } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
 } from "./ui/card";
 import { Button } from "./ui/Button";
 import InputWithError from "./InputwithError";
-import "../Styles/plan.css";
+import "../Styles/SemesterManager.css";
 import axios from "axios";
 
 export default function SemesterCourseForm({ onFormComplete }) {
@@ -18,6 +18,7 @@ export default function SemesterCourseForm({ onFormComplete }) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [semesterErrors, setSemesterErrors] = useState({});
+  const [semesters, setSemesters] = useState([]);
 
   // Validation helpers
   const validateSemester = useCallback(() => {
@@ -83,6 +84,21 @@ export default function SemesterCourseForm({ onFormComplete }) {
         );
         // Pass the created semester's ID to the parent
         const semesterId = response.data.id;
+        
+        // Add to local state
+        setSemesters(prev => [...prev, {
+          id: semesterId,
+          name: semesterName,
+          startDate,
+          endDate,
+          status: 'active'
+        }]);
+        
+        // Clear form
+        setSemesterName("");
+        setStartDate("");
+        setEndDate("");
+        
         onFormComplete({ valid: true, semesterId });
       } catch (error) {
         // Optionally handle error
@@ -125,60 +141,137 @@ export default function SemesterCourseForm({ onFormComplete }) {
     [semesterErrors]
   );
 
+  // Calculate semester stats
+  const activeSemesters = semesters.filter(s => s.status === 'active').length;
+  const completedSemesters = semesters.filter(s => s.status === 'completed').length;
+  const upcomingSemesters = semesters.filter(s => s.status === 'upcoming').length;
+
   return (
-    <div className="semester-course-container">
-      {/* Semester Information Card */}
-      <Card className="semester-card">
-        <CardHeader className="card-header-blue">
-          <CardTitle className="card-title">
-            <GraduationCap className="header-icon" />
-            Semester Information
-          </CardTitle>
-          <CardDescription className="header-description">
-            Set up your semester details and course schedule
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="card-content">
-          <form
-            onSubmit={handleSemesterSubmit}
-            noValidate
-            className="course-form"
-          >
-            <InputWithError
-              id="semesterName"
-              label="Semester Name"
-              value={semesterName}
-              onChange={(e) => semesterHandlers.setSemesterName(e.target.value)}
-              error={semesterErrors.semesterName}
-              placeholder="e.g., Fall 2024"
-              icon={Calendar}
-            />
+    <div className="semester-manager">
+      <div className="semester-manager-container">
+        {/* Header Section */}
+        <div className="semester-manager-header">
+          <h1 className="semester-manager-title">Semester Manager</h1>
+          <p className="semester-manager-subtitle">
+            Manage your academic semesters and track your progress
+          </p>
+        </div>
 
-            <div className="date-grid">
-              <InputWithError
-                id="startDate"
-                label="Start Date"
-                value={startDate}
-                onChange={(e) => semesterHandlers.setStartDate(e.target.value)}
-                error={semesterErrors.startDate}
-                type="date"
-                icon={Calendar}
-              />
-              <InputWithError
-                id="endDate"
-                label="End Date"
-                value={endDate}
-                onChange={(e) => semesterHandlers.setEndDate(e.target.value)}
-                error={semesterErrors.endDate}
-                type="date"
-                icon={Calendar}
-              />
+        {/* Stats Section */}
+        <div className="semester-stats">
+          <div className="semester-stat-card">
+            <div className="semester-stat-number">{semesters.length}</div>
+            <div className="semester-stat-label">Total Semesters</div>
+          </div>
+          <div className="semester-stat-card">
+            <div className="semester-stat-number">{activeSemesters}</div>
+            <div className="semester-stat-label">Active Semesters</div>
+          </div>
+          <div className="semester-stat-card">
+            <div className="semester-stat-number">{completedSemesters}</div>
+            <div className="semester-stat-label">Completed</div>
+          </div>
+          <div className="semester-stat-card">
+            <div className="semester-stat-number">{upcomingSemesters}</div>
+            <div className="semester-stat-label">Upcoming</div>
+          </div>
+        </div>
 
-              <Button type="submit">Continue</Button>
+        {/* Semester Form Card */}
+        <div className="semester-form-card">
+          <div className="semester-form-header">
+            <div className="semester-form-title">
+              <Plus />
+              Add New Semester
             </div>
-          </form>
-        </CardContent>
-      </Card>
+            <div className="semester-form-description">
+              Create a new semester to organize your courses
+            </div>
+          </div>
+          <div className="semester-form-content">
+            <form onSubmit={handleSemesterSubmit} noValidate>
+              <div className="semester-inputs">
+                <InputWithError
+                  id="semesterName"
+                  label="Semester Name"
+                  value={semesterName}
+                  onChange={(e) => semesterHandlers.setSemesterName(e.target.value)}
+                  error={semesterErrors.semesterName}
+                  placeholder="e.g., Fall 2024"
+                  icon={Calendar}
+                />
+
+                <div className="semester-grid">
+                  <InputWithError
+                    id="startDate"
+                    label="Start Date"
+                    value={startDate}
+                    onChange={(e) => semesterHandlers.setStartDate(e.target.value)}
+                    error={semesterErrors.startDate}
+                    type="date"
+                    icon={Calendar}
+                  />
+                  <InputWithError
+                    id="endDate"
+                    label="End Date"
+                    value={endDate}
+                    onChange={(e) => semesterHandlers.setEndDate(e.target.value)}
+                    error={semesterErrors.endDate}
+                    type="date"
+                    icon={Calendar}
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" className="add-semester-btn">
+                <Plus />
+                Add Semester
+              </Button>
+            </form>
+          </div>
+        </div>
+
+        {/* Semesters List */}
+        {semesters.length > 0 && (
+          <div className="semesters-card">
+            <div className="semester-card-header">
+              <div className="semester-card-title">
+                <GraduationCap className="semester-header-icon" />
+                Your Semesters
+              </div>
+              <div className="semester-form-description">
+                Manage and track your academic semesters
+              </div>
+            </div>
+            <div className="semester-card-content">
+              <div className="semesters-grid">
+                {semesters.map((semester, index) => (
+                  <div key={semester.id} className="semester-item-card">
+                    <div className="semester-item-title">{semester.name}</div>
+                    <div className={`semester-item-status ${semester.status}`}>
+                      {semester.status}
+                    </div>
+                    <div className="semester-item-details">
+                      <div className="semester-item-detail">
+                        <Calendar />
+                        Start: {new Date(semester.startDate).toLocaleDateString()}
+                      </div>
+                      <div className="semester-item-detail">
+                        <Calendar />
+                        End: {new Date(semester.endDate).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className="semester-item-actions">
+                      <button className="semester-action-btn primary">View Courses</button>
+                      <button className="semester-action-btn secondary">Edit</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

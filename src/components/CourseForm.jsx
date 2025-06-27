@@ -15,6 +15,9 @@ import {
   Save,
   X,
   Contact,
+  Users,
+  Calendar,
+  Clock,
 } from "lucide-react";
 import {
   Card,
@@ -27,6 +30,7 @@ import axios from "axios";
 import { Button } from "./ui/Button";
 import InputWithError from "./InputwithError";
 import TableCellInput from "./TabelCellInput";
+import "../Styles/CourseManager.css";
 
 function CourseForm({ onFormComplete, semesterId }) {
   // List of courses and editing state
@@ -38,16 +42,17 @@ function CourseForm({ onFormComplete, semesterId }) {
   const [courseCode, setCourseCode] = useState("");
   const [credits, setCredits] = useState("");
   const [difficulty, setDifficulty] = useState("");
+  const [timings, setTimings] = useState("");
 
   const API_BASE = "http://127.0.0.1:8000/api";
 
-  const totalFields = 4;
+  const totalFields = 5;
   const countCompletedFields = (data) => {
     return Object.values(data).filter((value) => value.trim() !== "").length;
   };
   const isCourseFormComplete = () => {
     return (
-      countCompletedFields({ courseName, courseCode, credits, difficulty }) ===
+      countCompletedFields({ courseName, courseCode, credits, difficulty, timings }) ===
       totalFields
     );
   };
@@ -72,6 +77,7 @@ function CourseForm({ onFormComplete, semesterId }) {
     courseCode: "",
     credits: "",
     difficulty: "",
+    timings: "",
   });
   const [editErrors, setEditErrors] = useState({});
 
@@ -86,6 +92,7 @@ function CourseForm({ onFormComplete, semesterId }) {
     else if (isNaN(inputs.credits) || Number(inputs.credits) < 0)
       errors.credits = "Credits must be 0 or more";
     if (!inputs.difficulty.trim()) errors.difficulty = "Difficulty is required";
+    if (!inputs.timings.trim()) errors.timings = "Timings is required";
     return errors;
   }, []);
 
@@ -99,6 +106,7 @@ function CourseForm({ onFormComplete, semesterId }) {
         courseCode,
         credits,
         difficulty,
+        timings,
       });
 
       setCourseErrors(courseErrors);
@@ -141,12 +149,13 @@ function CourseForm({ onFormComplete, semesterId }) {
 
         setCourses((prev) => [
           ...prev,
-          { courseName, courseCode, credits, timings, semester: semesterId },
+          { courseName, courseCode, credits, timings, difficulty, semester: semesterId },
         ]);
         setCourseName("");
         setCourseCode("");
         setCredits("");
         setTimings("");
+        setDifficulty("");
         setCourseErrors({});
       } catch (error) {
         setCourseErrors((prev) => ({
@@ -155,7 +164,7 @@ function CourseForm({ onFormComplete, semesterId }) {
         }));
       }
     },
-    [courseName, courseCode, credits, difficulty, validateCourse, courses]
+    [courseName, courseCode, credits, difficulty, timings, validateCourse, courses]
   );
 
   // Start editing a row
@@ -228,10 +237,9 @@ function CourseForm({ onFormComplete, semesterId }) {
     [editingIndex, handleCancelEdit]
   );
 
-  //
-
   const generateSchedule = () => {
     // Logic to generate course schedule
+    console.log("Generating schedule for courses:", courses);
   };
 
   // Handlers for input fields
@@ -240,6 +248,7 @@ function CourseForm({ onFormComplete, semesterId }) {
     setCourseCode,
     setCredits,
     setDifficulty,
+    setTimings,
   };
 
   // Generate course list rows
@@ -305,6 +314,23 @@ function CourseForm({ onFormComplete, semesterId }) {
             {isEditing ? (
               <TableCellInput
                 label="Timings"
+                value={editRow.timings}
+                onChange={(e) =>
+                  setEditRow((prev) => ({
+                    ...prev,
+                    timings: e.target.value,
+                  }))
+                }
+                error={editErrors.timings}
+              />
+            ) : (
+              <span className="course-timings">{course.timings}</span>
+            )}
+          </td>
+          <td className="table-cell">
+            {isEditing ? (
+              <TableCellInput
+                label="Difficulty"
                 value={editRow.difficulty}
                 onChange={(e) =>
                   setEditRow((prev) => ({
@@ -315,7 +341,7 @@ function CourseForm({ onFormComplete, semesterId }) {
                 error={editErrors.difficulty}
               />
             ) : (
-              <span className="course-timings">{course.timings}</span>
+              <span className="course-difficulty">{course.difficulty}</span>
             )}
           </td>
           <td className="table-cell actions-cell">
@@ -383,114 +409,161 @@ function CourseForm({ onFormComplete, semesterId }) {
   ]);
 
   return (
-    <div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Add a Course</CardTitle>
-          <CardDescription>
-            Enter course details to add to your schedule
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddCourse}>
-            <div className="course-inputs">
-              <InputWithError
-                id="courseName"
-                label="Course Name"
-                value={courseName}
-                onChange={(e) => courseHandlers.setCourseName(e.target.value)}
-                error={courseErrors.courseName}
-                placeholder="e.g., Introduction to Programming"
-                icon={BookOpen}
-              />
+    <div className="course-manager">
+      <div className="course-manager-container">
+        {/* Header Section */}
+        <div className="course-manager-header">
+          <h1 className="course-manager-title">Course Manager</h1>
+          <p className="course-manager-subtitle">
+            Manage your academic courses and create your perfect schedule
+          </p>
+        </div>
 
-              <div className="course-grid">
+        {/* Stats Section */}
+        <div className="course-stats">
+          <div className="stat-card">
+            <div className="stat-number">{courses.length}</div>
+            <div className="stat-label">Total Courses</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{courses.reduce((sum, course) => sum + parseInt(course.credits || 0), 0)}</div>
+            <div className="stat-label">Total Credits</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{courses.filter(course => course.difficulty === 'Easy').length}</div>
+            <div className="stat-label">Easy Courses</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{courses.filter(course => course.difficulty === 'Hard').length}</div>
+            <div className="stat-label">Hard Courses</div>
+          </div>
+        </div>
+
+        {/* Course Form Card */}
+        <div className="course-form-card">
+          <div className="course-form-header">
+            <div className="course-form-title">
+              <Plus />
+              Add New Course
+            </div>
+            <div className="course-form-description">
+              Enter course details to add to your schedule
+            </div>
+          </div>
+          <div className="course-form-content">
+            <form onSubmit={handleAddCourse}>
+              <div className="course-inputs">
                 <InputWithError
-                  id="courseCode"
-                  label="Course Code"
-                  value={courseCode}
-                  onChange={(e) => courseHandlers.setCourseCode(e.target.value)}
-                  error={courseErrors.courseCode}
-                  placeholder="e.g., CS101"
-                  icon={Hash}
+                  id="courseName"
+                  label="Course Name"
+                  value={courseName}
+                  onChange={(e) => courseHandlers.setCourseName(e.target.value)}
+                  error={courseErrors.courseName}
+                  placeholder="e.g., Introduction to Programming"
+                  icon={BookOpen}
                 />
-                <InputWithError
-                  id="credits"
-                  label="Credits"
-                  value={credits}
-                  onChange={(e) => courseHandlers.setCredits(e.target.value)}
-                  error={courseErrors.credits}
-                  type="number"
-                  min="0"
-                  placeholder="3"
-                  icon={GraduationCap}
-                />
+
+                <div className="course-grid">
+                  <InputWithError
+                    id="courseCode"
+                    label="Course Code"
+                    value={courseCode}
+                    onChange={(e) => courseHandlers.setCourseCode(e.target.value)}
+                    error={courseErrors.courseCode}
+                    placeholder="e.g., CS101"
+                    icon={Hash}
+                  />
+                  <InputWithError
+                    id="credits"
+                    label="Credits"
+                    value={credits}
+                    onChange={(e) => courseHandlers.setCredits(e.target.value)}
+                    error={courseErrors.credits}
+                    type="number"
+                    min="0"
+                    placeholder="3"
+                    icon={GraduationCap}
+                  />
+                </div>
+
+                <div className="course-grid">
+                  <InputWithError
+                    id="timings"
+                    label="Course Timings"
+                    value={timings}
+                    onChange={(e) => courseHandlers.setTimings(e.target.value)}
+                    error={courseErrors.timings}
+                    placeholder="e.g., Mon/Wed 10:00-11:30"
+                    icon={Clock}
+                  />
+                  <InputWithError
+                    id="difficulty"
+                    label="Difficulty Level"
+                    value={difficulty}
+                    onChange={(e) => courseHandlers.setDifficulty(e.target.value)}
+                    error={courseErrors.difficulty}
+                    placeholder="e.g., Easy, Medium, Hard"
+                    icon={Contact}
+                  />
+                </div>
               </div>
 
-              <InputWithError
-                id="difficulty"
-                label="Difficulty"
-                value={difficulty}
-                onChange={(e) => courseHandlers.setDifficulty(e.target.value)}
-                error={courseErrors.difficulty}
-                placeholder="e.g., Easy, Medium, Hard, Very Hard"
-                icon={Contact}
-              />
-            </div>
-
-            <Button type="submit" className="add-course-btn">
-              <Plus className="btn-icon" />
-              Add Course
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Added Courses Section */}
-      <Card className="courses-card">
-        <CardHeader className="card-header-emerald">
-          <CardTitle className="card-title">
-            <BookOpen className="header-icon" />
-            Course Schedule ({courses.length}{" "}
-            {courses.length === 1 ? "course" : "courses"})
-          </CardTitle>
-          <CardDescription className="header-description">
-            Manage your enrolled courses for this semester
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="card-content">
-          {courses.length === 0 ? (
-            <div className="empty-courses">
-              <BookOpen className="empty-icon" />
-              <p className="empty-text">No courses added yet</p>
-              <p className="empty-subtext">
-                Add your first course using the form above
-              </p>
-            </div>
-          ) : (
-            <div className="courses-table-container">
-              <table className="courses-table">
-                <thead>
-                  <tr className="table-header-row">
-                    <th className="table-header">Course Name</th>
-                    <th className="table-header">Course Code</th>
-                    <th className="table-header">Credits</th>
-                    <th className="table-header">Timings</th>
-                    <th className="table-header actions-header">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>{courseList}</tbody>
-              </table>
-              <Button
-                disabled={!isCourseFormComplete() || !semesterId}
-                onClick={generateSchedule}
-              >
-                continue
+              <Button type="submit" className="add-course-btn">
+                <Plus className="btn-icon" />
+                Add Course
               </Button>
+            </form>
+          </div>
+        </div>
+
+        {/* Added Courses Section */}
+        <div className="courses-card">
+          <div className="card-header-emerald">
+            <div className="card-title">
+              <BookOpen className="header-icon" />
+              Course Schedule ({courses.length}{" "}
+              {courses.length === 1 ? "course" : "courses"})
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <div className="header-description">
+              Manage your enrolled courses for this semester
+            </div>
+          </div>
+          <div className="card-content">
+            {courses.length === 0 ? (
+              <div className="empty-courses">
+                <BookOpen className="empty-icon" />
+                <p className="empty-text">No courses added yet</p>
+                <p className="empty-subtext">
+                  Add your first course using the form above
+                </p>
+              </div>
+            ) : (
+              <div className="courses-table-container">
+                <table className="courses-table">
+                  <thead>
+                    <tr className="table-header-row">
+                      <th className="table-header">Course Name</th>
+                      <th className="table-header">Course Code</th>
+                      <th className="table-header">Credits</th>
+                      <th className="table-header">Timings</th>
+                      <th className="table-header">Difficulty</th>
+                      <th className="table-header actions-header">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>{courseList}</tbody>
+                </table>
+                <Button
+                  disabled={!isCourseFormComplete() || !semesterId}
+                  onClick={generateSchedule}
+                  className="continue-btn"
+                >
+                  Generate Schedule
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

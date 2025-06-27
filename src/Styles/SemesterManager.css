@@ -1,0 +1,435 @@
+/* Semester Manager - Professional Styling */
+.semester-manager {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #dfe9ee 100%);
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.semester-manager-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Header Section */
+.semester-manager-header {
+  background: linear-gradient(135deg, #06123d 0%, #0a1a4f 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  color: white;
+  box-shadow: 0 8px 32px rgba(6, 18, 61, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.semester-manager-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(246, 135, 18, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.semester-manager-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f68712 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.semester-manager-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+/* Stats Cards */
+.semester-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.semester-stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(6, 18, 61, 0.08);
+  border-left: 4px solid #f68712;
+  transition: all 0.3s ease;
+}
+
+.semester-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(6, 18, 61, 0.12);
+}
+
+.semester-stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #06123d;
+  margin-bottom: 0.5rem;
+}
+
+.semester-stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Semester Form Card */
+.semester-form-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(6, 18, 61, 0.1);
+  overflow: hidden;
+}
+
+.semester-form-header {
+  background: linear-gradient(135deg, #06123d 0%, #0a1a4f 100%);
+  padding: 2rem;
+  color: white;
+}
+
+.semester-form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.semester-form-title svg {
+  color: #f68712;
+}
+
+.semester-form-description {
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.semester-form-content {
+  padding: 2rem;
+}
+
+/* Form Inputs */
+.semester-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.semester-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* Add Semester Button */
+.add-semester-btn {
+  background: linear-gradient(135deg, #f68712 0%, #ff9f43 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 16px rgba(246, 135, 18, 0.3);
+}
+
+.add-semester-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(246, 135, 18, 0.4);
+}
+
+.add-semester-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Semesters List */
+.semesters-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(6, 18, 61, 0.1);
+  overflow: hidden;
+}
+
+.semester-card-header {
+  background: linear-gradient(135deg, #06123d 0%, #0a1a4f 100%);
+  color: white;
+  padding: 2rem;
+}
+
+.semester-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.semester-header-icon {
+  color: #f68712;
+}
+
+.semester-card-content {
+  padding: 2rem;
+}
+
+/* Semester Cards Grid */
+.semesters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.semester-item-card {
+  background: white;
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  border-top: 4px solid #f68712;
+}
+
+.semester-item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(6, 18, 61, 0.12);
+  border-color: #f68712;
+}
+
+.semester-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.semester-item-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #06123d;
+  margin-bottom: 0.5rem;
+}
+
+.semester-item-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.semester-item-status.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.semester-item-status.completed {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.semester-item-status.upcoming {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.semester-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.semester-item-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.semester-item-detail svg {
+  color: #f68712;
+  width: 16px;
+  height: 16px;
+}
+
+.semester-item-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.semester-action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.semester-action-btn.primary {
+  background: #007bff;
+  color: white;
+}
+
+.semester-action-btn.secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.semester-action-btn.danger {
+  background: #dc3545;
+  color: white;
+}
+
+/* Empty State */
+.empty-semesters {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #666;
+}
+
+.empty-semester-icon {
+  font-size: 4rem;
+  color: #ddd;
+  margin-bottom: 1rem;
+}
+
+.empty-semester-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #06123d;
+}
+
+.empty-semester-subtext {
+  font-size: 0.95rem;
+  opacity: 0.7;
+}
+
+/* Progress Bar */
+.semester-progress {
+  margin: 1rem 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f68712 0%, #ff9f43 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+  text-align: right;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .semester-manager {
+    padding: 1rem;
+  }
+  
+  .semester-manager-title {
+    font-size: 2rem;
+  }
+  
+  .semester-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .semester-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .semester-form-content,
+  .semester-card-content {
+    padding: 1.5rem;
+  }
+  
+  .semesters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .semester-item-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .semester-manager-header {
+    padding: 1.5rem;
+  }
+  
+  .semester-manager-title {
+    font-size: 1.75rem;
+  }
+  
+  .semester-stat-number {
+    font-size: 2rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.semester-form-card,
+.semesters-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.semester-stat-card {
+  animation: fadeInUp 0.6s ease-out;
+  animation-delay: calc(var(--animation-order) * 0.1s);
+}
+
+.semester-item-card {
+  animation: fadeInUp 0.6s ease-out;
+  animation-delay: calc(var(--animation-order) * 0.1s);
+} 

@@ -12,6 +12,7 @@ import HelpCenter from "./pages/HelpCenter";
 import Homepage from "./pages/Homepage";
 import AddSemester from "./pages/AddSemester";
 import UserProfileForm from "./pages/UserProfileForm";
+import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingScreen from "./pages/Loadingpage";
 import { LoadingProvider } from "./context/LoadingContext";
@@ -43,6 +44,14 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
