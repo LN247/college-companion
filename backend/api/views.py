@@ -674,6 +674,7 @@ class CommunityProposalView(APIView):
         result = propose_community(request.user.id, course_id)
         return Response(result, status=status.HTTP_200_OK if result['status'] == 'success' else status.HTTP_400_BAD_REQUEST)
 
+
 class GroupChatViewSet(viewsets.ModelViewSet):
     queryset = GroupChat.objects.all()
     serializer_class = GroupChatSerializer
