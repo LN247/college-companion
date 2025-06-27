@@ -44,15 +44,15 @@ const ScheduleCalendar = ({ events = [], onEventAdd }) => {
     : [];
 
   return (
-    <div className="calendar-container">
-      <Card className="calendar-card">
-        <div className="calendar-header">
+    <div className="calendar__container">
+      <Card className="calendar__card">
+        <div className="calendar__header">
           <div>
-            <h3 className="calendar-title">
-              <CalendarIcon className="calendar-icon" />
+            <h3 className="calendar__title">
+              <CalendarIcon className="calendar__icon" />
               Personal Events Calendar
             </h3>
-            <p className="calendar-description">
+            <p className="calendar__description">
               Add your personal events and appointments
             </p>
           </div>
@@ -61,14 +61,14 @@ const ScheduleCalendar = ({ events = [], onEventAdd }) => {
               setSelectedSlot({ start: new Date(), end: new Date(Date.now() + 3600000) });
               setShowEventModal(true);
             }}
-            className="calendar-add-btn"
+            className="calendar__add-btn"
           >
-            <Plus className="icon" />
+            <Plus className="calendar__plus-icon" />
             Add Event
           </Button>
         </div>
 
-        <div className="calendar-body">
+        <div className="calendar__body">
           <Calendar
             localizer={localizer}
             events={customEvents}
@@ -80,7 +80,7 @@ const ScheduleCalendar = ({ events = [], onEventAdd }) => {
             selectable
             onSelectSlot={handleSelectSlot}
             eventPropGetter={eventStyleGetter}
-            className="custom-calendar"
+            className="calendar__custom-calendar"
             min={new Date(2024, 0, 1, 7, 0, 0)}
             max={new Date(2024, 0, 1, 22, 0, 0)}
             defaultDate={new Date()}

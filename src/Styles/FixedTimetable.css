@@ -1,0 +1,94 @@
+.fixed-timetable__container {
+  overflow-x: auto;
+  font-family: 'Inter', Arial, sans-serif;
+  margin-top: 1.5rem;
+}
+
+.fixed-timetable__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 6px 24px rgba(102, 126, 234, 0.10);
+  overflow: hidden;
+}
+
+.fixed-timetable__table-header {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.fixed-timetable__time-header,
+.fixed-timetable__day-header {
+  padding: 0.9rem 1.1rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  border-bottom: 1.5px solid #e5e7eb;
+  text-align: center;
+}
+
+.fixed-timetable__table-row {
+  background: #f8fafc;
+  transition: background 0.2s;
+}
+.fixed-timetable__table-row:hover {
+  background: #e0e7ff;
+}
+
+.fixed-timetable__time-slot {
+  font-weight: 600;
+  color: #4f46e5;
+  padding: 0.8rem 1rem;
+  border-bottom: 1.5px solid #e5e7eb;
+  text-align: center;
+}
+
+.fixed-timetable__table-cell {
+  min-width: 120px;
+  padding: 0.7rem 0.5rem;
+  border-bottom: 1.5px solid #e5e7eb;
+  text-align: center;
+}
+
+.fixed-timetable__course-event {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  margin: 0.1rem 0;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.10);
+  font-size: 0.98rem;
+  font-weight: 500;
+}
+
+.fixed-timetable__course-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.fixed-timetable__course-time {
+  font-size: 0.95rem;
+  margin-bottom: 0.1rem;
+}
+
+.fixed-timetable__course-semester {
+  font-size: 0.9rem;
+  color: #e0e7ff;
+}
+
+.fixed-timetable__course-difficulty {
+  font-size: 0.9rem;
+  color: #f3e8ff;
+}
+
+@media (max-width: 900px) {
+  .fixed-timetable__table-cell {
+    min-width: 80px;
+    padding: 0.5rem 0.2rem;
+  }
+  .fixed-timetable__course-event {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.4rem;
+  }
+} 

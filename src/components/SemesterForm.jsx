@@ -14,8 +14,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/ui/select";
-import "../Styles/plan.css";
+} from "../components/ui/Select";
+import "../Styles/SemesterForm.css";
+
 export default function SemesterForm({
   setSemester,
   setLevel,
@@ -29,26 +30,26 @@ export default function SemesterForm({
   }, [setSemester, setLevel, onFormComplete]);
 
   return (
-    <div className="semester-course-container">
-      <Card className="semester-card">
+    <div className="semester-form__container">
+      <Card className="semester-form__card">
         <CardHeader>
-          <CardTitle>Semester Information</CardTitle>
+          <CardTitle className="semester-form__title">Semester Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <form noValidate className="course-form">
+          <form noValidate className="semester-form__form">
             {/* Semester Selection */}
-            <div className="form-group">
-              <Label>Semester</Label>
+            <div className="semester-form__form-group">
+              <Label className="semester-form__label">Semester</Label>
               <Select
                 onValueChange={(value) => {
                   const [semesterType, semesterId] = value.split(","); // Extract type and id
                   setSemester && setSemester({ semesterType, semesterId }); // Send as object
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="semester-form__select-trigger">
                   <SelectValue placeholder="Select semester" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="semester-form__select-content">
                   {semesters.map((semester) => (
                     <SelectItem
                       key={semester.id}
@@ -62,15 +63,15 @@ export default function SemesterForm({
             </div>
 
             {/* Academic Level Selection */}
-            <div className="form-group">
-              <Label>Academic Level</Label>
+            <div className="semester-form__form-group">
+              <Label className="semester-form__label">Academic Level</Label>
               <Select onValueChange={(value) => setLevel && setLevel(value)}>
                 {" "}
                 {/* Only call setLevel if it exists */}
-                <SelectTrigger>
+                <SelectTrigger className="semester-form__select-trigger">
                   <SelectValue placeholder="Select academic level" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="semester-form__select-content">
                   <SelectItem value="Freshman">Freshman</SelectItem>
                   <SelectItem value="Sophomore">Sophomore</SelectItem>
                   <SelectItem value="Junior">Junior</SelectItem>

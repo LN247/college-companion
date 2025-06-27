@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { Routes, Route } from "react-router-dom";
 import LoginForm from "./pages/LoginForm";
 import SignupForm from "./pages/SignupForm";
@@ -9,28 +9,36 @@ import Progress from "./pages/Progress";
 import Settings from "./pages/Settings";
 import HelpCenter from "./pages/HelpCenter";
 import Homepage from "./pages/Homepage";
+import AdminDashboard from "./pages/AdminDashboard";
 import AddSemester from "./pages/AddSemester.jsx";
 import UserProfileForm from "./pages/UserProfileForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import { LoadingProvider } from "./context/LoadingContext";
 import { useLoading } from "./context/LoadingContext";
-import LoadingScreen from "@/components/Loadingpage.jsx";
-
-
-
-
+import Notifications from "./pages/notifications";
+import { AdminProvider } from "./context/AdminContext";
+import AcademicCalendar from "./components/AcademicCalendar";
+import { UserProvider } from "./context/UserContext";
+import ChatPage from "./pages/ChatPage";
+import Unauthorised from "./pages/Unauthorised";
+import AIAssistant from "./pages/AIAssistant.jsx";
 const AppContent = () => {
   const { isLoading } = useLoading();
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <>
-      {isLoading && <LoadingScreen />}
       <Routes>
         <Route path="/" element={<Homepage />} />
-        <Route path="/login" element={<LoginForm />} />
+
         <Route path="/signup" element={<SignupForm />} />
-        <Route path="/user-profile" element={<UserProfileForm />} />
+        <Route path="/calendar" element={<AcademicCalendar />} />
         <Route path="*" element={<Notfound />} />
+        <Route path="/not-authorized" element={<Unauthorised />} />
         <Route
           path="/add-semester"
           element={
@@ -39,17 +47,32 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/chat" element={<ChatPage />} />
+
+        {/* Fix: Remove <UserProvider> here */}
+        <Route path="/login" element={<LoginForm />} />
         <Route
           path="/dashboard"
           element={
+          <ProtectedRoute><Dashboard />
+          </ProtectedRoute>
+
+
+          }
+        />
+       <Route path='ai' element={<AIAssistant/>}></Route>
+        <Route
+          path="/user-profile"
+          element={
             <ProtectedRoute>
-              <Dashboard />
+              <UserProfileForm />
             </ProtectedRoute>
           }
         />
 
         <Route
-          path="/semester-plan"
+          path="/timetable"
           element={
             <ProtectedRoute>
               <SemesterPlan />
@@ -80,16 +103,45 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <AdminProtectedRoute>
+              <AdminProvider>
+                <AdminDashboard />
+              </AdminProvider>
+            </AdminProtectedRoute>
+          }
+        />
       </Routes>
     </>
   );
 };
 
-function App() {
+const AppProviders = ({ children }) => {
   return (
     <LoadingProvider>
-      <AppContent />
+      <UserProvider>{children}</UserProvider>
     </LoadingProvider>
+  );
+};
+
+function App() {
+
+
+
+  return (
+    <AppProviders>
+      <AppContent />
+    </AppProviders>
   );
 }
 

@@ -68,18 +68,18 @@ function UserProfileForm() {
   };
 
   return (
-    <div className="profile-form-container">
-      <Card className="profile-card">
-        <CardHeader className="card-header">
-          <div className="avatar-container">
-            <Avatar className="user-avatar">
+    <div className="user-profile__form-container">
+      <Card className="user-profile__card">
+        <CardHeader className="user-profile__card-header">
+          <div className="user-profile__avatar-container">
+            <Avatar className="user-profile__avatar">
               <AvatarImage src={preview || ""} alt="Profile" />
-              <AvatarFallback className="avatar-fallback">
-                <User className="fallback-icon" />
+              <AvatarFallback className="user-profile__avatar-fallback">
+                <User className="user-profile__fallback-icon" />
               </AvatarFallback>
             </Avatar>
-            <label htmlFor="profilePictureInput" className="camera-button">
-              <Camera className="camera-icon" />
+            <label htmlFor="profilePictureInput" className="user-profile__camera-button">
+              <Camera className="user-profile__camera-icon" />
             </label>
             <input
               type="file"
@@ -87,16 +87,16 @@ function UserProfileForm() {
               name="profilePicture"
               accept="image/*"
               onChange={handleChange}
-              className="file-input"
+              className="user-profile__file-input"
             />
           </div>
-          <CardTitle className="card-title">Create Your Profile</CardTitle>
+          <CardTitle className="user-profile__card-title">Create Your Profile</CardTitle>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="profile-form">
-            <div className="form-group">
-              <Label htmlFor="major" className="form-label">
+          <form onSubmit={handleSubmit} className="user-profile__form">
+            <div className="user-profile__form-group">
+              <Label htmlFor="major" className="user-profile__form-label">
                 Major
               </Label>
               <Input
@@ -107,13 +107,13 @@ function UserProfileForm() {
                 value={formData.major}
                 onChange={handleChange}
                 required
-                className="form-input"
+                className="user-profile__form-input"
               />
             </div>
 
-            <div className="form-group">
-              <Label htmlFor="minor" className="form-label">
-                Minor <span className="optional-text">(optional)</span>
+            <div className="user-profile__form-group">
+              <Label htmlFor="minor" className="user-profile__form-label">
+                Minor <span className="user-profile__optional-text">(optional)</span>
               </Label>
               <Input
                 id="minor"
@@ -122,19 +122,19 @@ function UserProfileForm() {
                 placeholder="Your minor field of study"
                 value={formData.minor}
                 onChange={handleChange}
-                className="form-input"
+                className="user-profile__form-input"
               />
             </div>
 
-            <div className="form-group">
-              <Label htmlFor="level" className="form-label">
+            <div className="user-profile__form-group">
+              <Label htmlFor="level" className="user-profile__form-label">
                 Academic Level
               </Label>
               <Select value={formData.level} onValueChange={handleLevelChange}>
-                <SelectTrigger className="select-trigger">
+                <SelectTrigger className="user-profile__select-trigger">
                   <SelectValue placeholder="Select your academic level" />
                 </SelectTrigger>
-                <SelectContent className="select-content">
+                <SelectContent className="user-profile__select-content">
                   <SelectItem value="Freshman L1">Freshman </SelectItem>
                   <SelectItem value="Sophomore L1">Sophomore </SelectItem>
                   <SelectItem value="Junior L1">Junior </SelectItem>
@@ -145,8 +145,8 @@ function UserProfileForm() {
               </Select>
             </div>
 
-            <div className="form-group">
-              <Label htmlFor="graduationYear" className="form-label">
+            <div className="user-profile__form-group">
+              <Label htmlFor="graduationYear" className="user-profile__form-label">
                 Expected Graduation Year
               </Label>
               <Input
@@ -158,12 +158,12 @@ function UserProfileForm() {
                 onChange={handleChange}
                 min="2020"
                 max="2030"
-                className="form-input"
+                className="user-profile__form-input"
               />
             </div>
 
-            <div className="form-group">
-              <Label htmlFor="bio" className="form-label">
+            <div className="user-profile__form-group">
+              <Label htmlFor="bio" className="user-profile__form-label">
                 Bio
               </Label>
               <textarea
@@ -173,11 +173,11 @@ function UserProfileForm() {
                 value={formData.bio}
                 onChange={handleChange}
                 rows={3}
-                className="form-textarea"
+                className="user-profile__form-textarea"
               />
             </div>
 
-            <Button type="submit" className="submit-button">
+            <Button type="submit" className="user-profile__submit-button">
               Create Profile
             </Button>
           </form>

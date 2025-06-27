@@ -50,15 +50,15 @@ const EventModal = ({ start, end, onSave, onClose }) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="event-modal">
+      <DialogContent className="event-modal__container">
         <DialogHeader>
-          <DialogTitle className="event-title">
-            <Calendar className="icon" />
+          <DialogTitle className="event-modal__title">
+            <Calendar className="event-modal__icon" />
             Add Custom Event
           </DialogTitle>
         </DialogHeader>
 
-        <div className="form-container">
+        <div className="event-modal__form-container">
           <div>
             <Label htmlFor="title">Event Title</Label>
             <Input
@@ -66,7 +66,7 @@ const EventModal = ({ start, end, onSave, onClose }) => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter event title"
-              className="input-field"
+              className="event-modal__input-field"
             />
           </div>
 
@@ -77,11 +77,11 @@ const EventModal = ({ start, end, onSave, onClose }) => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add event description"
-              className="textarea-field"
+              className="event-modal__textarea-field"
             />
           </div>
 
-          <div className="time-grid">
+          <div className="event-modal__time-grid">
             <div>
               <Label htmlFor="start-time">Start Time</Label>
               <Input
@@ -89,7 +89,7 @@ const EventModal = ({ start, end, onSave, onClose }) => {
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="input-field"
+                className="event-modal__input-field"
               />
             </div>
             <div>
@@ -99,19 +99,19 @@ const EventModal = ({ start, end, onSave, onClose }) => {
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="input-field"
+                className="event-modal__input-field"
               />
             </div>
           </div>
 
           <div>
             <Label>Event Color</Label>
-            <div className="color-grid">
+            <div className="event-modal__color-grid">
               {EVENT_COLORS.map((colorOption) => (
                 <button
                   key={colorOption.value}
                   onClick={() => setColor(colorOption.value)}
-                  className={`color-btn ${color === colorOption.value ? 'selected' : ''}`}
+                  className={`event-modal__color-btn${color === colorOption.value ? ' event-modal__color-btn--selected' : ''}`}
                   style={{ backgroundColor: colorOption.value }}
                   title={colorOption.name}
                 />
@@ -120,13 +120,13 @@ const EventModal = ({ start, end, onSave, onClose }) => {
           </div>
         </div>
 
-        <div className="button-container">
-          <Button onClick={onClose} variant="outline" className="cancel-btn">
-            <X className="icon" />
+        <div className="event-modal__button-container">
+          <Button onClick={onClose} variant="outline" className="event-modal__cancel-btn">
+            <X className="event-modal__icon" />
             Cancel
           </Button>
-          <Button onClick={handleSave} className="save-btn">
-            <Save className="icon" />
+          <Button onClick={handleSave} className="event-modal__save-btn">
+            <Save className="event-modal__icon" />
             Save Event
           </Button>
         </div>

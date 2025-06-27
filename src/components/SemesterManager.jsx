@@ -25,6 +25,7 @@ import axios from "axios";
 import "../Styles/SemesterManager.css";
 import { format } from "date-fns";
 import {getCookie} from "../utils/getcookies";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/Select';
 
 
 const SemesterManager = () => {
@@ -150,24 +151,24 @@ const SemesterManager = () => {
 
   return (
     <Card>
-      <CardHeader className="card-header-custom">
-        <CardTitle>Semester Management</CardTitle>
+      <CardHeader className="semester-manager__card-header">
+        <CardTitle className="semester-manager__card-title">Semester Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={resetForm} className="button-add-semester">
-              <Plus className="icon-small" />
+            <Button onClick={resetForm} className="semester-manager__add-btn">
+              <Plus className="semester-manager__icon-small" />
               Add Semester
             </Button>
           </DialogTrigger>
-          <DialogContent className="dialog-content-custom">
-            <DialogHeader className="dialog-header-custom">
-              <DialogTitle className="dialog-title-custom">
+          <DialogContent className="semester-manager__dialog-content">
+            <DialogHeader className="semester-manager__dialog-header">
+              <DialogTitle className="semester-manager__dialog-title">
                 {editingSemester ? "Edit Semester" : "Add New Semester"}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="form-semester">
-              <div className="form-group">
-                <Label htmlFor="name" className="label-custom">
+            <form onSubmit={handleSubmit} className="semester-manager__form">
+              <div className="semester-manager__form-group">
+                <Label htmlFor="name" className="semester-manager__label">
                   Semester Name
                 </Label>
                 <Input
@@ -178,12 +179,12 @@ const SemesterManager = () => {
                   }
                   placeholder="e.g., Fall 2024"
                   required
-                  className="input-custom"
+                  className="semester-manager__input"
                 />
               </div>
 
-              <div className="form-group">
-                <Label htmlFor="year" className="label-custom">
+              <div className="semester-manager__form-group">
+                <Label htmlFor="year" className="semester-manager__label">
                   Year
                 </Label>
                 <Input
@@ -194,13 +195,13 @@ const SemesterManager = () => {
                     setFormData({ ...formData, year: parseInt(e.target.value) })
                   }
                   required
-                  className="input-custom"
+                  className="semester-manager__input"
                 />
               </div>
 
 
-              <div className="form-group">
-                <Label htmlFor="year" className="label-custom">
+              <div className="semester-manager__form-group">
+                <Label htmlFor="year" className="semester-manager__label">
                   Semester Type
                 </Label>
                 <Input
@@ -211,13 +212,13 @@ const SemesterManager = () => {
                     setFormData({ ...formData,semester_type: (e.target.value) })
                   }
                   required
-                  className="input-custom"
+                  className="semester-manager__input"
                 />
               </div>
 
-              <div className="form-grid-2">
-                <div className="form-group">
-                  <Label htmlFor="startDate" className="label-custom">
+              <div className="semester-manager__form-grid-2">
+                <div className="semester-manager__form-group">
+                  <Label htmlFor="startDate" className="semester-manager__label">
                     Start Date
                   </Label>
                   <Input
@@ -228,12 +229,12 @@ const SemesterManager = () => {
                       setFormData({ ...formData, start_date: e.target.value })
                     }
                     required
-                    className="input-custom"
+                    className="semester-manager__input"
                   />
                 </div>
 
-                <div className="form-group">
-                  <Label htmlFor="endDate" className="label-custom">
+                <div className="semester-manager__form-group">
+                  <Label htmlFor="endDate" className="semester-manager__label">
                     End Date
                   </Label>
                   <Input
@@ -244,21 +245,21 @@ const SemesterManager = () => {
                       setFormData({ ...formData, end_date: e.target.value })
                     }
                     required
-                    className="input-custom"
+                    className="semester-manager__input"
                   />
                 </div>
               </div>
 
-              <div className="form-actions">
+              <div className="semester-manager__form-actions">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsDialogOpen(false)}
-                  className="button-cancel"
+                  className="semester-manager__button-cancel"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="button-submit">
+                <Button type="submit" className="semester-manager__button-submit">
                   {editingSemester ? "Update" : "Create"} Semester
                 </Button>
               </div>
@@ -267,8 +268,8 @@ const SemesterManager = () => {
         </Dialog>
       </CardHeader>
 
-      <CardContent className="card-content-custom">
-        <Table className="table-custom">
+      <CardContent className="semester-manager__card-content">
+        <Table className="semester-manager__table">
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
@@ -282,19 +283,19 @@ const SemesterManager = () => {
           <TableBody>
             {semesters.map((semester) => (
               <TableRow key={semester.id}>
-                <TableCell className="table-cell-custom font-medium">
+                <TableCell className="semester-manager__table-cell font-medium">
                   {semester.name}
                 </TableCell>
-                <TableCell className="table-cell-custom">
+                <TableCell className="semester-manager__table-cell">
                   {semester.year}
                 </TableCell>
-                <TableCell className="table-cell-custom">
+                <TableCell className="semester-manager__table-cell">
                   {new Date(semester.start_date).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="table-cell-custom">
+                <TableCell className="semester-manager__table-cell">
                   {new Date(semester.end_date).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="table-cell-custom">
+                <TableCell className="semester-manager__table-cell">
                   <span
                     className={`status-badge ${
                       semester.is_active ? true : false
@@ -303,23 +304,23 @@ const SemesterManager = () => {
                     {semester.is_active ? "Active" : "Inactive"}
                   </span>
                 </TableCell>
-                <TableCell className="table-cell-custom">
-                  <div className="action-buttons">
+                <TableCell className="semester-manager__table-cell">
+                  <div className="semester-manager__action-buttons">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEdit(semester)}
-                      className="button-edit"
+                      className="semester-manager__button-edit"
                     >
-                      <Edit className="icon-small" />
+                      <Edit className="semester-manager__icon-small" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDelete(semester)}
-                      className="button-delete"
+                      className="semester-manager__button-delete"
                     >
-                      <Trash2 className="icon-small" />
+                      <Trash2 className="semester-manager__icon-small" />
                     </Button>
                   </div>
                 </TableCell>

@@ -94,13 +94,9 @@
   transition: color 0.3s ease;
 }
 
+
 .footer-link:hover {
   color: #f68712;
-}
-
-/* Contact & Newsletter */
-.footer-contact {
-  /* combined styling for contact info container */
 }
 
 .footer-contact-title {
@@ -128,60 +124,6 @@
   color: #f68712;
 }
 
-.footer-contact-text {
-  color: #d1d5db;
-}
-
-/* Newsletter */
-.footer-newsletter {
-  margin-top: 1.5rem;
-}
-
-.footer-newsletter-title {
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-}
-
-.footer-newsletter-form {
-  display: flex;
-}
-
-.footer-newsletter-input {
-  flex: 1;
-  padding: 0.5rem 1rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-top-left-radius: 0.5rem;
-  border-bottom-left-radius: 0.5rem;
-  color: white;
-  font-size: 1rem;
-  outline: none;
-}
-
-.footer-newsletter-input::placeholder {
-  color: #9ca3af;
-}
-
-.footer-newsletter-input:focus {
-  border-color: #f68712;
-}
-
-.footer-newsletter-button {
-  background-color: #f68712;
-  padding: 0.5rem 1rem;
-  border-top-right-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.footer-newsletter-button:hover {
-  background-color: #e67a0a;
-}
-
-/* Bottom Bar */
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   margin-top: 3rem;

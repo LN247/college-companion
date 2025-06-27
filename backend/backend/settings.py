@@ -96,7 +96,6 @@ SESSION_COOKIE_HTTPONLY = True
 # Application definition
 
 INSTALLED_APPS = [
-    'ai_assistant'
     'corsheaders',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -109,6 +108,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'channels',
+    'ai_assistant',
     'channels_redis',  
 ]
 
@@ -233,11 +233,14 @@ USER_RESOURCES_CACHE_TIMEOUT = 21600
 # Notification settings
 STUDY_NOTIFICATION_ADVANCE_MINUTES = 10
 
+
+
+#open AI api key
+OPENAI_API_KEY = os.getenv("VITE_OPEN_AI")
+
+
+
 # Firebase Cloud Messaging settings
-
-
-
-
 
 # Load credentials from file
 BASE_DIR = Path(__file__).resolve().parent.parent

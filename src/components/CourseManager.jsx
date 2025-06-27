@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Label } from '../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/Select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/Dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
 import { useAdmin } from '../context/AdminContext';
@@ -103,42 +103,42 @@ const CourseManager = () => {
   const getLevelColor = (level) => {
     switch (level) {
       case 'Freshman ':
-        return 'level-badge level-freshman';
+        return 'course-manager__level-badge course-manager__level-freshman';
       case 'Sophomore ':
-        return 'level-badge level-sophomore';
+        return 'course-manager__level-badge course-manager__level-sophomore';
       case 'Junior ':
-        return 'level-badge level-junior';
+        return 'course-manager__level-badge course-manager__level-junior';
       case 'Senior ':
-        return 'level-badge level-senior';
+        return 'course-manager__level-badge course-manager__level-senior';
       case 'Master':
-        return 'level-badge level-master';
+        return 'course-manager__level-badge course-manager__level-master';
       case 'PhD':
-        return 'level-badge level-phd';
+        return 'course-manager__level-badge course-manager__level-phd';
       default:
-        return 'level-badge level-default';
+        return 'course-manager__level-badge course-manager__level-default';
     }
   };
 
   return (
-    <Card className="course-manager-card">
-      <CardHeader className="course-manager-header">
+    <Card className="course-manager__card">
+      <CardHeader className="course-manager__header">
         <CardTitle>Course Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="add-course-btn" onClick={resetForm}>
-              <Plus className="icon add-icon" />
+            <Button className="course-manager__add-course-btn" onClick={resetForm}>
+              <Plus className="course-manager__icon add-icon" />
               Add Course
             </Button>
           </DialogTrigger>
-          <DialogContent className="course-dialog">
+          <DialogContent className="course-manager__dialog">
             <DialogHeader>
               <DialogTitle>
                 {editingCourse ? 'Edit Course' : 'Add New Course'}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="course-form">
-              <div className="form-grid">
-                <div className="form-group">
+            <form onSubmit={handleSubmit} className="course-manager__form">
+              <div className="course-manager__form-grid">
+                <div className="course-manager__form-group">
                   <Label htmlFor="name">Course Name</Label>
                   <Input
                     id="name"
@@ -149,7 +149,7 @@ const CourseManager = () => {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="course-manager__form-group">
                   <Label htmlFor="code">Course Code</Label>
                   <Input
                     id="code"
@@ -160,7 +160,7 @@ const CourseManager = () => {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="course-manager__form-group">
                   <Label htmlFor="credits">Credits</Label>
                   <Input
                     id="credits"
@@ -173,7 +173,7 @@ const CourseManager = () => {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="course-manager__form-group">
                   <Label htmlFor="level">Academic Level</Label>
                   <Select value={formData.academicLevel} onValueChange={(value) => setFormData({...formData, level: value})}>
                     <SelectTrigger>
@@ -190,7 +190,7 @@ const CourseManager = () => {
                   </Select>
                 </div>
 
-                <div className="form-group">
+                <div className="course-manager__form-group">
                   <Label htmlFor="semester">Semester</Label>
                   <Select value={formData.semester} onValueChange={(value) => setFormData({...formData, semesterId: value})}>
                     <SelectTrigger>
@@ -207,7 +207,7 @@ const CourseManager = () => {
 
               </div>
 
-              <div className="form-actions">
+              <div className="course-manager__form-actions">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>

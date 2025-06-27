@@ -46,54 +46,56 @@ const Timetable = () => {
   return (
     <div>
       {/* Stats */}
-      <div className="stats-container">
-        <Card className="stat-card blue-card">
-          <div className="stat-content">
-            <BookOpen className="stat-icon blue-icon" />
+      <div className="timetable__stats-container">
+        <Card className="timetable__stat-card timetable__stat-card--blue">
+          <div className="timetable__stat-content">
+            <BookOpen className="timetable__stat-icon timetable__stat-icon--blue" />
             <div>
-              <p className="stat-value blue-value">{courseCount}</p>
-              <p className="stat-label blue-label">Total Courses</p>
+              <p className="timetable__stat-value timetable__stat-value--blue">{courseCount}</p>
+              <p className="timetable__stat-label timetable__stat-label--blue">Total Courses</p>
             </div>
           </div>
         </Card>
-        <Card className="stat-card green-card">
-          <div className="stat-content">
-            <Clock className="stat-icon green-icon" />
+        <Card className="timetable__stat-card timetable__stat-card--green">
+          <div className="timetable__stat-content">
+            <Clock className="timetable__stat-icon timetable__stat-icon--green" />
             <div>
-              <p className="stat-value green-value">{studyCount}</p>
-              <p className="stat-label green-label">Study Sessions</p>
+              <p className="timetable__stat-value timetable__stat-value--green">{studyCount}</p>
+              <p className="timetable__stat-label timetable__stat-label--green">Study Sessions</p>
             </div>
           </div>
         </Card>
-        <Card className="stat-card purple-card">
-          <div className="stat-content">
-            <Calendar className="stat-icon purple-icon" />
+        <Card className="timetable__stat-card timetable__stat-card--purple">
+          <div className="timetable__stat-content">
+            <Calendar className="timetable__stat-icon timetable__stat-icon--purple" />
             <div>
-              <p className="stat-value purple-value">
+              <p className="timetable__stat-value timetable__stat-value--purple">
                 {Math.round(totalHours)}h
               </p>
-              <p className="stat-label purple-label">Weekly Hours</p>
+              <p className="timetable__stat-label timetable__stat-label--purple">Weekly Hours</p>
             </div>
           </div>
         </Card>
       </div>
 
       {/* Tab Navigation */}
-      <div className="tab-nav">
+      <div className="timetable__tab-nav">
         <Button
           onClick={() => switchTab("fixed", activeTab, setActiveTab)}
           variant={activeTab === "fixed" ? "default" : "outline"}
-          className="btn-tab"
+          className={`timetable__btn-tab${activeTab === "fixed" ? " active" : ""}`}
+          aria-pressed={activeTab === "fixed"}
         >
-          <Table className="icon-small" />
+          <Table className="timetable__icon-small" />
           Fixed Timetable
         </Button>
         <Button
           onClick={() => switchTab("generated", activeTab, setActiveTab)}
           variant={activeTab === "generated" ? "default" : "outline"}
-          className="btn-tab"
+          className={`timetable__btn-tab${activeTab === "generated" ? " active" : ""}`}
+          aria-pressed={activeTab === "generated"}
         >
-          <Calendar className="icon-small" />
+          <Calendar className="timetable__icon-small" />
           Generated Timetable
         </Button>
       </div>
