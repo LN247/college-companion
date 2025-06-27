@@ -41,7 +41,7 @@ const AppContent = () => {
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/calendar" element={<AcademicCalendar />} />
         <Route path="*" element={<Notfound />} />
-        <Route path="/about" element={<AboutUs />} />
+        <Route path="/aboutus" element={<AboutUs />} />
 
         <Route
           path="/add-semester"
