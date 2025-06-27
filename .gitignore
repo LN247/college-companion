@@ -44,3 +44,4 @@ env/
 myenv/
 # Jupyter Notebook
 .ipynb_checkpoints/
+"backend/serviceAccountKey.json" 
