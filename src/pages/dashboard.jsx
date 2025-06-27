@@ -14,7 +14,7 @@ import {
   FaUserCircle,
   FaQuestionCircle,
 } from "react-icons/fa";
-import axios from "axios";
+import { onMessageListener } from "../utils/firebase";
 import {
   AppBar,
   Toolbar,
@@ -36,8 +36,9 @@ import {
   CardContent,
 } from "@mui/material";
 import "../Styles/Dashboard.css";
-import { onMessageListener } from "../utils/firebase";
 import UserContext from "../context/UserContext";
+import AIAssistant   from "../components/AIAssistant.jsx";
+import {useToast} from "@/hooks/use-toast.js";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -58,8 +59,9 @@ const Dashboard = () => {
     { name: "Help Center", icon: <FaQuestionCircle />, route: "/help" },
   ];
 
-  const API_BASE = "http://localhost:8000/api";
-  const semesterEnd = "2025-06-26T23:59:59"; // Example semester end date
+
+  const semesterEnd = "2025-06-28T23:59:59";
+  const {addtoast}=useToast();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -68,11 +70,36 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    onMessageListener().then((payload) => {
-      alert(`New notification: ${payload.notification.title}`);
-    });
-  }, []);
+
+    const [notifications, setNotifications] = useState([]);
+     useEffect(() => {
+    const listen = async () => {
+      try {
+        const payload = await onMessageListener();
+        const incoming = {
+          title: payload.notification.title,
+          body: payload.notification.body,
+          timestamp: new Date().toISOString(),
+        };
+
+        setNotifications((prev) => {
+          const updated = [incoming, ...prev];
+          localStorage.setItem("notifications", JSON.stringify(updated));
+          return updated;
+        });
+
+           addtoast({
+          title: incoming.title,
+          description: incoming.body,
+          variant: "default",
+        });
+      } catch (error) {
+        console.error("Notification listener error:", error);
+      }
+    };
+
+    listen();
+  }, );
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -99,6 +126,7 @@ const Dashboard = () => {
             <FaTimes />
           </IconButton>
           <List>
+              <AIAssistant/>
             {navItems.map((item) => (
               <ListItem key={item.name} disablePadding>
                 <ListItemButton
@@ -120,6 +148,7 @@ const Dashboard = () => {
 
   const renderDesktopMenu = (
     <React.Fragment>
+
       <Box className="desktopMenu">
         {navItems.map((item) => (
           <div
@@ -296,6 +325,7 @@ const Dashboard = () => {
         </div>
 
         <UserAnalytics />
+
 
         <div className="activity-section">
           <div className="section-header">

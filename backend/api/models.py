@@ -70,21 +70,12 @@ class IsSuperUserOrReadOnly(BasePermission):
 
 
 
-class Discipline(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    type = models.CharField(max_length=10, choices=[('MAJOR', 'Major'), ('MINOR', 'Minor')])
-    last_updated = models.DateTimeField(auto_now=True)
-    class Meta:
-        verbose_name_plural = "Disciplines"
-
-
-
 
 
 class UserProfile(models.Model):
     user=models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
-    major = models.ForeignKey(Discipline, related_name='major_users', on_delete=models.SET_NULL, null=True)
-    minor = models.ForeignKey(Discipline, related_name='minor_users', on_delete=models.SET_NULL, null=True)
+    major = models.CharField(max_length=20,null=True, blank=True)
+    minor = models.CharField(max_length=20,null=True, blank=True)
     graduation_year = models.PositiveIntegerField(blank=True, null=True)
     level = models.CharField(max_length=20, default='Undergraduate', )
     profile_picture = models.FilePathField(path='profile_pictures/', blank=True, null=True)
@@ -314,6 +305,7 @@ class GroupMembership(models.Model):
         related_name='memberships'
     )
     joined_at = models.DateTimeField(auto_now_add=True)
+
     role = models.CharField(
         max_length=10, 
         choices=ROLE_CHOICES, 
@@ -330,6 +322,9 @@ class GroupMembership(models.Model):
 
 def message_file_path(instance, filename):
     return f'messages/user_{instance.message.sender.id}/{filename}'
+
+
+
 
 class FileUpload(models.Model):
     FILE_TYPES = [
@@ -487,30 +482,3 @@ class GroupMessage(models.Model):
 
 
 
-class Roadmap(models.Model):
-    source_url = models.URLField("Source URL")
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    difficulty = models.CharField(max_length=50)
-    duration = models.CharField(max_length=50)
-    tags = models.JSONField()
-    rating = models.FloatField()
-    downloads = models.PositiveIntegerField()
-
-class ExpertAdvice(models.Model):
-    source_url = models.URLField("Source URL")
-    expert = models.CharField(max_length=255)
-    expert_title = models.CharField(max_length=255)
-    advice_title = models.CharField(max_length=255)
-    content = models.TextField()
-    category = models.CharField(max_length=100)
-    read_time = models.CharField(max_length=50)
-    featured = models.BooleanField(default=False)
-
-class CollegeResource(models.Model):
-    source_url = models.URLField("Source URL")
-    title = models.CharField(max_length=255)
-    type = models.CharField(max_length=100)
-    description = models.TextField()
-    category = models.CharField(max_length=100)
-    useful = models.PositiveIntegerField()

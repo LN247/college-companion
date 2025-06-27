@@ -11,7 +11,6 @@ from .views import (
     GroupChatViewSet,
     GroupMembershipViewSet,
     GroupMessageViewSet,
-    UserResourcesView,
     UserProfileUpdateView
 )
 
@@ -43,7 +42,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('groups/', GroupViewSet.as_view({'get': 'list', 'post': 'create'}), name='group-list-create'),
     path('groups/<int:pk>/', GroupViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='group-detail'),
-    path('api/user/resources/', UserResourcesView.as_view(), name='user-resources'),
     path('api/user/profile/', UserProfileUpdateView.as_view(), name='user-profile'),
     path('user-info/', UserInfoView.as_view(), name='user-info'),
     path('register/', RegistrationView.as_view(), name='register'),

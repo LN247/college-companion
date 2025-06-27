@@ -1,6 +1,5 @@
-import React from "react";
+import React, {useState} from "react";
 import { Routes, Route } from "react-router-dom";
-import Resources from "./pages/Resources";
 import LoginForm from "./pages/LoginForm";
 import SignupForm from "./pages/SignupForm";
 import Notfound from "./pages/Notfound";
@@ -23,7 +22,6 @@ import AcademicCalendar from "./components/AcademicCalendar";
 import { UserProvider } from "./context/UserContext";
 import ChatPage from "./pages/ChatPage";
 import Unauthorised from "./pages/Unauthorised";
-import ResourcesPage from "./pages/Resources";
 const AppContent = () => {
   const { isLoading } = useLoading();
 
@@ -35,12 +33,11 @@ const AppContent = () => {
     <>
       <Routes>
         <Route path="/" element={<Homepage />} />
-        <Route path="/resources" element={<Resources />} />
+
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/calendar" element={<AcademicCalendar />} />
         <Route path="*" element={<Notfound />} />
         <Route path="/not-authorized" element={<Unauthorised />} />
-        <Route path="/resources" element={<ResourcesPage />} />
         <Route
           path="/add-semester"
           element={
@@ -57,9 +54,10 @@ const AppContent = () => {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
+          <ProtectedRoute><Dashboard />
+          </ProtectedRoute>
+
+
           }
         />
 
@@ -135,8 +133,10 @@ const AppProviders = ({ children }) => {
   );
 };
 
-// Then in App:
 function App() {
+
+
+
   return (
     <AppProviders>
       <AppContent />

@@ -7,24 +7,54 @@ const GeneratedTimetable = ({ generatedSchedule }) => {
     return <div>No valid schedule data available.</div>;
   }
 
+  // Create dynamic time slots based on the schedule data
+  const allTimeSlots = new Set([...TIME_SLOTS]);
+
+  // Add any missing time slots from the schedule data
+  generatedSchedule.forEach((scheduleItem) => {
+    const startHour = parseInt(scheduleItem.start_time.split(':')[0]);
+    const endHour = parseInt(scheduleItem.end_time.split(':')[0]);
+
+    for (let hour = startHour; hour < endHour; hour++) {
+      const timeSlot = `${hour.toString().padStart(2, '0')}:00`;
+      allTimeSlots.add(timeSlot);
+    }
+  });
+
+  // Convert to sorted array
+  const dynamicTimeSlots = Array.from(allTimeSlots).sort((a, b) => {
+    const hourA = parseInt(a.split(':')[0]);
+    const hourB = parseInt(b.split(':')[0]);
+    return hourA - hourB;
+  });
+
   const timetableData = {};
 
-  // Initialize timetable structure
+  // Initialize timetable structure with dynamic time slots
   DAYS.forEach((day) => {
     timetableData[day] = {};
-    TIME_SLOTS.forEach((timeSlot) => {
+    dynamicTimeSlots.forEach((timeSlot) => {
       timetableData[day][timeSlot] = [];
     });
   });
 
-  // Fill timetable with events data
-  generatedSchedule.forEach((event) => {
-    const eventDay = event.start.toLocaleDateString('en-US', { weekday: 'long' });
-    const startHour = event.start.getHours();
-    const timeSlot = TIME_SLOTS.find((slot) => parseInt(slot.split(':')[0]) === startHour);
+  // Fill timetable with schedule data
+  generatedSchedule.forEach((scheduleItem) => {
+    const startHour = parseInt(scheduleItem.start_time.split(':')[0]);
+    const endHour = parseInt(scheduleItem.end_time.split(':')[0]);
 
-    if (timeSlot && timetableData[eventDay]) {
-      timetableData[eventDay][timeSlot].push(event);
+    // Fill all time slots that this course spans
+    for (let hour = startHour; hour < endHour; hour++) {
+      const timeSlot = `${hour.toString().padStart(2, '0')}:00`;
+
+      // Now we know the time slot exists because we created it above
+      if (timetableData[scheduleItem.day]) {
+        timetableData[scheduleItem.day][timeSlot].push({
+          ...scheduleItem,
+          isFirstSlot: hour === startHour, // Mark first slot for display purposes
+          totalSlots: endHour - startHour   // Total slots this course spans
+        });
+      }
     }
   });
 
@@ -42,14 +72,17 @@ const GeneratedTimetable = ({ generatedSchedule }) => {
           </tr>
         </thead>
         <tbody>
-          {TIME_SLOTS.map((timeSlot) => (
+          {dynamicTimeSlots.map((timeSlot) => (
             <tr key={timeSlot} className="table-row">
               <td className="time-slot">{timeSlot}</td>
               {DAYS.map((day) => (
                 <td key={`${day}-${timeSlot}`} className="table-cell">
-                  {timetableData[day][timeSlot].map((event, index) => (
-                    <div key={index} className="course-event">
-                      <div className="course-name">{event.title}</div>
+                  {timetableData[day][timeSlot].map((scheduleItem, index) => (
+                    <div key={`${scheduleItem.id}-${index}`} className="course-event generated-event">
+                      <div className="course-name">Course {scheduleItem.course}</div>
+                      <div className="course-time">
+                        {scheduleItem.start_time} - {scheduleItem.end_time}
+                      </div>
                     </div>
                   ))}
                 </td>

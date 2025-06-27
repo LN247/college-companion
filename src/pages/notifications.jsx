@@ -1,7 +1,7 @@
 import React from "react";
 import { Bell } from "lucide-react";
+import {useState,useEffect} from "react";
 
-const notifications = [];
 
 const styles = {
   notificationsContainer: {
@@ -85,6 +85,16 @@ const styles = {
 };
 
 export default function Notifications() {
+
+   const [notifications, setNotifications] = useState([]);
+
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("notifications")) || [];
+    setNotifications(stored);
+  }, []);
+
+
   return (
     <div style={styles.notificationsContainer}>
       <style>

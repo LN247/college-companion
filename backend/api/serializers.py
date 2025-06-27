@@ -1,6 +1,6 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
-from django.contrib.auth import  authenticate
 from .models import CustomUser, Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences, GroupChat, GroupMembership, GroupMessage
 from rest_framework import serializers
 from .models import (
@@ -10,18 +10,14 @@ from .models import (
     MessageContent,
     FileUpload,
     Reaction,
-    Roadmap,
-    ExpertAdvice,
-    CollegeResource,
-    Discipline,
     UserProfile,
 )
 
-from django.contrib.auth import get_user_model
+
 
 
 class CustomUserSerializer(ModelSerializer):
-    
+
     class Meta:
         model = CustomUser
         fields = ( 'id','username','email','is_superuser')
@@ -38,33 +34,30 @@ class RegistrationSerializer(ModelSerializer):
         user = CustomUser(**validated_data)
         user.set_password(password)
         user.save()
-        return user    
-    
-
+        return user
 
 
 class LoginSerializer(serializers.Serializer):
-
     email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True)
-    
+
     def validate(self, data):
         user = authenticate(**data)
         if user:
-            return {'user': user}  
-        
-        raise serializers.ValidationError('Invalid email or password.')
+            return {'user': user}
 
+        raise serializers.ValidationError('Invalid email or password.')
 
 
 class GoogleAuthSerializer(serializers.Serializer):
     token = serializers.CharField(required=True)
-    
+
     def validate(self, data):
         token = data.get('token')
         if not token:
             raise serializers.ValidationError('Token is required')
         return data
+
 
 class SemesterSerializer(serializers.ModelSerializer):
 
@@ -76,10 +69,10 @@ class SemesterSerializer(serializers.ModelSerializer):
         model = Semester
         fields = '__all__'
         read_only_fields = ('created_by', 'created_at', 'updated_at')
-    
+
     def get_status(self, obj):
         return obj.status  # Use the property we defined in the model
-    
+
     def create(self, validated_data):
         # Set the creator to the current user
         validated_data['created_by'] = self.context['request'].user
@@ -88,7 +81,7 @@ class SemesterSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
             model = Course
-            fields = ['id', 'name', 'credits', 'semester','code','academicLevel'] 
+            fields = ['id', 'name', 'credits', 'semester','code','academicLevel']
 
     def create(self, validated_data):
         # Set the creator to the current user
@@ -134,45 +127,50 @@ class UserPreferencesSerializer(serializers.ModelSerializer):
 
 
 
-
 class FileUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileUpload
         fields = ['id', 'file', 'file_type', 'file_size', 'uploaded_at']
         read_only_fields = ['file_type', 'file_size', 'uploaded_at']
 
+
+
 class MessageContentSerializer(serializers.ModelSerializer):
     file = FileUploadSerializer(read_only=True)
-    
+
     class Meta:
         model = MessageContent
         fields = ['id', 'content_type', 'content', 'file', 'order']
 
+
+
 class ReactionSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
-    
+
     class Meta:
         model = Reaction
-        fields = ['id', 'user', 'reaction_type', 'created_at']
+        fields = ['id', 'user', 'created_at']
+
+
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = CustomUserSerializer(read_only=True)
     contents = MessageContentSerializer(many=True, read_only=True)
     reactions = ReactionSerializer(many=True, read_only=True)
     is_read = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Message
         fields = [
-            'id', 
-            'sender', 
-            'group', 
+            'id',
+            'sender',
+            'group',
             'timestamp',
             'contents',
             'reactions',
             'is_read'
         ]
-    
+
     def get_is_read(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
@@ -184,7 +182,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class GroupMembershipSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
-    
+
     class Meta:
         model = GroupMembership
         fields = [
@@ -192,10 +190,9 @@ class GroupMembershipSerializer(serializers.ModelSerializer):
             'user',
             'group',
             'joined_at',
-            'role',
-            'last_read'
+
         ]
-        read_only_fields = ['joined_at', 'last_read']
+        read_only_fields = ['joined_at']
 
 class GroupSerializer(serializers.ModelSerializer):
     created_by = CustomUserSerializer(read_only=True)
@@ -204,7 +201,7 @@ class GroupSerializer(serializers.ModelSerializer):
     is_member = serializers.SerializerMethodField()
     user_role = serializers.SerializerMethodField()
     last_message = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Group
         fields = [
@@ -221,23 +218,23 @@ class GroupSerializer(serializers.ModelSerializer):
             'last_message'
         ]
         read_only_fields = ['created_at', 'created_by']
-    
+
     def get_member_count(self, obj):
         return obj.memberships.count()
-    
+
     def get_is_member(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.memberships.filter(user=request.user).exists()
         return False
-    
+
     def get_user_role(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             membership = obj.memberships.filter(user=request.user).first()
             return membership.role if membership else None
         return None
-    
+
     def get_last_message(self, obj):
         last_message = obj.messages.last()
         if last_message:
@@ -248,7 +245,7 @@ class GroupCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ['name', 'description', 'cover_image']
-    
+
     def create(self, validated_data):
         request = self.context.get('request')
         group = Group.objects.create(
@@ -268,7 +265,7 @@ class GroupJoinSerializer(serializers.Serializer):
 
 class GroupRoleUpdateSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
-    role = serializers.ChoiceField(choices=GroupMembership.ROLE_CHOICES)
+    role = serializers.CharField()
 
 class MessageCreateSerializer(serializers.Serializer):
     content_type = serializers.ChoiceField(choices=MessageContent.CONTENT_TYPES)
@@ -286,6 +283,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'created_by', 'created_at']
         read_only_fields = ['created_by', 'created_at']
 
+
 class GroupMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupMessage
@@ -294,76 +292,9 @@ class GroupMessageSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
-
 class UserProfileSerializer(serializers.ModelSerializer):
-    major = serializers.CharField(write_only=True, required=False)
-    minor = serializers.CharField(write_only=True, required=False)
     
     class Meta:
         model = UserProfile
-        fields = ['major', 'minor', 'bio', 'profile_picture']  # Add other fields as needed
+        fields = ['major', 'minor', 'bio', 'profile_picture']
         
-    def validate_major(self, value):
-        """Ensure major is a valid discipline"""
-        if value and not Discipline.objects.filter(name=value, type='MAJOR').exists():
-            # Create if doesn't exist
-            Discipline.objects.create(name=value, type='MAJOR')
-        return value
-        
-    def validate_minor(self, value):
-        """Ensure minor is a valid discipline"""
-        if value and not Discipline.objects.filter(name=value, type='MINOR').exists():
-            # Create if doesn't exist
-            Discipline.objects.create(name=value, type='MINOR')
-        return value
-
-
-
-
-
-class DisciplineSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Discipline
-        fields = ['id', 'name', 'type']
-
-
-
-class RoadmapSerializer(serializers.ModelSerializer):
-    disciplines = DisciplineSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = Roadmap
-        fields = [
-            'id', 'source_url', 'title', 'description', 
-            'difficulty', 'duration', 'tags', 'rating', 
-            'downloads', 'disciplines'
-        ]
-
-class ExpertAdviceSerializer(serializers.ModelSerializer):
-    disciplines = DisciplineSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = ExpertAdvice
-        fields = [
-            'id', 'source_url', 'expert', 'expert_title',
-            'advice_title', 'content', 'category', 
-            'read_time', 'featured', 'disciplines'
-        ]
-
-class CollegeResourceSerializer(serializers.ModelSerializer):
-    disciplines = DisciplineSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = CollegeResource
-        fields = [
-            'id', 'source_url', 'title', 'type',
-            'description', 'category', 'useful', 'disciplines'
-        ]
-
-class UserResourcesSerializer(serializers.Serializer):
-    roadmaps = RoadmapSerializer(many=True)
-    expert_advice = ExpertAdviceSerializer(many=True)
-    college_resources = CollegeResourceSerializer(many=True)

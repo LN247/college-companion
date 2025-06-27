@@ -1,21 +1,16 @@
+from django.contrib.auth.models import User
 from rest_framework import generics, permissions, status, viewsets
-from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from .models import UserPreferences, Course,CustomUser, StudyBlock,CustomUser,UserProfile, GroupChat, GroupMembership, GroupMessage,Roadmap, ExpertAdvice, CollegeResource,Discipline
+from .models import UserProfile, GroupChat, GroupMessage
 from rest_framework.views import APIView
-from django.core.cache import cache 
-from .serializers import UserResourcesSerializer
 from .scheduler import generate_timetable
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken
@@ -23,7 +18,6 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from datetime import datetime, timedelta ,date
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
@@ -43,15 +37,8 @@ from .serializers import (
     GroupRoleUpdateSerializer,
     MessageSerializer,
     MessageCreateSerializer,
-    MessageContentSerializer,
     ReactionSerializer,
-    ReactionCreateSerializer,
-    GroupChatSerializer,
-    GroupMessageSerializer,
-    CustomUserSerializer,
-    RegistrationSerializer,
-    LoginSerializer,
-    GoogleAuthSerializer, ReactionCreateSerializer,
+   ReactionCreateSerializer,
     GroupChatSerializer, GroupMessageSerializer, CustomUserSerializer,
     RegistrationSerializer, LoginSerializer, GoogleAuthSerializer
 )
@@ -734,75 +721,8 @@ class UserProfileUpdateView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     
     def get_object(self):
-        return self.request.user.profile
+        return self.request.user
     
     def perform_update(self, serializer):
         instance = serializer.save()
         
-        # Clear cache when profile changes
-        cache_key = f"user_resources:{self.request.user.id}"
-        cache.delete(cache_key)
-        
-        # Create new disciplines if needed
-        if instance.major:
-            Discipline.objects.get_or_create(
-                name=instance.major, 
-                defaults={'type': 'MAJOR'}
-            )
-        if instance.minor:
-            Discipline.objects.get_or_create(
-                name=instance.minor, 
-                defaults={'type': 'MINOR'}
-            )
-
-
-
-class UserResourcesView(APIView):
-    """
-    Returns all resources relevant to a user's major and minor
-    """
-    
-    def get(self, request):
-        user = request.user
-        cache_key = f"user_resources:{user.id}"
-        
-        # Try Redis cache first
-        cached_data = cache.get(cache_key)
-        
-        if cached_data:
-            return Response(cached_data)
-        
-        # Get user's disciplines
-        major = user.profile.major
-        minor = user.profile.minor
-        
-        if not major:
-            return Response(
-                {"error": "User major not set"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        disciplines = [major]
-        if minor:
-            disciplines.append(minor)
-        
-        # Fetch relevant data
-        roadmaps = Roadmap.objects.filter(disciplines__in=disciplines).distinct()
-        expert_advice = ExpertAdvice.objects.filter(disciplines__in=disciplines).distinct()
-        college_resources = CollegeResource.objects.filter(disciplines__in=disciplines).distinct()
-        
-        # Prepare response data
-        data = {
-            "roadmaps": roadmaps,
-            "expert_advice": expert_advice,
-            "college_resources": college_resources
-        }
-        
-        # Serialize data
-        serializer = UserResourcesSerializer(data)
-        response_data = serializer.data
-        
-        # Cache for 6 hours (21600 seconds)
-        cache.set(cache_key, response_data, 21600)
-        
-        return Response(response_data)

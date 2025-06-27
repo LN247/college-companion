@@ -135,14 +135,10 @@ function UserProfileForm() {
                   <SelectValue placeholder="Select your academic level" />
                 </SelectTrigger>
                 <SelectContent className="select-content">
-                  <SelectItem value="Freshman L1">Freshman L1</SelectItem>
-                  <SelectItem value="Freshman L2">Freshman L2</SelectItem>
-                  <SelectItem value="Sophomore L1">Sophomore L1</SelectItem>
-                  <SelectItem value="Sophomore L2">Sophomore L2</SelectItem>
-                  <SelectItem value="Junior L1">Junior L1</SelectItem>
-                  <SelectItem value="Junior L2">Junior L2</SelectItem>
-                  <SelectItem value="Senior L1">Senior L1</SelectItem>
-                  <SelectItem value="Senior L2">Senior L2</SelectItem>
+                  <SelectItem value="Freshman L1">Freshman </SelectItem>
+                  <SelectItem value="Sophomore L1">Sophomore </SelectItem>
+                  <SelectItem value="Junior L1">Junior </SelectItem>
+                  <SelectItem value="Senior L1">Senior </SelectItem>
                   <SelectItem value="Master">Master</SelectItem>
                   <SelectItem value="PhD">PhD</SelectItem>
                 </SelectContent>
