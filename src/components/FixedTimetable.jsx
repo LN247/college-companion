@@ -1,5 +1,6 @@
 import React from "react";
 import { DAYS, TIME_SLOTS } from "../consatants/timetableConstants";
+import '../Styles/FixedTimetable.css';
 
 const getTimeSlotIndex = (time) => {
   const hour = parseInt(time.split(":")[0]);
@@ -35,13 +36,13 @@ const FixedTimetable = ({ courses }) => {
   });
 
   return (
-    <div className="timetable-container">
-      <table className="timetable-table">
+    <div className="fixed-timetable__container">
+      <table className="fixed-timetable__table">
         <thead>
-          <tr className="table-header">
-            <th className="time-header">Time</th>
+          <tr className="fixed-timetable__table-header">
+            <th className="fixed-timetable__time-header">Time</th>
             {DAYS.map((day) => (
-              <th key={day} className="day-header">
+              <th key={day} className="fixed-timetable__day-header">
                 {day.slice(0, 3)}
               </th>
             ))}
@@ -49,20 +50,20 @@ const FixedTimetable = ({ courses }) => {
         </thead>
         <tbody>
           {TIME_SLOTS.map((timeSlot) => (
-            <tr key={timeSlot} className="table-row">
-              <td className="time-slot">{timeSlot}</td>
+            <tr key={timeSlot} className="fixed-timetable__table-row">
+              <td className="fixed-timetable__time-slot">{timeSlot}</td>
               {DAYS.map((day) => {
                 const course = timetableData[day][timeSlot];
                 return (
-                  <td key={`${day}-${timeSlot}`} className="table-cell">
+                  <td key={`${day}-${timeSlot}`} className="fixed-timetable__table-cell">
                     {course && (
-                      <div className="course-event">
-                        <div className="course-name">{course.course_name}</div>
-                        <div className="course-time">
+                      <div className="fixed-timetable__course-event">
+                        <div className="fixed-timetable__course-name">{course.course_name}</div>
+                        <div className="fixed-timetable__course-time">
                           {course.start_time} - {course.end_time}
                         </div>
-                        <div className="course-semester">Semester {course.semester}</div>
-                        <div className="course-difficulty">
+                        <div className="fixed-timetable__course-semester">Semester {course.semester}</div>
+                        <div className="fixed-timetable__course-difficulty">
                           Difficulty: {course.difficulty_level}
                         </div>
                       </div>

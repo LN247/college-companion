@@ -1,61 +1,102 @@
-.event-modal {
+.event-modal__container {
   max-width: 500px;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 6px 24px rgba(102, 126, 234, 0.10);
+  font-family: 'Inter', Arial, sans-serif;
 }
 
-.event-title {
+.event-modal__title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #4f46e5;
 }
 
-.icon {
-  width: 20px;
-  height: 20px;
-  color: purple;
+.event-modal__icon {
+  width: 22px;
+  height: 22px;
+  color: #764ba2;
 }
 
-.form-container {
+.event-modal__form-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
-
-.time-grid {
+.event-modal__time-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
-.color-grid {
+.event-modal__color-grid {
   display: flex;
-  gap: 5px;
+  gap: 8px;
 }
 
-.color-btn {
+.event-modal__color-btn {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 2px solid gray;
-  transition: all 0.3s ease-in-out;
+  border: 2px solid #c7d2fe;
+  transition: all 0.3s;
+  cursor: pointer;
 }
-
-.color-btn.selected {
-  border-color: black;
+.event-modal__color-btn--selected {
+  border-color: #4f46e5;
   transform: scale(1.1);
 }
 
-.button-container {
+.event-modal__input-field,
+.event-modal__textarea-field {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1.5px solid #c7d2fe;
+  background-color: #f8fafc;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.event-modal__input-field:focus,
+.event-modal__textarea-field:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.10);
+}
+
+.event-modal__button-container {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 14px;
+  margin-top: 1.2rem;
 }
 
-.cancel-btn {
-  border: 1px solid red;
+.event-modal__cancel-btn {
+  border: 1.5px solid #dc3545;
+  color: #dc3545;
+  background: #fff;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s;
+}
+.event-modal__cancel-btn:hover {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
-.save-btn {
-  background-color: purple;
-  color: white;
+.event-modal__save-btn {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  transition: background 0.2s;
+}
+.event-modal__save-btn:hover {
+  background: linear-gradient(90deg, #5a67d8 0%, #6b21a8 100%);
 }

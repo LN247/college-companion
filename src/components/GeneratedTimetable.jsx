@@ -1,5 +1,6 @@
 import React from 'react';
 import { DAYS, TIME_SLOTS } from '../consatants/timetableConstants';
+import '../Styles/Timetable.css';
 
 const GeneratedTimetable = ({ generatedSchedule }) => {
   if (!Array.isArray(generatedSchedule)) {
@@ -59,13 +60,13 @@ const GeneratedTimetable = ({ generatedSchedule }) => {
   });
 
   return (
-    <div className="timetable-container">
-      <table className="timetable-table">
+    <div className="generated-timetable__container">
+      <table className="generated-timetable__table">
         <thead>
-          <tr className="table-header generated-header">
-            <th className="time-header">Time</th>
+          <tr className="generated-timetable__table-header">
+            <th className="generated-timetable__time-header">Time</th>
             {DAYS.map((day) => (
-              <th key={day} className="day-header">
+              <th key={day} className="generated-timetable__day-header">
                 {day.slice(0, 3)}
               </th>
             ))}
@@ -73,14 +74,14 @@ const GeneratedTimetable = ({ generatedSchedule }) => {
         </thead>
         <tbody>
           {dynamicTimeSlots.map((timeSlot) => (
-            <tr key={timeSlot} className="table-row">
-              <td className="time-slot">{timeSlot}</td>
+            <tr key={timeSlot} className="generated-timetable__table-row">
+              <td className="generated-timetable__time-slot">{timeSlot}</td>
               {DAYS.map((day) => (
-                <td key={`${day}-${timeSlot}`} className="table-cell">
+                <td key={`${day}-${timeSlot}`} className="generated-timetable__table-cell">
                   {timetableData[day][timeSlot].map((scheduleItem, index) => (
-                    <div key={`${scheduleItem.id}-${index}`} className="course-event generated-event">
-                      <div className="course-name">Course {scheduleItem.course}</div>
-                      <div className="course-time">
+                    <div key={`${scheduleItem.id}-${index}`} className="generated-timetable__event">
+                      <div className="generated-timetable__course-name">Course {scheduleItem.course}</div>
+                      <div className="generated-timetable__course-time">
                         {scheduleItem.start_time} - {scheduleItem.end_time}
                       </div>
                     </div>

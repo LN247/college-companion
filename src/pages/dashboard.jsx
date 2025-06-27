@@ -38,7 +38,6 @@ import {
 } from "@mui/material";
 import "../Styles/Dashboard.css";
 import UserContext from "../context/UserContext";
-import AIAssistant   from "../components/AIAssistant.jsx";
 import {useToast} from "@/hooks/use-toast.js";
 
 const Dashboard = () => {
@@ -116,19 +115,19 @@ const Dashboard = () => {
 
   const renderMobileMenu = (
     <React.Fragment>
-      <Drawer
-        anchor="left"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
-      >
-        <Box className="mobileDrawer">
-          <IconButton onClick={handleDrawerToggle} className="closeButton">
-            <FaTimes />
-          </IconButton>
-          <List>
-              <AIAssistant/>
-            {navItems.map((item) => (
+    <Drawer
+      anchor="left"
+      open={mobileOpen}
+      onClose={handleDrawerToggle}
+      ModalProps={{ keepMounted: true }}
+    >
+      <Box className="mobileDrawer">
+        <IconButton onClick={handleDrawerToggle} className="closeButton">
+          <FaTimes />
+        </IconButton>
+        <List>
+              
+          {navItems.map((item) => (
               <ListItem key={item.name} disablePadding>
                 <ListItemButton
                   onClick={() => {
@@ -136,33 +135,33 @@ const Dashboard = () => {
                     setMobileOpen(false);
                   }}
                 >
-                  <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.name} />
+              <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
+              <ListItemText primary={item.name} />
                 </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </Drawer>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+    </Drawer>
     </React.Fragment>
   );
 
   const renderDesktopMenu = (
     <React.Fragment>
 
-      <Box className="desktopMenu">
-        {navItems.map((item) => (
+    <Box className="desktopMenu">
+      {navItems.map((item) => (
           <div
             key={item.name}
             className="menuItem"
             onClick={() => navigate(item.route)}
             style={{ cursor: "pointer" }}
           >
-            {item.icon}
-            <span>{item.name}</span>
-          </div>
-        ))}
-      </Box>
+          {item.icon}
+          <span>{item.name}</span>
+        </div>
+      ))}
+    </Box>
     </React.Fragment>
   );
 
@@ -246,130 +245,88 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="dashboardContainer">
-      {/* App Bar */}
-      <AppBar position="static" className="appBar">
-        <Toolbar>
-          {isMobile && (
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={handleDrawerToggle}
-              className="menuButton"
-            >
+    <div className="dashboard-container dashboard-pro__container">
+      <AppBar position="static" className="appBar dashboard-pro__appbar">
+        <Toolbar className="dashboard-pro__toolbar">
+          <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleDrawerToggle} className="dashboard-pro__menu-btn">
               <FaBars />
             </IconButton>
-          )}
-          <Typography variant="h6" className="title">
-            Academic Dashboard
+          <Typography variant="h6" className="title dashboard-pro__title">
+            Student Dashboard
           </Typography>
-          <div className="countdown">
-            <span>{timeLeft.days}d</span>
-            <span>{timeLeft.hours}h</span>
-            <span>{timeLeft.minutes}m</span>
-            <span>{timeLeft.seconds}s</span>
-            <Typography variant="caption">Until Semester End</Typography>
+          <div className="dashboard-pro__profile-btn" onClick={handleProfileMenuOpen}>
+            <Avatar className="dashboard-pro__avatar" src={user?.avatar || ''}>
+              {user?.name?.[0] || <FaUserCircle />}
+            </Avatar>
           </div>
-          <IconButton
-            edge="end"
-            color="inherit"
-            onClick={handleProfileMenuOpen}
-            className="profileButton"
-          >
-            <FaUserCircle />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            keepMounted
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            className="profileMenu"
-          >
-            <MenuItem onClick={handleMenuClose}>
-              <div className="userInfo">
-                <Avatar className="avatar">
-                  {user && user.username
-                    ? String(user.username).charAt(0)
-                    : "?"}
-                </Avatar>
-
-                <div>
-                  <Typography variant="subtitle1">{user.username}</Typography>
-                  <Typography variant="body2">{user.email}</Typography>
-                </div>
-              </div>
-            </MenuItem>
-            <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
-            <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-            <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
-          </Menu>
         </Toolbar>
       </AppBar>
-
-      {isMobile && renderMobileMenu}
-
-      <main className="mainContent">
-        {!isMobile && renderDesktopMenu}
-
-        <div className="welcome-section">
-          <h1>Welcome, {user?.name || "Student"}</h1>
-          <p className="date">
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
-        </div>
-
-        <UserAnalytics />
-
-
-        <div className="activity-section">
-          <div className="section-header">
-            <h2>Recent Activity</h2>
-            <button
-              className="time-toggle"
-              onClick={() => setShowRelativeTime(!showRelativeTime)}
-            >
-              {showRelativeTime ? "Show Absolute Time" : "Show Relative Time"}
-            </button>
-          </div>
-          <div className="activity-list">
-            {recentActivities.map((activity, index) => (
-              <div key={index} className="activity-item">
-                <div className="activity-icon">
-                  {getActivityIcon(activity.type)}
-                </div>
-                <div className="activity-content">
-                  <p>{activity.action}</p>
-                  <span className="timestamp">
-                    {formatTimestamp(activity.timestamp)}
-                  </span>
-                </div>
+      {isMobile ? renderMobileMenu : renderDesktopMenu}
+      <main className="mainContent dashboard-pro__main-content">
+        <section className="dashboard-pro__analytics-section">
+          <div className="dashboard-pro__analytics-grid">
+            <div className="dashboard-pro__analytics-card dashboard-pro__analytics-card--courses">
+              <FaGraduationCap className="dashboard-pro__analytics-icon" />
+              <div>
+                <h3>Courses</h3>
+                <div className="dashboard-pro__analytics-value">{user?.courses?.length || 0}</div>
               </div>
-            ))}
+            </div>
+            <div className="dashboard-pro__analytics-card dashboard-pro__analytics-card--progress">
+              <FaChartLine className="dashboard-pro__analytics-icon" />
+              <div>
+                <h3>Progress</h3>
+                <div className="dashboard-pro__analytics-value">{user?.progress || 'N/A'}</div>
+              </div>
+            </div>
+            <div className="dashboard-pro__analytics-card dashboard-pro__analytics-card--timetable">
+              <FaTable className="dashboard-pro__analytics-icon" />
+              <div>
+                <h3>Timetable</h3>
+                <div className="dashboard-pro__analytics-value">{user?.timetable?.length || 0}</div>
+              </div>
+            </div>
+            <div className="dashboard-pro__analytics-card dashboard-pro__analytics-card--notifications">
+              <FaBell className="dashboard-pro__analytics-icon" />
+                      <div>
+                <h3>Notifications</h3>
+                <div className="dashboard-pro__analytics-value">{notifications.length}</div>
+              </div>
+                      </div>
+                    </div>
+        </section>
+        <section className="dashboard-pro__activity-section">
+          <div className="section-header">
+            <h2>Recent Activities</h2>
           </div>
-        </div>
-
-        <div className="tip-section">
-          <Card className="tip-card styled-tip-card">
-            <h2 className="tip-heading">✨ Tip of the Day ✨</h2>
-            <CardContent>
-              {tipOfTheDay ? (
-                <>
-                  <p className="tip-text">"{tipOfTheDay.tip}"</p>
-                  <p className="tip-author">— {tipOfTheDay.author}</p>
-                </>
-              ) : (
-                <p className="tip-text">Loading tip...</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+          <ul className="dashboard-pro__activity-list">
+            {recentActivities.map((activity, idx) => (
+              <li key={idx} className="dashboard-pro__activity-item">
+                <span className={`dashboard-pro__activity-icon dashboard-pro__activity-icon--${activity.type}`}>{getActivityIcon(activity.type)}</span>
+                <div className="dashboard-pro__activity-content">
+                  <p>{activity.action}</p>
+                  <span className="dashboard-pro__timestamp">{formatTimestamp(activity.timestamp)}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section className="dashboard-pro__notifications-section">
+          <div className="section-header">
+            <h2>Notifications</h2>
+          </div>
+          <ul className="dashboard-pro__notifications-list">
+            {notifications.map((notif, idx) => (
+              <li key={idx} className="dashboard-pro__notification-item">
+                <FaBell className="dashboard-pro__notification-icon" />
+                <div className="dashboard-pro__notification-content">
+                  <p>{notif.title}</p>
+                  <span className="dashboard-pro__timestamp">{formatTimestamp(notif.timestamp)}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
     </div>
   );

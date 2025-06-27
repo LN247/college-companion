@@ -12,7 +12,6 @@ import Homepage from "./pages/Homepage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AddSemester from "./pages/AddSemester.jsx";
 import UserProfileForm from "./pages/UserProfileForm";
-import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import { LoadingProvider } from "./context/LoadingContext";
@@ -42,9 +41,8 @@ const AppContent = () => {
         <Route
           path="/add-semester"
           element={
-            <ProtectedRoute>
               <AddSemester />
-            </ProtectedRoute>
+           
           }
         />
 
@@ -55,28 +53,26 @@ const AppContent = () => {
         <Route
           path="/dashboard"
           element={
-          <ProtectedRoute><Dashboard />
-          </ProtectedRoute>
-
-
+         <Dashboard />
+        
           }
         />
 
         <Route
           path="/user-profile"
           element={
-            <ProtectedRoute>
+            
               <UserProfileForm />
-            </ProtectedRoute>
+          
           }
         />
 
         <Route
           path="/timetable"
           element={
-            <ProtectedRoute>
+     
               <SemesterPlan />
-            </ProtectedRoute>
+        
           }
         />
         <Route
@@ -114,11 +110,11 @@ const AppContent = () => {
         <Route
           path="/admin-dashboard"
           element={
-            <AdminProtectedRoute>
+          
               <AdminProvider>
                 <AdminDashboard />
               </AdminProvider>
-            </AdminProtectedRoute>
+       
           }
         />
       </Routes>

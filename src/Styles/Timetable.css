@@ -1,3 +1,89 @@
+.timetable__page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.7rem;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.timetable__stats-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+  margin-bottom: 1.7rem;
+}
+
+.timetable__stat-card {
+  padding: 1.2rem;
+  border-radius: 0.7rem;
+  background: #ede9fe;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.timetable__stat-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.timetable__stat-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+
+.timetable__stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #3730a3;
+}
+
+.timetable__stat-label {
+  font-size: 1rem;
+  color: #4f46e5;
+}
+
+.timetable__tab-nav {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.timetable__btn-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 1.2rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  font-size: 1.05rem;
+  background: #e0e7ff;
+  color: #4f46e5;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.timetable__btn-tab[aria-pressed="true"],
+.timetable__btn-tab.active {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.10);
+}
+.timetable__btn-tab:hover {
+  background: #c7d2fe;
+}
+.timetable__icon-small {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+@media (min-width: 768px) {
+  .timetable__stats-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .timetable-page {
   display: flex;
   flex-direction: column;

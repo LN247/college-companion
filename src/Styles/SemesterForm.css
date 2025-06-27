@@ -1,0 +1,75 @@
+.semester-form__container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  font-family: 'Inter', Arial, sans-serif;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+  padding: 1.5rem 0;
+}
+
+.semester-form__card {
+  width: 100%;
+  max-width: 28rem;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 6px 24px rgba(102, 126, 234, 0.10);
+  border: none;
+}
+
+.semester-form__title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #4f46e5;
+  margin-bottom: 0.5rem;
+}
+
+.semester-form__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.semester-form__form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.semester-form__label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.semester-form__select-trigger {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1.5px solid #c7d2fe;
+  background-color: #f8fafc;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.semester-form__select-trigger:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.10);
+}
+
+.semester-form__select-content {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(102, 126, 234, 0.10);
+  background-color: #fff;
+  z-index: 50;
+}
+
+@media (max-width: 600px) {
+  .semester-form__card {
+    max-width: 100%;
+    padding: 0.5rem;
+  }
+} 

@@ -237,17 +237,17 @@ const handleSubmit = async (e) => {
             <h2>{editingId ? 'Edit Course' : 'Add New Course'}</h2>
           </div>
           {editingId && (
-            <Button
+                  <Button
               onClick={resetForm}
               variant="ghost"
-              size="sm"
+                    size="sm"
               className="cancel-edit-btn"
             >
               <X size={16} />
               Cancel Edit
-            </Button>
-          )}
-        </div>
+                  </Button>
+              )}
+            </div>
 
         <div className="form-grid">
           <div className="form-group">
@@ -305,8 +305,8 @@ const handleSubmit = async (e) => {
               className="form-input time-input"
               value={currentCourse.start_time}
               onChange={(e) => updateCurrentCourse("start_time", e.target.value)}
-            />
-          </div>
+                />
+              </div>
 
           <div className="form-group">
             <Label className="form-label">
@@ -318,8 +318,8 @@ const handleSubmit = async (e) => {
               className="form-input time-input"
               value={currentCourse.end_time}
               onChange={(e) => updateCurrentCourse("end_time", e.target.value)}
-            />
-          </div>
+              />
+            </div>
         </div>
 
               <div className="mb-4">
@@ -373,7 +373,7 @@ const handleSubmit = async (e) => {
                   <div className="course-number">
                     <BookOpen size={16} />
                     <span>Course {index + 1}</span>
-                  </div>
+            </div>
                   <div className="course-actions">
                     <Button
                       onClick={() => startEdit(course)}
@@ -384,7 +384,7 @@ const handleSubmit = async (e) => {
                     >
                       <Edit3 size={16} />
                     </Button>
-                    <Button
+              <Button
                       onClick={() => removeCourse(course.id)}
                       variant="ghost"
                       size="sm"
@@ -420,10 +420,10 @@ const handleSubmit = async (e) => {
             <Button onClick={handleSubmit} className="submit-btn" disabled={!isCourseStepComplete}>
               <BookOpen size={16} />
               Submit All Courses
-            </Button>
+              </Button>
           </div>
-        </div>
-      )}
+            </div>
+          )}
     </div>
   );
 };
