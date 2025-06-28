@@ -8,7 +8,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models.signals import post_save
 from django.conf import settings
 from django.dispatch import receiver
-from datetime import date
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from rest_framework.permissions import BasePermission
 from .Validation import validate_file_size
@@ -264,6 +263,18 @@ def create_user_preferences(sender, instance, created, **kwargs):
         UserPreferences.objects.create(user=instance)
 
 
+class Event(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="events")
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    date=models.DateTimeField(auto_now_add=True)
+    color = models.CharField(max_length=20, default="#3b82f6")
+    type= models.CharField(max_length=20,default="custom")
+    def __str__(self):
+        return f"{self.title} ({self.start_time} - {self.end_time})"
+
 
 
 class Group(models.Model):
@@ -337,8 +348,8 @@ class FileUpload(models.Model):
     
     file = models.FileField(
         upload_to=message_file_path,
-        
-       
+        validators=[validate_file_size],
+
     )
     file_type = models.CharField(max_length=10, choices=FILE_TYPES)
     file_size = models.IntegerField()

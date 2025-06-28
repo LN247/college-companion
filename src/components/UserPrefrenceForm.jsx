@@ -1,407 +1,287 @@
-import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Input } from "../components/ui/Input";
-import { Label } from "../components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { Button } from "../components/ui/Button";
-import { Slider } from "../components/ui/slider";
-import { Trash2, Plus } from "lucide-react";
-import "../Styles/UserPrefrenceForm.css";
+import React, { useState } from 'react';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Switch } from '../components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/Select';
+import { Settings, Clock, Bell, Calendar, BookOpen } from 'lucide-react';
+import '../Styles/UserPrefrenceForm.css';
+import {getCookie} from "../utils/getcookies";
+import axios from "axios";
 
-const StepUserPreferencesForm = ({ onFormComplete }) => {
+const PreferencesForm = ({  semester, level, onFormComplete, onBack }) => {
+  const [studyStartTime, setStudyStartTime] = useState('');
+  const [studyEndTime, setStudyEndTime] = useState('');
+  const [reminderMinutes, setReminderMinutes] = useState(15);
+  const [notifications, setNotifications] = useState(true);
   const [offDays, setOffDays] = useState([]);
-  const [preferStudyHours, setPreferStudyHours] = useState("");
-  const [notificationReminder, setNotificationReminder] = useState("");
-  const [studyStartTime, setStudyStartTime] = useState("");
-  const [studyEndTime, setStudyEndTime] = useState("");
-  const [selectedCourses, setSelectedCourses] = useState([
-    {
-      courseId: "",
-      startTime: "",
-      endTime: "",
-      day: "",
-      location: "",
-      difficultyLevel: 1,
-    },
-  ]);
+  const [studyHoursPerDay, setStudyHoursPerDay] = useState(2);
+  const API_BASE = "http://localhost:8000/api";
 
-  // Mock course data
-  const mockCourses = [
-    {
-      id: "1",
-      name: "Introduction to Computer Science",
-      code: "CS101",
-      credits: 3,
-    },
-    // ... other courses
-  ];
-
+   const  csrfToken = getCookie("csrftoken");
   const daysOfWeek = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
+    { id: 'monday', label: 'Monday', short: 'Mon' },
+    { id: 'tuesday', label: 'Tuesday', short: 'Tue' },
+    { id: 'wednesday', label: 'Wednesday', short: 'Wed' },
+    { id: 'thursday', label: 'Thursday', short: 'Thu' },
+    { id: 'friday', label: 'Friday', short: 'Fri' },
+    { id: 'saturday', label: 'Saturday', short: 'Sat' },
+    { id: 'sunday', label: 'Sunday', short: 'Sun' }
   ];
-  const difficultyLabels = ["Easy", "Moderate", "Hard", "Very Difficult"];
 
-  const removeCourse = (id) => {
-    if (selectedCourses.length > 1) {
-      setSelectedCourses(selectedCourses.filter((course) => course.id !== id));
+  const handleOffDayToggle = (dayId) => {
+    setOffDays(prev => {
+      if (prev.includes(dayId)) {
+        return prev.filter(day => day !== dayId);
+      } else {
+        return [...prev, dayId];
+      }
+    });
+  };
+
+   const generateSchedule = async (semester) => {
+    try {
+      await axios.post(`${API_BASE}/generate-timetable/`,
+       {
+        semester: parseInt(semester.semesterId, 10),
+       },
+       {
+            withCredentials: true,
+            headers: {
+              "X-CSRFToken": csrfToken,
+            }
+      });
+
+    }
+    catch (error) {
+      console.error("Error generating schedule:", error);
+    }
+  }
+
+  const validateInputs = () => {
+    if (!studyStartTime || !studyEndTime) {
+      alert('Please select both start and end time for your study sessions');
+      return false;
+    }
+
+    if (studyStartTime >= studyEndTime) {
+      alert('End time must be after start time');
+      return false;
+    }
+
+    // Calculate available time window
+    const startTime = new Date(`1970-01-01T${studyStartTime}:00`);
+    const endTime = new Date(`1970-01-01T${studyEndTime}:00`);
+    const availableHours = (endTime - startTime) / (1000 * 60 * 60);
+
+    if (studyHoursPerDay > availableHours) {
+      alert(`Study hours per day (${studyHoursPerDay}h) cannot exceed your available time window (${availableHours}h)`);
+      return false;
+    }
+
+    // Check if user selected all days as off days
+    if (offDays.length === 7) {
+      alert('You cannot select all days as off days. Please select at least one study day.');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateInputs()) {
+      return;
+    }
+
+    const studyDays = daysOfWeek
+      .filter(day => !offDays.includes(day.id))
+      .map(day => day.id);
+
+    try {
+      const response = await axios.post(`${API_BASE}/preferences/`,
+          [{
+        preferred_study_hours_per_day: studyHoursPerDay,
+        off_days: offDays,
+        study_start_min: `${studyStartTime}`,
+        study_end_max: `${studyEndTime}`,
+        notification_reminder_minutes: reminderMinutes,
+        semester: parseInt(semester.semesterId, 10),
+      }],
+      {
+            withCredentials: true,
+            headers: {
+              "X-CSRFToken": csrfToken,
+            }
+      });
+       await generateSchedule(semester);
+
+    } catch (error) {
+      alert('Failed to generate timetable. Please try again later.');
     }
   };
 
-  const updateCourse = (id, field, value) => {
-    setSelectedCourses(
-      selectedCourses.map((course) =>
-        course.id === id ? { ...course, [field]: value } : course
-      )
-    );
-  };
 
-  const toggleOffDay = (day) => {
-    setOffDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
-
-  const addCourse = () => {
-    setSelectedCourses((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        courseId: "",
-        startTime: "",
-        endTime: "",
-        day: "",
-        location: "",
-        difficultyLevel: 1,
-      },
-    ]);
-  };
-  const checkFormCompletion = () => {
-    // Check if all required fields are filled
-    const allFieldsFilled =
-      preferStudyHours &&
-      notificationReminder &&
-      studyStartTime &&
-      studyEndTime &&
-      selectedCourses.every(
-        (course) =>
-          course.courseId &&
-          course.startTime &&
-          course.endTime &&
-          course.day &&
-          course.location
-      );
-    // Check if at least one course is selected
-    const atLeastOneCourseSelected = selectedCourses.some(
-      (course) => course.courseId
-    );
-    // Check if off days are selected
-    const offDaysSelected = offDays.length > 0;
-    // Check if study start time is before end time
-    const validStudyTime =
-      studyStartTime &&
-      studyEndTime &&
-      new Date(`1970-01-01T${studyStartTime}:00`) <
-        new Date(`1970-01-01T${studyEndTime}:00`);
-    // Check if notification reminder is a valid number
-    const validNotificationReminder =
-      notificationReminder &&
-      !isNaN(notificationReminder) &&
-      notificationReminder >= 5 &&
-      notificationReminder <= 120;
-    // Check if preferred study hours is a valid number
-    const validPreferStudyHours =
-      preferStudyHours &&
-      !isNaN(preferStudyHours) &&
-      preferStudyHours >= 1 &&
-      preferStudyHours <= 12;
-    return (
-      allFieldsFilled &&
-      atLeastOneCourseSelected &&
-      offDaysSelected &&
-      validStudyTime &&
-      validNotificationReminder &&
-      validPreferStudyHours
-    );
-  };
-  useEffect(() => {
-    onFormComplete(checkFormCompletion());
-  }, [
-    offDays,
-    preferStudyHours,
-    notificationReminder,
-    studyStartTime,
-    studyEndTime,
-    selectedCourses,
-  ]);
 
   return (
-    <div className="user-preferences-form">
-      {/* Study Preferences */}
-      <Card className="preferences-card">
-        <CardHeader>
-          <CardTitle className="section-title">Study Preferences</CardTitle>
-        </CardHeader>
-        <CardContent className="preferences-content">
-          <div className="off-days-section">
-            <Label className="section-label">Off Days</Label>
-            <div className="days-grid">
-              {daysOfWeek.map((day) => (
-                <button
-                  key={day}
-                  type="button"
-                  onClick={() => toggleOffDay(day)}
-                  className={`day-button ${
-                    offDays.includes(day) ? "selected" : ""
-                  }`}
-                >
-                  {day.slice(0, 3)}
-                </button>
-              ))}
-            </div>
+    <div className="preferences-form">
+      <div className="form-header">
+        <Settings className="header-icon" />
+        <h2>Set Your Study Preferences</h2>
+        <p>Configure your preferred study schedule settings</p>
+      </div>
+
+      <div className="preferences-container">
+        <div className="preference-section study-time-section">
+          <div className="section-header">
+            <Clock className="section-icon" />
+            <Label className="section-title">Preferred Study Time Range</Label>
           </div>
-
-          <div className="preferences-grid">
-            <div className="input-group">
-              <Label htmlFor="preferStudyHours">
-                Preferred Study Hours (per day)
-              </Label>
+          <div className="time-range-grid">
+            <div className="time-input-group">
+              <Label htmlFor="study-start">Study Start Time</Label>
               <Input
-                id="preferStudyHours"
-                type="number"
-                min="1"
-                max="12"
-                value={preferStudyHours}
-                onChange={(e) => setPreferStudyHours(e.target.value)}
-                placeholder="e.g., 4"
-                className="form-input"
-              />
-            </div>
-
-            <div className="input-group">
-              <Label htmlFor="notificationReminder">
-                Notification Reminder (minutes)
-              </Label>
-              <Input
-                id="notificationReminder"
-                type="number"
-                min="5"
-                max="120"
-                value={notificationReminder}
-                onChange={(e) => setNotificationReminder(e.target.value)}
-                placeholder="e.g., 15"
-                className="form-input"
-              />
-            </div>
-          </div>
-
-          <div className="preferences-grid">
-            <div className="input-group">
-              <Label htmlFor="studyStartTime">Preferred Study Start Time</Label>
-              <Input
-                id="studyStartTime"
+                id="study-start"
                 type="time"
                 value={studyStartTime}
                 onChange={(e) => setStudyStartTime(e.target.value)}
-                className="form-input"
               />
             </div>
-
-            <div className="input-group">
-              <Label htmlFor="studyEndTime">Preferred Study End Time</Label>
+            <div className="time-input-group">
+              <Label htmlFor="study-end">Study End Time</Label>
               <Input
-                id="studyEndTime"
+                id="study-end"
                 type="time"
                 value={studyEndTime}
                 onChange={(e) => setStudyEndTime(e.target.value)}
-                className="form-input"
               />
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <p className="section-description">
+            Set your preferred time range for study sessions. We'll schedule study blocks within this range.
+          </p>
+        </div>
 
-      {/* Courses */}
-      <Card className="courses-card">
-        <CardHeader className="courses-header">
-          <CardTitle className="section-title">Course Schedule</CardTitle>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addCourse}
-            className="add-course-button"
-          >
-            <Plus className="button-icon" />
-            Add Course
-          </Button>
-        </CardHeader>
-        <CardContent className="courses-content">
-          {selectedCourses.map((course, index) => {
-            const selectedCourseData = mockCourses.find(
-              (c) => c.id === course.courseId
-            );
+        <div className="preference-section study-hours-section">
+          <div className="section-header">
+            <BookOpen className="section-icon" />
+            <Label className="section-title">Daily Study Hours</Label>
+          </div>
+          <div className="study-hours-group">
+            <Label htmlFor="study-hours">Preferred study hours per day</Label>
+            <Select
+              value={studyHoursPerDay.toString()}
+              onValueChange={(value) => setStudyHoursPerDay(parseFloat(value))}
+            >
+              <SelectTrigger className="study-hours-select">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0.5">30 minutes</SelectItem>
+                <SelectItem value="1">1 hour</SelectItem>
+                <SelectItem value="1.5">1.5 hours</SelectItem>
+                <SelectItem value="2">2 hours</SelectItem>
+                <SelectItem value="2.5">2.5 hours</SelectItem>
+                <SelectItem value="3">3 hours</SelectItem>
+                <SelectItem value="3.5">3.5 hours</SelectItem>
+                <SelectItem value="4">4 hours</SelectItem>
+                <SelectItem value="4.5">4.5 hours</SelectItem>
+                <SelectItem value="5">5 hours</SelectItem>
+                <SelectItem value="6">6 hours</SelectItem>
+                <SelectItem value="7">7 hours</SelectItem>
+                <SelectItem value="8">8 hours</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <p className="section-description">
+            Choose how many hours you want to study per day. This will be distributed across your available time slots.
+          </p>
+        </div>
 
-            return (
-              <Card key={course.id} className="course-card">
-                <div className="course-header">
-                  <h4 className="course-title">Course {index + 1}</h4>
-                  {selectedCourses.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeCourse(course.id)}
-                      className="remove-course-button"
-                    >
-                      <Trash2 className="button-icon" />
-                    </Button>
-                  )}
-                </div>
-
-                <div className="course-grid">
-                  <div className="input-group">
-                    <Label htmlFor={`course-${course.id}`}>Select Course</Label>
-                    <Select
-                      value={course.courseId}
-                      onValueChange={(value) =>
-                        updateCourse(course.id, "courseId", value)
-                      }
-                    >
-                      <SelectTrigger className="select-trigger">
-                        <SelectValue placeholder="Choose a course" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockCourses.map((mockCourse) => (
-                          <SelectItem key={mockCourse.id} value={mockCourse.id}>
-                            {mockCourse.code} - {mockCourse.name} (
-                            {mockCourse.credits} credits)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+        <div className="preference-section off-days-section">
+          <div className="section-header">
+            <Calendar className="section-icon" />
+            <Label className="section-title">Off Days</Label>
+          </div>
+          <div className="off-days-grid">
+            {daysOfWeek.map((day) => (
+              <div key={day.id} className="day-toggle">
+                <label className={`day-checkbox ${offDays.includes(day.id) ? 'selected' : ''}`}>
+                  <input
+                    type="checkbox"
+                    checked={offDays.includes(day.id)}
+                    onChange={() => handleOffDayToggle(day.id)}
+                    className="hidden-checkbox"
+                  />
+                  <div className="day-content">
+                    <span className="day-short">{day.short}</span>
+                    <span className="day-full">{day.label}</span>
                   </div>
+                </label>
+              </div>
+            ))}
+          </div>
+          <p className="section-description">
+            Select the days you don't want to study. We'll avoid scheduling study sessions on these days.
+            {offDays.length > 0 && (
+              <span className="selected-off-days">
+                {' '}Selected off days: {offDays.map(dayId =>
+                  daysOfWeek.find(day => day.id === dayId)?.label
+                ).join(', ')}
+              </span>
+            )}
+          </p>
+        </div>
 
-                  {selectedCourseData && (
-                    <div className="difficulty-section">
-                      <Label>
-                        Difficulty Level:{" "}
-                        {difficultyLabels[course.difficultyLevel - 1]}
-                      </Label>
-                      <div className="slider-container">
-                        <Slider
-                          value={[course.difficultyLevel]}
-                          onValueChange={(value) =>
-                            updateCourse(course.id, "difficultyLevel", value[0])
-                          }
-                          max={5}
-                          min={1}
-                          step={1}
-                          className="difficulty-slider"
-                        />
-                        <div className="slider-labels">
-                          <span>Easy</span>
-                          <span>Very Difficult</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+        <div className="preference-section reminder-section">
+          <div className="section-header">
+            <Bell className="section-icon" />
+            <Label className="section-title">Reminder Settings</Label>
+          </div>
+          <div className="reminder-settings">
+            <div className="reminder-group">
+              <Label htmlFor="reminder">Remind me before events (minutes)</Label>
+              <Select
+                value={reminderMinutes.toString()}
+                onValueChange={(value) => setReminderMinutes(parseInt(value))}
+              >
+                <SelectTrigger className="reminder-select">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5 minutes</SelectItem>
+                  <SelectItem value="10">10 minutes</SelectItem>
+                  <SelectItem value="15">15 minutes</SelectItem>
+                  <SelectItem value="30">30 minutes</SelectItem>
+                  <SelectItem value="60">1 hour</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-                  <div className="time-grid">
-                    <div className="input-group">
-                      <Label htmlFor={`courseStartTime-${course.id}`}>
-                        Start Time
-                      </Label>
-                      <Input
-                        id={`courseStartTime-${course.id}`}
-                        type="time"
-                        value={course.startTime}
-                        onChange={(e) =>
-                          updateCourse(course.id, "startTime", e.target.value)
-                        }
-                        className="form-input"
-                      />
-                    </div>
+            <div className="notification-group">
+              <div className="notification-text">
+                <Label htmlFor="notifications">Enable Notifications</Label>
+                <p>Get notified about upcoming classes and study sessions</p>
+              </div>
+              <Switch
+                id="notifications"
+                checked={notifications}
+                onCheckedChange={setNotifications}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
-                    <div className="input-group">
-                      <Label htmlFor={`courseEndTime-${course.id}`}>
-                        End Time
-                      </Label>
-                      <Input
-                        id={`courseEndTime-${course.id}`}
-                        type="time"
-                        value={course.endTime}
-                        onChange={(e) =>
-                          updateCourse(course.id, "endTime", e.target.value)
-                        }
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="course-details-grid">
-                    <div className="input-group">
-                      <Label htmlFor={`courseDay-${course.id}`}>
-                        Class Day
-                      </Label>
-                      <Select
-                        value={course.day}
-                        onValueChange={(value) =>
-                          updateCourse(course.id, "day", value)
-                        }
-                      >
-                        <SelectTrigger className="select-trigger">
-                          <SelectValue placeholder="Select day" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {daysOfWeek.map((day) => (
-                            <SelectItem key={day} value={day}>
-                              {day}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="input-group">
-                      <Label htmlFor={`courseLocation-${course.id}`}>
-                        Location
-                      </Label>
-                      <Input
-                        id={`courseLocation-${course.id}`}
-                        value={course.location}
-                        onChange={(e) =>
-                          updateCourse(course.id, "location", e.target.value)
-                        }
-                        placeholder="e.g., Room 101, Building A"
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </CardContent>
-      </Card>
+      <div className="form-actions">
+        <Button
+          onClick={generateSchedule(semester)}
+          className="submit-button"
+        >
+          Generate Timetable
+        </Button>
+      </div>
     </div>
   );
 };
 
-export default StepUserPreferencesForm;
+export default PreferencesForm;

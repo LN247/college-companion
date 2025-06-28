@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import UserAnalytics from "../components/UserAnalytics";
 import {
   FaCalendar,
   FaChartLine,
@@ -13,6 +12,7 @@ import {
   FaBars,
   FaUserCircle,
   FaQuestionCircle,
+    FaRobot,
 } from "react-icons/fa";
 import axios from "axios";
 import { onMessageListener } from "../utils/firebase";
@@ -20,8 +20,6 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Menu,
-  MenuItem,
   Drawer,
   List,
   ListItem,
@@ -49,6 +47,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
   const [showRelativeTime, setShowRelativeTime] = useState(true);
+  const [tipOfTheDay, setTipOfTheDay] = useState({
+    tip: '',
+    author: 'AdviceSlip'
+  });
 
   const navItems = [
     { name: "College-Life", icon: <FaGraduationCap />, route: "/chat" },
@@ -56,7 +58,7 @@ const Dashboard = () => {
     { name: "Progress", icon: <FaChartLine />, route: "/progress" },
     { name: "Timetable", icon: <FaTable />, route: "/timetable" },
     { name: "Notification", icon: <FaBell />, route: "/notifications" },
-    { name: "Help Center", icon: <FaQuestionCircle />, route: "/help" },
+    { name: "AI Assistant", icon: <FaRobot />, route: "/My assistant " },
   ];
 
 
@@ -69,6 +71,28 @@ const Dashboard = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+
+
+
+  useEffect(() => {
+    fetch("https://api.adviceslip.com/advice")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.slip) {
+          setTipOfTheDay({
+            tip: data.slip.advice,
+            author: "Advice Slip",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching tip:", error);
+      });
+  }, []);
+
+
+
 
 
     const [notifications, setNotifications] = useState([]);
@@ -126,7 +150,7 @@ const Dashboard = () => {
           <FaTimes />
         </IconButton>
         <List>
-              
+
           {navItems.map((item) => (
               <ListItem key={item.name} disablePadding>
                 <ListItemButton
@@ -135,33 +159,33 @@ const Dashboard = () => {
                     setMobileOpen(false);
                   }}
                 >
-              <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
-              <ListItemText primary={item.name} />
+                  <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.name} />
                 </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-    </Drawer>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
     </React.Fragment>
   );
 
   const renderDesktopMenu = (
     <React.Fragment>
 
-    <Box className="desktopMenu">
-      {navItems.map((item) => (
+      <Box className="desktopMenu">
+        {navItems.map((item) => (
           <div
             key={item.name}
             className="menuItem"
             onClick={() => navigate(item.route)}
             style={{ cursor: "pointer" }}
           >
-          {item.icon}
-          <span>{item.name}</span>
-        </div>
-      ))}
-    </Box>
+            {item.icon}
+            <span>{item.name}</span>
+          </div>
+        ))}
+      </Box>
     </React.Fragment>
   );
 
@@ -208,10 +232,6 @@ const Dashboard = () => {
     },
   ];
 
-  const tipOfTheDay = {
-    tip: "Break your study sessions into 25-minute intervals with 5-minute breaks for better focus.",
-    author: "Pomodoro Technique",
-  };
 
   const formatTimestamp = (date) => {
     if (showRelativeTime) {
@@ -311,22 +331,25 @@ const Dashboard = () => {
             ))}
           </ul>
         </section>
-        <section className="dashboard-pro__notifications-section">
-          <div className="section-header">
-            <h2>Notifications</h2>
-          </div>
-          <ul className="dashboard-pro__notifications-list">
-            {notifications.map((notif, idx) => (
-              <li key={idx} className="dashboard-pro__notification-item">
-                <FaBell className="dashboard-pro__notification-icon" />
-                <div className="dashboard-pro__notification-content">
-                  <p>{notif.title}</p>
-                  <span className="dashboard-pro__timestamp">{formatTimestamp(notif.timestamp)}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
+ <section className="dashboard-pro__notifications-section">
+  <div className="section-header">
+    <h2>Notifications</h2>
+  </div>
+  <ul className="dashboard-pro__notifications-list">
+
+    {/* Tip of the Day */}
+    {tipOfTheDay.tip && (
+      <li className="dashboard-pro__notification-item tip-of-the-day">
+        <FaBell className="dashboard-pro__notification-icon" />
+        <div className="dashboard-pro__notification-content">
+          <p><strong> Tip of the Day:</strong> {tipOfTheDay.tip}</p>
+          <span className="dashboard-pro__timestamp">— {tipOfTheDay.author}</span>
+        </div>
+      </li>
+    )}
+  </ul>
+</section>
+
       </main>
     </div>
   );

@@ -23,10 +23,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 import json
 import os
-from .task import send_study_notification
 from rest_framework import viewsets
 from .authentication import CookieJWTAuthentication
-from .models import (CustomUser,Semester, Course, FixedClassSchedule, StudyBlock, UserPreferences,Group,GroupMembership, Message,MessageContent,FileUpload,Reaction)
+from .models import (CustomUser,Semester, Course,Event ,FixedClassSchedule, StudyBlock, UserPreferences,Group,GroupMembership, Message,MessageContent,FileUpload,Reaction)
 from django.conf import settings
 from .serializers import (
     SemesterSerializer, CourseSerializer, FixedClassScheduleSerializer,
@@ -38,7 +37,7 @@ from .serializers import (
     MessageSerializer,
     MessageCreateSerializer,
     ReactionSerializer,
-   ReactionCreateSerializer,
+   ReactionCreateSerializer,  EventSerializer,
     GroupChatSerializer, GroupMessageSerializer, CustomUserSerializer,
     RegistrationSerializer, LoginSerializer, GoogleAuthSerializer
 )
@@ -93,7 +92,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,
                 max_age=timedelta(days=7, hours=23, minutes=59),
-                domain='127.0.0.1/'
+                domain='localhost'
 
             )
 
@@ -104,7 +103,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,
                 max_age = timedelta(days=12, hours=23, minutes=59),
-                domain='127.0.0.1/'
+                domain='localhost'
             )
 
             return response
@@ -245,6 +244,17 @@ def save_fcm_token(request):
 
 
 
+
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        return Event.objects.filter(user=self.request.user)
 
 
 
@@ -640,27 +650,6 @@ class GenerateTimetable(APIView):
         # Generate timetable with correct parameters
         study_blocks = generate_timetable(user, semester_start, semester_end, semester_id)
 
-        # Save to database
-        for block in study_blocks:
-            study_block = StudyBlock.objects.create(
-                user=user,
-                course=block.course,
-                day=block['day'],
-                start_time=block['start_time'],
-                end_time=block['end_time']
-            )
-
-            notification_time = datetime.combine(
-                block['date'],
-                block['start_time']
-            ) - timedelta(minutes=settings.STUDY_NOTIFICATION_ADVANCE_MINUTES)
-
-            # Schedule Celery task
-            send_study_notification.apply_async(
-                args=[study_block.id],
-                eta=notification_time
-            )
-
         return JsonResponse({'status': 'success', 'blocks_created': len(study_blocks)}, status=status.HTTP_200_OK)
 
 class CommunityProposalView(APIView):
@@ -669,10 +658,11 @@ class CommunityProposalView(APIView):
     def get(self, request, course_id=None):
         """
         Get community proposals for the authenticated user.
-        Optionally filter by course_id.
+
         """
-        result = propose_community(request.user.id, course_id)
+        result = propose_community(request.user.id)
         return Response(result, status=status.HTTP_200_OK if result['status'] == 'success' else status.HTTP_400_BAD_REQUEST)
+
 
 class GroupChatViewSet(viewsets.ModelViewSet):
     queryset = GroupChat.objects.all()

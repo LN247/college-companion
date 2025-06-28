@@ -21,7 +21,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
   const fetchData = async () => {
     setIsLoading(true);
-    loadingIndicator
+
     setError(null);
 
     try {
@@ -46,7 +46,11 @@ export const UserProvider = ({ children }) => {
         })
         setuserTimetable(GeneratedTimetable.data);
 
-    //fetch the event from the backend and set the events and export events 
+        const Events = await  axios.get(`${API_BASE}/events`,{
+            withCredentials:true
+        })
+       setEvents(Events.data);
+
 
 
     } catch (error) {
@@ -60,34 +64,6 @@ export const UserProvider = ({ children }) => {
   fetchData();
 }, []);
 
-// Fetch events from backend
-useEffect(() => {
-  const fetchEvents = async () => {
-    try {
-      const token = localStorage.getItem("access_token"); // or your auth logic
-      const response = await fetch("/api/events/", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data); // Set the events state
-      } else {
-        setEvents([]);
-      }
-    } catch (error) {
-      setEvents([]);
-    }
-  };
-
-  fetchEvents();
-}, []);
-
-useEffect(() => {
-  console.log("Updated user from state:", user); // Logs updated user after re-render
-}, [user]);
 
   return (
      <UserContext.Provider value={{ user, setUser,semesters,
@@ -99,8 +75,8 @@ useEffect(() => {
 
 export default UserContext;
 
-// Export events for use elsewhere if needed
-export { events };
+
+
 
 
 

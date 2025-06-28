@@ -154,6 +154,26 @@
   box-shadow: 0 4px 6px rgba(102, 126, 234, 0.10);
 }
 
+.user-profile__required-text {
+  font-size: 0.8rem;
+  color: #ef4444;
+  margin-left: 0.5rem;
+}
+
+.user-profile__form-label::after {
+  content: "*";
+  color: #ef4444;
+  margin-left: 0.25rem;
+}
+
+.user-profile__optional-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-left: 0.25rem;
+}
+
+
+
 .user-profile__submit-button:hover {
   transform: scale(1.03);
   background: linear-gradient(90deg, #5a67d8 0%, #6b21a8 100%);

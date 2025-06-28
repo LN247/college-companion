@@ -1,0 +1,104 @@
+.message {
+  display: flex;
+  gap: 16px;
+}
+
+.message.user {
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.message-avatar.user {
+  background: linear-gradient(135deg, #4ade80, #3b82f6);
+}
+
+.message-avatar.assistant {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+}
+
+.message-content {
+  flex: 1;
+  max-width: 512px;
+}
+
+.message.user .message-content {
+  text-align: right;
+}
+
+.message-bubble {
+  display: inline-block;
+  padding: 12px 16px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.message-bubble.user {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.message-bubble.assistant {
+  background: white;
+  border: 1px solid #e5e7eb;
+  color: #1f2937;
+}
+
+.message-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.message.user .message-actions {
+  justify-content: flex-end;
+}
+
+.copy-btn {
+  padding: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.copy-btn:hover {
+  background: #f3f4f6;
+}
+
+.url-link {
+  color: #3b82f6;
+  text-decoration: underline;
+  text-decoration-color: #93c5fd;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.url-link:hover {
+  color: #2563eb;
+  text-decoration-color: #3b82f6;
+}
+
+.external-icon {
+  width: 12px;
+  height: 12px;
+  color: #60a5fa;
+}

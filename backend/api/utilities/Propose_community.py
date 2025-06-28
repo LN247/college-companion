@@ -1,78 +1,101 @@
-#import userprofile and ascheduled courses models and define the proposal community function 
-
-from ..models import CustomUser, Course, StudyBlock
+from ..models import CustomUser, FixedClassSchedule,  GroupMembership, Group
 from django.db.models import Q
-from datetime import datetime, timedelta
+from datetime import timedelta, date
 
 def propose_community(user_id, course_id=None):
-    """
-    Propose study communities based on user's courses and study blocks.
-    
-    Args:
-        user_id: The ID of the user requesting community proposals
-        course_id: Optional course ID to filter proposals for a specific course
-    
-    Returns:
-        list: List of dictionaries containing proposed study communities
-    """
     try:
-        # Get the user
         user = CustomUser.objects.get(id=user_id)
-        
-        # Get user's courses
+        today = date.today()
+        next_week = today + timedelta(days=7)
+
+        #  Try to match users with same major and minor
+        matching_users = CustomUser.objects.filter(
+            major=user.major,
+            minor=user.minor
+        ).exclude(id=user.id)
+
+        if matching_users.exists():
+            # Look for groups they are already in
+            group_ids = GroupMembership.objects.filter(user__in=matching_users).values_list('group_id', flat=True)
+            if group_ids:
+                groups = Group.objects.filter(id__in=group_ids).distinct()
+                if groups.exists():
+                    return {
+                        'status': 'success',
+                        'reason': 'related field of study',
+                        'communities': [
+                            {
+                                'group_id': group.id,
+                                'name': group.name,
+                                'members': [
+                                    {
+                                        'id': member.id,
+                                        'username': member.username
+                                    } for member in CustomUser.objects.filter(groupmembership__group=group)
+                                ]
+                            }
+                            for group in groups
+                        ]
+                    }
+
+        # Match users with shared courses
         if course_id:
-            user_courses = Course.objects.filter(id=course_id, user=user)
+            user_courses = FixedClassSchedule.objects.filter(user=user, course__id=course_id).values_list('course', flat=True)
         else:
-            user_courses = Course.objects.filter(user=user)
-        
-        proposed_communities = []
-        
-        for course in user_courses:
-            # Find other users taking the same course
+            user_courses = FixedClassSchedule.objects.filter(user=user).values_list('course', flat=True)
+
+        if user_courses:
             other_users = CustomUser.objects.filter(
-                courses__name=course.name,
-                courses__code=course.code
-            ).exclude(id=user_id)
-            
-            # Get study blocks for the course
-            study_blocks = StudyBlock.objects.filter(
-                course=course,
-                date__gte=datetime.now().date(),
-                date__lte=datetime.now().date() + timedelta(days=7)
-            ).order_by('date', 'start_time')
-            
-            # Create community proposal
+                fixedclassschedule__course__in=user_courses
+            ).exclude(id=user.id).distinct()
+
             if other_users.exists():
-                community = {
-                    'course': {
-                        'id': course.id,
-                        'name': course.name,
-                        'code': course.code
-                    },
-                    'potential_members': [
-                        {
-                            'id': other_user.id,
-                            'username': other_user.username,
-                            'email': other_user.email
-                        } for other_user in other_users[:5]  # Limit to 5 potential members
-                    ],
-                    'upcoming_study_sessions': [
-                        {
-                            'id': block.id,
-                            'date': block.date,
-                            'start_time': block.start_time,
-                            'end_time': block.end_time
-                        } for block in study_blocks[:3]  # Limit to 3 upcoming sessions
-                    ],
-                    'total_members': other_users.count()
-                }
-                proposed_communities.append(community)
-        
+                common_group_ids = GroupMembership.objects.filter(user__in=other_users).values_list('group_id', flat=True)
+                groups = Group.objects.filter(id__in=common_group_ids)
+                if groups.exists():
+                    return {
+                        'status': 'success',
+                        'reason': 'shared courses',
+                        'communities': [
+                            {
+                                'group_id': group.id,
+                                'name': group.name,
+                                'members': [
+                                    {
+                                        'id': member.id,
+                                        'username': member.username
+                                    } for member in CustomUser.objects.filter(groupmembership__group=group)
+                                ]
+                            }
+                            for group in groups
+                        ]
+                    }
+
+        # Fallbak: Random group suggestion
+        random_group = Group.objects.order_by('?').first()
+        if random_group:
+            return {
+                'status': 'success',
+                'reason': 'random suggestion',
+                'communities': [
+                    {
+                        'group_id': random_group.id,
+                        'name': random_group.name,
+                        'members': [
+                            {
+                                'id': member.id,
+                                'username': member.username
+                            } for member in CustomUser.objects.filter(groupmembership__group=random_group)
+                        ]
+                    }
+                ]
+            }
+
         return {
-            'status': 'success',
-            'communities': proposed_communities
+            'status': 'error',
+            'message': 'No suitable communities available at the moment.'
         }
-        
+
     except CustomUser.DoesNotExist:
         return {
             'status': 'error',
@@ -83,17 +106,3 @@ def propose_community(user_id, course_id=None):
             'status': 'error',
             'message': str(e)
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

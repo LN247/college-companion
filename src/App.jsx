@@ -22,6 +22,7 @@ import AcademicCalendar from "./components/AcademicCalendar";
 import { UserProvider } from "./context/UserContext";
 import ChatPage from "./pages/ChatPage";
 import Unauthorised from "./pages/Unauthorised";
+import AIAssistant from "./pages/AIAssistant.jsx";
 const AppContent = () => {
   const { isLoading } = useLoading();
 
@@ -41,38 +42,42 @@ const AppContent = () => {
         <Route
           path="/add-semester"
           element={
+            <ProtectedRoute>
               <AddSemester />
-           
+            </ProtectedRoute>
           }
         />
 
         <Route path="/chat" element={<ChatPage />} />
+         <Route path='/Myassistant' element={<AIAssistant/>}></Route>
 
         {/* Fix: Remove <UserProvider> here */}
         <Route path="/login" element={<LoginForm />} />
         <Route
           path="/dashboard"
           element={
-         <Dashboard />
-        
+          <ProtectedRoute><Dashboard />
+          </ProtectedRoute>
+
+
           }
         />
-
+       <Route path='ai' element={<AIAssistant/>}></Route>
         <Route
           path="/user-profile"
           element={
-            
+            <ProtectedRoute>
               <UserProfileForm />
-          
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/timetable"
           element={
-     
+            <ProtectedRoute>
               <SemesterPlan />
-        
+            </ProtectedRoute>
           }
         />
         <Route
@@ -110,11 +115,11 @@ const AppContent = () => {
         <Route
           path="/admin-dashboard"
           element={
-          
+            <AdminProtectedRoute>
               <AdminProvider>
                 <AdminDashboard />
               </AdminProvider>
-       
+            </AdminProtectedRoute>
           }
         />
       </Routes>

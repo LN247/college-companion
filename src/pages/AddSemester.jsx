@@ -15,7 +15,7 @@ import UserPrefrenceForm from "../components/UserPrefrenceForm";
 const MultiStepFormTracker = () => {
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedSemester, setSelectedSemester] = useState(""); // Hold selected semester
+  const [selectedSemester, setSelectedSemester] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("");
    const [stepCompletion, setStepCompletion] = useState({
     "semester-info": false,
