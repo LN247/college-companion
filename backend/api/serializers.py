@@ -11,6 +11,8 @@ from .models import (
     FileUpload,
     Reaction,
     UserProfile,
+    Event
+
 )
 
 
@@ -90,6 +92,12 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 
+
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = "__all__"
+        read_only_fields = ["id"]
 
 
 class FixedClassScheduleSerializer(serializers.ModelSerializer):
@@ -296,5 +304,5 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = UserProfile
-        fields = ['major', 'minor', 'bio', 'profile_picture']
+        fields = ['major', 'minor', 'bio', 'profile_picture','graduation_year','fcm_token','level']
         

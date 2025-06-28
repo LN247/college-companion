@@ -49,6 +49,7 @@ const AppContent = () => {
         />
 
         <Route path="/chat" element={<ChatPage />} />
+         <Route path='/Myassistant' element={<AIAssistant/>}></Route>
 
         {/* Fix: Remove <UserProvider> here */}
         <Route path="/login" element={<LoginForm />} />

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import '../Styles/InputArea.css';
+import '../Styles/IntputArea.css';
 
 const InputArea = ({ onSend }) => {
   const [inputValue, setInputValue] = useState('');

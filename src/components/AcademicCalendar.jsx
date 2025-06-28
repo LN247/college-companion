@@ -1,29 +1,86 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { Plus, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Trash2, Edit } from "lucide-react";
 import EventModal from "./EventModal";
 import "../Styles/AcademicCalendar.css";
+import userContext from "../context/UserContext.jsx";
+import axios from "axios";
 
 const localizer = momentLocalizer(moment);
 
-const ScheduleCalendar = ({ events = [], onEventAdd }) => {
+// Create Axios instance with credentials
+const api = axios.create({
+  baseURL: '/api',
+  withCredentials: true,
+});
+
+const ScheduleCalendar = ({ events = [], onEventAdd, onEventUpdate, onEventDelete }) => {
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const { user } = useContext(userContext);
 
   const handleSelectSlot = ({ start, end }) => {
     setSelectedSlot({ start, end });
+    setSelectedEvent(null);
+    setIsEditing(false);
     setShowEventModal(true);
   };
 
-  const handleEventAdd = (eventData) => {
-    const newEvent = { ...eventData, id: Date.now().toString() };
-    onEventAdd(newEvent);
-    setShowEventModal(false);
-    setSelectedSlot(null);
+  const handleSelectEvent = (event) => {
+    setSelectedEvent(event);
+    setIsEditing(true);
+    setShowEventModal(true);
+  };
+
+  const handleSaveEvent = async (eventData) => {
+    try {
+      if (isEditing && selectedEvent) {
+        // Update existing event
+        const response = await api.put(`/events/${selectedEvent.id}/`, eventData, {
+          headers: {'Content-Type': 'application/json'}
+        });
+
+        const updatedEvent = { ...response.data, type: "custom" };
+        onEventUpdate(updatedEvent);
+      } else {
+        // Create new event
+        const response = await api.post('/events/', eventData, {
+          headers: {'Content-Type': 'application/json'}
+        });
+
+        const newEvent = { ...response.data, type: "custom" };
+        onEventAdd(newEvent);
+      }
+
+      setShowEventModal(false);
+      setSelectedSlot(null);
+      setSelectedEvent(null);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving event:', error.response?.data || error.message);
+      alert('Failed to save event');
+    }
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!selectedEvent) return;
+
+    try {
+      await api.delete(`/events/${selectedEvent.id}/`);
+      onEventDelete(selectedEvent.id);
+      setShowDeleteModal(false);
+      setSelectedEvent(null);
+    } catch (error) {
+      console.error('Error deleting event:', error.response?.data || error.message);
+      alert('Failed to delete event');
+    }
   };
 
   const eventStyleGetter = (event) => ({
@@ -35,10 +92,11 @@ const ScheduleCalendar = ({ events = [], onEventAdd }) => {
       color: "white",
       fontSize: "12px",
       fontWeight: "500",
+      cursor: "pointer",
     },
   });
 
-  // Always validate the data
+  // Filter custom events
   const customEvents = Array.isArray(events)
     ? events.filter((e) => e.type === "custom")
     : [];
@@ -53,12 +111,18 @@ const ScheduleCalendar = ({ events = [], onEventAdd }) => {
               Personal Events Calendar
             </h3>
             <p className="calendar__description">
-              Add your personal events and appointments
+              Add and manage your personal events and appointments
             </p>
           </div>
           <Button
             onClick={() => {
-              setSelectedSlot({ start: new Date(), end: new Date(Date.now() + 3600000) });
+              const now = new Date();
+              setSelectedSlot({
+                start: now,
+                end: new Date(now.getTime() + 3600000)
+              });
+              setSelectedEvent(null);
+              setIsEditing(false);
               setShowEventModal(true);
             }}
             className="calendar__add-btn"
@@ -79,6 +143,7 @@ const ScheduleCalendar = ({ events = [], onEventAdd }) => {
             views={["week", "day"]}
             selectable
             onSelectSlot={handleSelectSlot}
+            onSelectEvent={handleSelectEvent}
             eventPropGetter={eventStyleGetter}
             className="calendar__custom-calendar"
             min={new Date(2024, 0, 1, 7, 0, 0)}
@@ -90,16 +155,53 @@ const ScheduleCalendar = ({ events = [], onEventAdd }) => {
         </div>
       </Card>
 
-      {showEventModal && selectedSlot && (
+      {/* Event Modal (Add/Edit) */}
+      {showEventModal && (
         <EventModal
-          start={selectedSlot.start}
-          end={selectedSlot.end}
-          onSave={handleEventAdd}
+          isOpen={showEventModal}
+          isEditing={isEditing}
+          event={selectedEvent}
+          start={selectedSlot?.start || selectedEvent?.start}
+          end={selectedSlot?.end || selectedEvent?.end}
+          onSave={handleSaveEvent}
+          onDelete={() => {
+            setShowEventModal(false);
+            setShowDeleteModal(true);
+          }}
           onClose={() => {
             setShowEventModal(false);
             setSelectedSlot(null);
+            setSelectedEvent(null);
+            setIsEditing(false);
           }}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedEvent && (
+        <div className="modal-backdrop">
+          <div className="delete-modal">
+            <h3>Delete Event</h3>
+            <p>
+              Are you sure you want to delete the event:
+              <strong> "{selectedEvent.title}"</strong>?
+            </p>
+            <div className="modal-actions">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteEvent}
+              >
+                <Trash2 size={16} /> Delete
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

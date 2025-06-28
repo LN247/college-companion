@@ -13,8 +13,8 @@ const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
 const CourseForm = ({ semester, level,onFormComplete }) => {
   const formRef = useRef(null);
   const API_BASE = "http://localhost:8000/api";
-  const [courses, setCourses] = useState([]); // Fetched courses
-  const [selectedCourses, setSelectedCourses] = useState([]); // User-selected courses
+  const [courses, setCourses] = useState([]);
+  const [selectedCourses, setSelectedCourses] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [isCourseStepComplete, setIsCourseStepComplete] = useState(false);
   const [currentCourse, setCurrentCourse] = useState({
@@ -265,7 +265,7 @@ const handleSubmit = async (e) => {
                        <SelectContent>
                        {courses.map((course) => (
                            <SelectItem key={course.id} value={course.id}>
-                             {course.name} {/* Display the course name */}
+                             {course.name}
                               </SelectItem>
                        ))}
                     </SelectContent>

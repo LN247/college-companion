@@ -22,11 +22,11 @@ export default function SemesterForm({
   setLevel,
   onFormComplete,
 }) {
-  const { semesters } = useContext(userContext); // Get semesters from context
+  const { semesters } = useContext(userContext);
 
   useEffect(() => {
     const isCompleted = Boolean(setSemester && setLevel);
-    onFormComplete(isCompleted); // Notify parent component with current state
+    onFormComplete(isCompleted);
   }, [setSemester, setLevel, onFormComplete]);
 
   return (
@@ -42,8 +42,8 @@ export default function SemesterForm({
               <Label className="semester-form__label">Semester</Label>
               <Select
                 onValueChange={(value) => {
-                  const [semesterType, semesterId] = value.split(","); // Extract type and id
-                  setSemester && setSemester({ semesterType, semesterId }); // Send as object
+                  const [semesterType, semesterId] = value.split(",");
+                  setSemester && setSemester({ semesterType, semesterId });
                 }}
               >
                 <SelectTrigger className="semester-form__select-trigger">

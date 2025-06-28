@@ -8,10 +8,10 @@ const GeneratedTimetable = ({ generatedSchedule }) => {
     return <div>No valid schedule data available.</div>;
   }
 
-  // Create dynamic time slots based on the schedule data
+
   const allTimeSlots = new Set([...TIME_SLOTS]);
 
-  // Add any missing time slots from the schedule data
+
   generatedSchedule.forEach((scheduleItem) => {
     const startHour = parseInt(scheduleItem.start_time.split(':')[0]);
     const endHour = parseInt(scheduleItem.end_time.split(':')[0]);
@@ -39,21 +39,21 @@ const GeneratedTimetable = ({ generatedSchedule }) => {
     });
   });
 
-  // Fill timetable with schedule data
+
   generatedSchedule.forEach((scheduleItem) => {
     const startHour = parseInt(scheduleItem.start_time.split(':')[0]);
     const endHour = parseInt(scheduleItem.end_time.split(':')[0]);
 
-    // Fill all time slots that this course spans
+
     for (let hour = startHour; hour < endHour; hour++) {
       const timeSlot = `${hour.toString().padStart(2, '0')}:00`;
 
-      // Now we know the time slot exists because we created it above
+
       if (timetableData[scheduleItem.day]) {
         timetableData[scheduleItem.day][timeSlot].push({
           ...scheduleItem,
-          isFirstSlot: hour === startHour, // Mark first slot for display purposes
-          totalSlots: endHour - startHour   // Total slots this course spans
+          isFirstSlot: hour === startHour,
+          totalSlots: endHour - startHour
         });
       }
     }

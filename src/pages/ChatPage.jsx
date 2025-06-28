@@ -1,50 +1,60 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
 import "../Styles/ChatStyles.css";
-import axiosInstance from "../api/axiosInstance";
 import StudyGroupList from "../components/StudyGroupList";
 import ChatWindow from "../components/ChatWindow";
 import MessageInput from "../components/MessageInput";
 import CreateGroupModal from "../components/CreateGroupModal";
 import useWebSocket from '../hooks/UseWebSocket';
-
+import { useToast } from "../hooks/use-toast.js";
+import userContext from "../context/UserContext.jsx";
+import axios from 'axios';
 function ChatPage() {
-  const [theme, setTheme] = useState("light"); // "light" or "dark"
+  const [theme, setTheme] = useState("light");
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // New state for modal
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const fileInputRef = useRef(null);
   const [allGroups, setAllGroups] = useState([]);
-  const [currentUser, setCurrentUser] = useState({ id: null, name: "" });
+  const { user } = useContext(userContext);
+  const { addtoast } = useToast();
 
-  // Fetch user info, groups, and memberships on mount
+  // Fetch groups
   useEffect(() => {
-    axiosInstance.get("/user/info/").then(res => {
-      setCurrentUser({ id: res.data.id, name: res.data.username });
-    });
-    axiosInstance.get("/group-memberships/").then(res => {
-      // You may need to adjust this mapping based on your API response
-      setAllGroups(res.data.map(m => ({
-        ...m.group, // assuming group-memberships returns {id, group: {...}}
-        isJoined: true // user is a member of these groups
-      })));
-    });
-    // Optionally, fetch all available groups and merge with memberships
-    // axiosInstance.get("/group-chats/").then(res => { ... });
-  }, []);
+    const fetchGroups = async () => {
+      try {
+        const res = await axios.get("/group-memberships/");
+        setAllGroups(res.data.map(m => ({
+          ...m.group,
+          isJoined: true
+        })));
+      } catch (error) {
+        console.error("Error fetching groups:", error);
+        addtoast({
+          title: 'Error',
+          description: 'Failed to load study groups',
+          variant: "Error",
+        });
+      }
+    };
 
-  // WebSocket handlers
+    if (user) fetchGroups();
+  }, [user, addtoast]);
+
   const handleMessageReceived = useCallback((data) => {
-    if (data.type === 'chat_message' && data.message) {
-      setMessages(prevMessages => [...prevMessages, data.message]);
+    if (data.type === 'chat_message') {
+      setMessages(prev => [...prev, data.message]);
     }
-  }, []);
+  }, [setMessages]);
 
-  const handleReadReceipt = useCallback((data) => {}, []);
+  const handleReadReceipt = useCallback((data) => {
+    // Handle read receipts
+  }, []);
 
   const { sendMessage, sendReadReceipt, connectionStatus } = useWebSocket(
     selectedGroup ? selectedGroup.id : null,
+    user?.id,
     handleMessageReceived,
     handleReadReceipt
   );
@@ -52,51 +62,77 @@ function ChatPage() {
   // Load messages for selected group
   useEffect(() => {
     if (!selectedGroup) return;
-    axiosInstance.get(`/group-messages/?group=${selectedGroup.id}`)
-      .then(res => setMessages(res.data));
-  }, [selectedGroup]);
+
+    const loadMessages = async () => {
+      try {
+        const res = await axios.get(`/group-messages/?group=${selectedGroup.id}`);
+        setMessages(res.data);
+      } catch (error) {
+        console.error("Error loading messages:", error);
+        addtoast({
+          title: 'Error',
+          description: 'Failed to load messages',
+          variant: "Error",
+        });
+      }
+    };
+
+    loadMessages();
+  }, [selectedGroup, addtoast]);
 
   // Join a group
   const handleJoinGroup = async (groupId) => {
     try {
-      await axiosInstance.post("/group-memberships/", { group: groupId });
+      await axios.post("/group-memberships/", { group: groupId });
       setAllGroups(groups =>
         groups.map(g => g.id === groupId ? { ...g, isJoined: true } : g)
       );
-      if (selectedGroup && selectedGroup.id === groupId) {
-        setSelectedGroup(g => ({ ...g, isJoined: true }));
+      if (selectedGroup?.id === groupId) {
+        setSelectedGroup(prev => ({ ...prev, isJoined: true }));
       }
-    } catch (e) {
-      alert("Failed to join group.");
+    } catch (error) {
+      console.error("Join group failed:", error);
+      addtoast({
+        title: 'Error',
+        description: 'Failed to join group',
+        variant: "Error",
+      });
     }
   };
 
   // Leave a group
   const handleLeaveGroup = async (groupId) => {
     try {
-      // Find the membership id for this group
-      const membershipRes = await axiosInstance.get("/group-memberships/");
+      const membershipRes = await axios.get("/group-memberships/");
       const membership = membershipRes.data.find(m => m.group.id === groupId);
       if (membership) {
         await axiosInstance.delete(`/group-memberships/${membership.id}/`);
         setAllGroups(groups =>
           groups.map(g => g.id === groupId ? { ...g, isJoined: false } : g)
         );
-        if (selectedGroup && selectedGroup.id === groupId) {
-          setSelectedGroup(g => ({ ...g, isJoined: false }));
+        if (selectedGroup?.id === groupId) {
+          setSelectedGroup(prev => ({ ...prev, isJoined: false }));
         }
       }
-    } catch (e) {
-      alert("Failed to leave group.");
+    } catch (error) {
+      console.error("Leave group failed:", error);
+      addtoast({
+        title: 'Error',
+        description: 'Failed to leave group',
+        variant: "Error",
+      });
     }
   };
 
   useEffect(() => {
     document.body.className = theme;
+    return () => {
+      document.body.className = '';
+    };
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    setTheme(prev => (prev === "light" ? "dark" : "light"));
   };
 
   const handleSelectGroup = (group) => {
@@ -108,95 +144,124 @@ function ChatPage() {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
-      // Create preview for images
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
-        reader.onloadend = () => {
-          setFilePreview(reader.result);
-        };
+        reader.onloadend = () => setFilePreview(reader.result);
         reader.readAsDataURL(file);
-      } else {
-        setFilePreview(null);
       }
     }
   };
 
-  const handleSendMessage = (message) => {
-    if (message.trim() && selectedGroup) {
-      sendMessage(message, currentUser.id);
+  const handleSendMessage = async (message) => {
+    if (!message.trim() || !selectedGroup || !user) return;
+
+    let fileUrl = "";
+
+    try {
+      // Upload file if exists
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        const uploadRes = await axiosInstance.post('/uploads/', formData);
+        fileUrl = uploadRes.data.url;
+      }
+
+      // Send message via WebSocket
+      sendMessage(message, user.id, fileUrl);
+
+      // Reset file state
       setSelectedFile(null);
       setFilePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
+
+    } catch (error) {
+      console.error("Error sending message:", error);
+      addtoast({
+        title: 'Error',
+        description: 'Failed to send message',
+        variant: "Error",
+      });
     }
   };
 
   const handleRemoveFile = () => {
     setSelectedFile(null);
     setFilePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleToggleGroupOpen = (groupId) => {
-    setAllGroups((prevGroups) =>
-      prevGroups.map((group) =>
-        group.id === groupId
-          ? { ...group, isOpen: !group.isOpen }
-          : group
+    setAllGroups(prevGroups =>
+      prevGroups.map(group =>
+        group.id === groupId ? { ...group, isOpen: !group.isOpen } : group
       )
     );
-    if (selectedGroup && selectedGroup.id === groupId) {
-      setSelectedGroup((prevSelectedGroup) => ({ ...prevSelectedGroup, isOpen: !prevSelectedGroup.isOpen }));
+    if (selectedGroup?.id === groupId) {
+      setSelectedGroup(prev => ({ ...prev, isOpen: !prev.isOpen }));
     }
   };
 
   const handleToggleAdmin = (groupId, memberId) => {
-    setAllGroups((prevGroups) =>
-      prevGroups.map((group) =>
+    setAllGroups(prevGroups =>
+      prevGroups.map(group =>
         group.id === groupId
           ? {
               ...group,
-              members: group.members.map((member) =>
+              members: group.members.map(member =>
                 member.id === memberId
                   ? { ...member, isAdmin: !member.isAdmin }
                   : member
-              ),
+              )
             }
           : group
       )
     );
 
-    if (selectedGroup && selectedGroup.id === groupId) {
-      setSelectedGroup((prevSelectedGroup) => ({
-        ...prevSelectedGroup,
-        members: prevSelectedGroup.members.map((member) =>
+    if (selectedGroup?.id === groupId) {
+      setSelectedGroup(prev => ({
+        ...prev,
+        members: prev.members.map(member =>
           member.id === memberId
             ? { ...member, isAdmin: !member.isAdmin }
             : member
-        ),
+        )
       }));
     }
   };
 
-  const handleCreateGroup = ({ groupName, course }) => {
-    const newGroupId = `group${allGroups.length + 1}`;
-    const newGroup = {
-      id: newGroupId,
-      name: groupName,
-      course: course,
-      isJoined: true,
-      isAdmin: true, // Creator is admin
-      isOpen: true, // New groups are open by default
-      creatorId: currentUser.id,
-      members: [{ id: currentUser.id, name: currentUser.name, avatar: "", isAdmin: true }],
-    };
-    setAllGroups((prevGroups) => [...prevGroups, newGroup]);
-    setSelectedGroup(newGroup); // Automatically select the new group
+  const handleCreateGroup = async ({ groupName, course }) => {
+    try {
+      const response = await axiosInstance.post("/groups/", {
+        name: groupName,
+        course: course,
+        is_open: true
+      });
+
+      const newGroup = {
+        ...response.data,
+        isJoined: true,
+        isAdmin: true,
+        isOpen: true,
+        creatorId: user?.id,
+        members: [{ id: user?.id, name: user?.name, avatar: "", isAdmin: true }]
+      };
+
+      setAllGroups(prev => [...prev, newGroup]);
+      setSelectedGroup(newGroup);
+      setIsCreateModalOpen(false);
+
+    } catch (error) {
+      console.error("Group creation failed:", error);
+      addtoast({
+        title: 'Error',
+        description: 'Failed to create group',
+        variant: "Error",
+      });
+    }
   };
 
   return (
-    <div className="chat-container modern-chat">
+       <div className="chat-container modern-chat">
       <aside className="sidebar modern-sidebar">
         <div className="sidebar-header">
           <h2>Study Groups</h2>
@@ -262,7 +327,7 @@ function ChatPage() {
                       </button>
                     </div>
                   )}
-                  <MessageInput 
+                  <MessageInput
                     onSendMessage={handleSendMessage}
                     fileInputRef={fileInputRef}
                     onFileSelect={handleFileSelect}
@@ -293,4 +358,4 @@ function ChatPage() {
   );
 }
 
-export default ChatPage; 
+export default ChatPage;

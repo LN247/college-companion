@@ -3,7 +3,7 @@ import {useState,} from "react";
 import Header from '../components/Headers';
 import ChatContainer from '../components/ChatContainer';
 import InputArea from '../components/InputArea';
-import './AIAssistant.css';
+import '../Styles/AIAssistant.css';
 
 function AIAssistant() {
      const [messages, setMessages] = useState([
@@ -35,6 +35,11 @@ function AIAssistant() {
     }
   };
 
+
+   const formatTime = (date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   const handleSend = async (message) => {
     if (!message.trim()) return;
 
@@ -64,8 +69,12 @@ function AIAssistant() {
   return (
     <div className="app-container">
       <Header />
-      <ChatContainer ref={chatContainerRef} />
-      <InputArea onSend={handleSendFromInput} />
+      <ChatContainer
+        messages={messages}
+        isTyping={isTyping}
+        formatTime={formatTime}
+      />
+      <InputArea onSend={handleSend} />
     </div>
   );
 }

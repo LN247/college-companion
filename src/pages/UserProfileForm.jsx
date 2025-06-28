@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -22,49 +22,83 @@ import "../Styles/UserProfileForm.css";
 import { requestForToken } from "../utils/firebase";
 import axios from "axios";
 
+
 function UserProfileForm() {
   const [formData, setFormData] = useState({
     major: "",
     minor: "",
     level: "",
-    graduationYear: "",
+    graduation_year: "",
     bio: "",
-    profilePicture: null,
+    profile_picture: null,
   });
 
   const [preview, setPreview] = useState(null);
+  const [isFormComplete, setIsFormComplete] = useState(false);
   const toast = useToast();
+  const currentYear = new Date().getFullYear();
+
+  // Check if all required fields are filled
+  useEffect(() => {
+    const { major, level, graduation_year } = formData;
+    const isComplete = Boolean(
+      major.trim() &&
+      level &&
+      graduation_year &&
+      graduation_year >= 2020 &&
+      graduation_year <= currentYear+7
+    );
+    setIsFormComplete(isComplete);
+  }, [formData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (e.target.type === "file") {
       const file = e.target.files[0];
-      setFormData({ ...formData, profilePicture: file });
+      setFormData(prev => ({ ...prev, profile_picture: file }));
       setPreview(URL.createObjectURL(file));
+    } else if (e.target.type === "number") {
+      // Handle number inputs specifically
+      setFormData(prev => ({ ...prev, [name]: value ? parseInt(value, 10) : "" }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
   const handleLevelChange = (value) => {
-    setFormData({ ...formData, level: value });
+    setFormData(prev => ({ ...prev, level: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = await requestForToken();
-    if (token) {
-      await axios.post(
-        "http://localhost:8000/api/save-fcm-token/",
-        { token },
-        { withCredentials: true }
-      );
+
+    if (!isFormComplete) return;
+
+    try {
+      const token = await requestForToken();
+      if (token) {
+     await axios.put(
+       "http://localhost:8000/api/user/profile/",
+    {
+      ...FormData,
+      fcm_token: token
+    },
+    { withCredentials: true }
+  );
+}
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "error",
+      });
     }
-    toast({
-      title: "Profile",
-      description: "Your profile  has been successfully updated.",
-    });
   };
 
   return (
@@ -97,7 +131,7 @@ function UserProfileForm() {
           <form onSubmit={handleSubmit} className="user-profile__form">
             <div className="user-profile__form-group">
               <Label htmlFor="major" className="user-profile__form-label">
-                Major
+                Major*
               </Label>
               <Input
                 id="major"
@@ -128,7 +162,7 @@ function UserProfileForm() {
 
             <div className="user-profile__form-group">
               <Label htmlFor="level" className="user-profile__form-label">
-                Academic Level
+                Academic Level*
               </Label>
               <Select value={formData.level} onValueChange={handleLevelChange}>
                 <SelectTrigger className="user-profile__select-trigger">
@@ -147,7 +181,7 @@ function UserProfileForm() {
 
             <div className="user-profile__form-group">
               <Label htmlFor="graduationYear" className="user-profile__form-label">
-                Expected Graduation Year
+                Expected Graduation Year*
               </Label>
               <Input
                 id="graduationYear"
@@ -164,7 +198,7 @@ function UserProfileForm() {
 
             <div className="user-profile__form-group">
               <Label htmlFor="bio" className="user-profile__form-label">
-                Bio
+                Bio <span className="user-profile__optional-text">(optional)</span>
               </Label>
               <textarea
                 id="bio"
@@ -177,8 +211,15 @@ function UserProfileForm() {
               />
             </div>
 
-            <Button type="submit" className="user-profile__submit-button">
+            <Button
+              type="submit"
+              className="user-profile__submit-button"
+              disabled={!isFormComplete}
+            >
               Create Profile
+              {!isFormComplete && (
+                <span className="user-profile__required-text"> (Complete required fields*)</span>
+              )}
             </Button>
           </form>
         </CardContent>

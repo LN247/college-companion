@@ -1,33 +1,206 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import UserAnalytics from "../components/UserAnalytics";
 import {
-  FaChevronDown,
-  FaUser,
   FaCalendar,
   FaChartLine,
   FaClock,
-  FaCog,
   FaGraduationCap,
-  FaBook,
   FaCalendarAlt,
-  FaFileAlt,
-  FaChartBar,
   FaBell,
-  FaSignOutAlt,
+  FaTimes,
+  FaTable,
+  FaBars,
+  FaUserCircle,
   FaQuestionCircle,
+    FaRobot,
 } from "react-icons/fa";
+import axios from "axios";
+import { onMessageListener } from "../utils/firebase";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListItemButton,
+  Typography,
+  Box,
+  Avatar,
+  useMediaQuery,
+  useTheme,
+  Card,
+  CardContent,
+} from "@mui/material";
 import "../Styles/Dashboard.css";
-import { jwtDecode } from "jwt-decode";
+import UserContext from "../context/UserContext";
+import {useToast} from "@/hooks/use-toast.js";
 
 const Dashboard = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [timeLeft, setTimeLeft] = useState({});
   const navigate = useNavigate();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const { user, setUser } = useContext(UserContext);
   const [showRelativeTime, setShowRelativeTime] = useState(true);
 
-  useEffect(() => {}, []);
+  const navItems = [
+    { name: "College-Life", icon: <FaGraduationCap />, route: "/chat" },
+    { name: "Semester-Plan", icon: <FaCalendarAlt />, route: "/semester-plan" },
+    { name: "Progress", icon: <FaChartLine />, route: "/progress" },
+    { name: "Timetable", icon: <FaTable />, route: "/timetable" },
+    { name: "Notification", icon: <FaBell />, route: "/notifications" },
+    { name: "AI Assistant", icon: <FaRobot />, route: "/My assistant " },
+  ];
 
-  // Mock data - replace with actual API calls
+
+  const semesterEnd = "2025-06-28T23:59:59";
+  const {addtoast}=useToast();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+
+
+
+  useEffect(() => {
+    fetch("https://api.adviceslip.com/advice")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.slip) {
+          setTipOfTheDay({
+            tip: data.slip.advice,
+            author: "Advice Slip",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching tip:", error);
+      });
+  }, []);
+
+
+
+
+
+    const [notifications, setNotifications] = useState([]);
+     useEffect(() => {
+    const listen = async () => {
+      try {
+        const payload = await onMessageListener();
+        const incoming = {
+          title: payload.notification.title,
+          body: payload.notification.body,
+          timestamp: new Date().toISOString(),
+        };
+
+        setNotifications((prev) => {
+          const updated = [incoming, ...prev];
+          localStorage.setItem("notifications", JSON.stringify(updated));
+          return updated;
+        });
+
+           addtoast({
+          title: incoming.title,
+          description: incoming.body,
+          variant: "default",
+        });
+      } catch (error) {
+        console.error("Notification listener error:", error);
+      }
+    };
+
+    listen();
+  }, );
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const renderMobileMenu = (
+    <React.Fragment>
+    <Drawer
+      anchor="left"
+      open={mobileOpen}
+      onClose={handleDrawerToggle}
+      ModalProps={{ keepMounted: true }}
+    >
+      <Box className="mobileDrawer">
+        <IconButton onClick={handleDrawerToggle} className="closeButton">
+          <FaTimes />
+        </IconButton>
+        <List>
+
+          {navItems.map((item) => (
+              <ListItem key={item.name} disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    navigate(item.route);
+                    setMobileOpen(false);
+                  }}
+                >
+                  <ListItemIcon className="menuIcon">{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.name} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
+    </React.Fragment>
+  );
+
+  const renderDesktopMenu = (
+    <React.Fragment>
+
+      <Box className="desktopMenu">
+        {navItems.map((item) => (
+          <div
+            key={item.name}
+            className="menuItem"
+            onClick={() => navigate(item.route)}
+            style={{ cursor: "pointer" }}
+          >
+            {item.icon}
+            <span>{item.name}</span>
+          </div>
+        ))}
+      </Box>
+    </React.Fragment>
+  );
+
+  // Function to calculate time left until semester end
+  const calculateTimeLeft = () => {
+    const difference = +new Date(semesterEnd) - +new Date();
+    if (difference > 0) {
+      return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      };
+    }
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  };
+
+  // Mock data - recent activities (declared only once)
   const recentActivities = [
     {
       action: "Created a study plan",
@@ -56,10 +229,7 @@ const Dashboard = () => {
     },
   ];
 
-  const tipOfTheDay = {
-    tip: "Break your study sessions into 25-minute intervals with 5-minute breaks for better focus.",
-    author: "Pomodoro Technique",
-  };
+
 
   const formatTimestamp = (date) => {
     if (showRelativeTime) {
@@ -75,251 +245,107 @@ const Dashboard = () => {
     return date.toLocaleString();
   };
 
-  const menuItems = [
-    {
-      label: "College Life",
-      icon: <FaGraduationCap />,
-      path: "/college-life",
-      available: true,
-    },
-    {
-      label: "Semester Plan",
-      icon: <FaCalendar />,
-      path: "/semester-plan",
-      available: true,
-    },
-    {
-      label: "Progress",
-      icon: <FaChartLine />,
-      path: "/progress",
-      available: true,
-    },
-    {
-      label: "Timetable",
-      icon: <FaClock />,
-      path: "/timetable",
-      available: true,
-    },
-    { label: "Profile", icon: <FaUser />, path: "/profile", available: true },
-    { label: "Settings", icon: <FaCog />, path: "/settings", available: true },
-    { label: "Help Center", icon: <FaUser />, path: "/help", available: false },
-  ];
-
-  const featureIcons = [
-    { label: "College Life", icon: <FaGraduationCap />, path: "/college-life" },
-    { label: "Semester Plan", icon: <FaCalendar />, path: "/semester-plan" },
-    { label: "Progress", icon: <FaChartLine />, path: "/progress" },
-    { label: "Timetable", icon: <FaClock />, path: "/timetable" },
-    { label: "Profile", icon: <FaUser />, path: "/profile" },
-    { label: "Settings", icon: <FaCog />, path: "/settings" },
-  ];
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case "plan":
+        return <FaCalendar />;
+      case "timetable":
+        return <FaTable />;
+      case "assignment":
+        return <FaGraduationCap />;
+      case "group":
+        return <FaUserCircle />;
+      case "reminder":
+        return <FaBell />;
+      default:
+        return <FaClock />;
+    }
   };
 
   return (
-    <div className="dashboard">
-      {/* Profile Menu */}
-      <div className="profile-menu">
-        <button
-          className="profile-trigger"
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          aria-expanded={isDropdownOpen}
-          aria-controls="profile-dropdown"
-        >
-          <div className="flex items-center space-x-2">
-            <FaUser className="text-gray-600" />
-            <span>{userData?.name || "Loading..."}</span>
-            <FaChevronDown className="text-gray-600" />
+    <div className="dashboard-container dashboard-pro__container">
+      <AppBar position="static" className="appBar dashboard-pro__appbar">
+        <Toolbar className="dashboard-pro__toolbar">
+          <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleDrawerToggle} className="dashboard-pro__menu-btn">
+              <FaBars />
+            </IconButton>
+          <Typography variant="h6" className="title dashboard-pro__title">
+            Student Dashboard
+          </Typography>
+          <div className="dashboard-pro__profile-btn" onClick={handleProfileMenuOpen}>
+            <Avatar className="dashboard-pro__avatar" src={user?.avatar || ''}>
+              {user?.name?.[0] || <FaUserCircle />}
+            </Avatar>
           </div>
-        </button>
-        {isDropdownOpen && (
-          <div className="profile-dropdown" id="profile-dropdown" role="menu">
-            <div className="user-info p-4 border-b">
-              <p className="font-semibold">{userData?.name}</p>
-              <p className="text-sm text-gray-600">{userData?.email}</p>
-            </div>
-            <button
-              className="menu-item"
-              onClick={() => navigate("/profile")}
-              role="menuitem"
-            >
-              <span className="menu-icon">
-                <FaUser />
-              </span>
-              View Profile
-            </button>
-            <button
-              className="menu-item"
-              onClick={() => navigate("/college-life")}
-              role="menuitem"
-            >
-              <span className="menu-icon">
-                <FaGraduationCap />
-              </span>
-              College Life
-            </button>
-            <button
-              className="menu-item"
-              onClick={() => navigate("/semester-plan")}
-              role="menuitem"
-            >
-              <span className="menu-icon">
-                <FaCalendar />
-              </span>
-              Semester Plan
-            </button>
-            <button
-              className="menu-item"
-              onClick={() => navigate("/progress")}
-              role="menuitem"
-            >
-              <span className="menu-icon">
-                <FaChartLine />
-              </span>
-              Progress
-            </button>
-            <button
-              className="menu-item"
-              onClick={() => navigate("/timetable")}
-              role="menuitem"
-            >
-              <span className="menu-icon">
-                <FaClock />
-              </span>
-              Timetable
-            </button>
-            <button
-              className="menu-item"
-              onClick={() => navigate("/settings")}
-              role="menuitem"
-            >
-              <span className="menu-icon">
-                <FaCog />
-              </span>
-              Settings
-            </button>
-            <button
-              className="menu-item"
-              onClick={() => navigate("/help")}
-              role="menuitem"
-            >
-              <span className="menu-icon">
-                <FaQuestionCircle />
-              </span>
-              Help Center
-            </button>
-            <button
-              className="menu-item text-red-500"
-              onClick={handleLogout}
-              role="menuitem"
-            >
-              <span className="menu-icon">
-                <FaSignOutAlt />
-              </span>
-              Logout
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Welcome Message */}
-      <div className="welcome-section">
-        <h1>Welcome, {userData?.name || "Student"}</h1>
-        <p className="date">
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
-      </div>
-
-      {/* Feature Icons Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <div className="feature-icon" onClick={() => navigate("/college-life")}>
-          <div className="icon-wrapper">
-            <FaGraduationCap />
-          </div>
-          <span>College Life</span>
-        </div>
-        <div
-          className="feature-icon"
-          onClick={() => navigate("/semester-plan")}
-        >
-          <div className="icon-wrapper">
-            <FaCalendarAlt />
-          </div>
-          <span>Semester Plan</span>
-        </div>
-        <div className="feature-icon" onClick={() => navigate("/progress")}>
-          <div className="icon-wrapper">
-            <FaChartLine />
-          </div>
-          <span>Progress</span>
-        </div>
-        <div className="feature-icon" onClick={() => navigate("/timetable")}>
-          <div className="icon-wrapper">
-            <FaClock />
-          </div>
-          <span>Timetable</span>
-        </div>
-        <div
-          className="feature-icon"
-          onClick={() => navigate("/notifications")}
-        >
-          <div className="icon-wrapper">
-            <FaBell />
-          </div>
-          <span>Notifications</span>
-        </div>
-        <div className="feature-icon" onClick={() => navigate("/help")}>
-          <div className="icon-wrapper">
-            <FaQuestionCircle />
-          </div>
-          <span>Help Center</span>
-        </div>
-      </div>
-
-      {/* Activity Feed */}
-      <div className="activity-section">
-        <div className="section-header">
-          <h2>Recent Activity</h2>
-          <button
-            className="time-toggle"
-            onClick={() => setShowRelativeTime(!showRelativeTime)}
-          >
-            {showRelativeTime ? "Show Absolute Time" : "Show Relative Time"}
-          </button>
-        </div>
-        <div className="activity-list">
-          {recentActivities.map((activity, index) => (
-            <div key={index} className="activity-item">
-              <div className="activity-icon">
-                {activity.type === "plan" ? <FaCalendar /> : <FaClock />}
-              </div>
-              <div className="activity-content">
-                <p>{activity.action}</p>
-                <span className="timestamp">
-                  {formatTimestamp(activity.timestamp)}
-                </span>
+        </Toolbar>
+      </AppBar>
+      {isMobile ? renderMobileMenu : renderDesktopMenu}
+      <main className="mainContent dashboard-pro__main-content">
+        <section className="dashboard-pro__analytics-section">
+          <div className="dashboard-pro__analytics-grid">
+            <div className="dashboard-pro__analytics-card dashboard-pro__analytics-card--courses">
+              <FaGraduationCap className="dashboard-pro__analytics-icon" />
+              <div>
+                <h3>Courses</h3>
+                <div className="dashboard-pro__analytics-value">{user?.courses?.length || 0}</div>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Tip of the Day */}
-      <div className="tip-section">
-        <h2>Tip of the Day</h2>
-        <div className="tip-card">
-          <p className="tip-text">{tipOfTheDay.tip}</p>
-          <p className="tip-author">— {tipOfTheDay.author}</p>
-        </div>
-      </div>
+            <div className="dashboard-pro__analytics-card dashboard-pro__analytics-card--progress">
+              <FaChartLine className="dashboard-pro__analytics-icon" />
+              <div>
+                <h3>Progress</h3>
+                <div className="dashboard-pro__analytics-value">{user?.progress || 'N/A'}</div>
+              </div>
+            </div>
+            <div className="dashboard-pro__analytics-card dashboard-pro__analytics-card--timetable">
+              <FaTable className="dashboard-pro__analytics-icon" />
+              <div>
+                <h3>Timetable</h3>
+                <div className="dashboard-pro__analytics-value">{user?.timetable?.length || 0}</div>
+              </div>
+            </div>
+            <div className="dashboard-pro__analytics-card dashboard-pro__analytics-card--notifications">
+              <FaBell className="dashboard-pro__analytics-icon" />
+                      <div>
+                <h3>Notifications</h3>
+                <div className="dashboard-pro__analytics-value">{notifications.length}</div>
+              </div>
+                      </div>
+                    </div>
+        </section>
+        <section className="dashboard-pro__activity-section">
+          <div className="section-header">
+            <h2>Recent Activities</h2>
+          </div>
+          <ul className="dashboard-pro__activity-list">
+            {recentActivities.map((activity, idx) => (
+              <li key={idx} className="dashboard-pro__activity-item">
+                <span className={`dashboard-pro__activity-icon dashboard-pro__activity-icon--${activity.type}`}>{getActivityIcon(activity.type)}</span>
+                <div className="dashboard-pro__activity-content">
+                  <p>{activity.action}</p>
+                  <span className="dashboard-pro__timestamp">{formatTimestamp(activity.timestamp)}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section className="dashboard-pro__notifications-section">
+          <div className="section-header">
+            <h2>Notifications</h2>
+          </div>
+          <ul className="dashboard-pro__notifications-list">
+            {notifications.map((notif, idx) => (
+              <li key={idx} className="dashboard-pro__notification-item">
+                <FaBell className="dashboard-pro__notification-icon" />
+                <div className="dashboard-pro__notification-content">
+                  <p>{notif.title}</p>
+                  <span className="dashboard-pro__timestamp">{formatTimestamp(notif.timestamp)}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </main>
     </div>
   );
 };

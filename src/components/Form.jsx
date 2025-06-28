@@ -2,6 +2,7 @@
     import { useNavigate } from "react-router-dom";
     import axios from "axios";
     import "../Styles/Forms.css";
+    import { useToast } from "../hooks/use-toast";
     import validation from "../utils/validation";
     import InputWithError from "./InputwithError";
     import { GoogleLogin } from "@react-oauth/google";
@@ -25,6 +26,7 @@
       const [responseData, setResponseData] = useState(null);
       const [InputError, setInputError] = useState("");
       const [loading, setLoading] = useState(false);
+      const toast = useToast();
       const [error, setError] = useState("");
       const navigate = useNavigate();
 
@@ -76,19 +78,30 @@
           });
 
           setResponseData(response.data);
-            const isSuperuser= response.data.is_superuser=== true ? true : false;
+
 
 
           if (type === "login") {
               console.log(response.data);
 
-                  if (isSuperuser===true) {
+                  if (responseData.is_superuser === 1) {
                       navigate("/admin-dashboard");
+
+
+
                   } else {
 
                       navigate("/dashboard");
                   }
+
+                     toast({
+                  title: "Welcome" ,
+                  description: `Welcome back ${responseData.username}`,
+                 });
               }
+
+
+
            else {
             // After signup, redirect to login
             navigate("/user-profile");
