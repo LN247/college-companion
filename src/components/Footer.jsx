@@ -54,7 +54,7 @@ const Footer = () => {
                 "Career",
               ].map((item) => (
                 <li key={item}>
-                  <a href="#" className="footer-link">
+                  <a href={item} className="footer-link">
                     {item}
                   </a>
                 </li>

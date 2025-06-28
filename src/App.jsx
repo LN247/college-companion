@@ -23,6 +23,8 @@ import { UserProvider } from "./context/UserContext";
 import ChatPage from "./pages/ChatPage";
 import Unauthorised from "./pages/Unauthorised";
 import AIAssistant from "./pages/AIAssistant.jsx";
+import AboutUs from  "./pages/AboutUs.jsx"
+
 const AppContent = () => {
   const { isLoading } = useLoading();
 
@@ -39,6 +41,8 @@ const AppContent = () => {
         <Route path="/calendar" element={<AcademicCalendar />} />
         <Route path="*" element={<Notfound />} />
         <Route path="/not-authorized" element={<Unauthorised />} />
+        <Route path="aboutus" element={<About Us />} />
+        
         <Route
           path="/add-semester"
           element={
@@ -49,7 +53,7 @@ const AppContent = () => {
         />
 
         <Route path="/chat" element={<ChatPage />} />
-         <Route path='/Myassistant' element={<AIAssistant/>}></Route>
+         <Route path='/My assistant' element={<AIAssistant/>}></Route>
 
         {/* Fix: Remove <UserProvider> here */}
         <Route path="/login" element={<LoginForm />} />
@@ -62,15 +66,7 @@ const AppContent = () => {
 
           }
         />
-       <Route path='ai' element={<AIAssistant/>}></Route>
-        <Route
-          path="/user-profile"
-          element={
-            <ProtectedRoute>
-              <UserProfileForm />
-            </ProtectedRoute>
-          }
-        />
+     
 
         <Route
           path="/timetable"
@@ -80,14 +76,7 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/progress"
-          element={
-            <ProtectedRoute>
-              <Progress />
-            </ProtectedRoute>
-          }
-        />
+       
         <Route
           path="/settings"
           element={
@@ -96,14 +85,7 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/help"
-          element={
-            <ProtectedRoute>
-              <HelpCenter />
-            </ProtectedRoute>
-          }
-        />
+       
         <Route
           path="/notifications"
           element={
@@ -112,6 +94,15 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+
+<Route    path="/user-profile"
+          element={
+            <ProtectedRoute>
+              <UserProfileForm />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/admin-dashboard"
           element={
