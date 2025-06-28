@@ -35,7 +35,7 @@ const InputWithError = React.memo(
             onChange={onChange}
             placeholder={placeholder}
             min={min}
-            className="input"
+            className="input-field-1"
             aria-invalid={!!error}
             aria-describedby={error ? `${id}-error` : undefined}
             {...rest}
