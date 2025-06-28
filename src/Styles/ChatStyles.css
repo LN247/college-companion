@@ -1399,4 +1399,387 @@ body.dark .modern-disabled-input {
   .placeholder-image {
     width: 80px;
   }
+}
+
+/* Modern Message Input Styles */
+.modern-message-input-form {
+  width: 100%;
+}
+
+.modern-input-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border-radius: 25px;
+  padding: 8px;
+  border: 2px solid rgba(6, 18, 61, 0.08);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(6, 18, 61, 0.04);
+}
+
+.modern-input-container:focus-within {
+  border-color: #F68712;
+  box-shadow: 0 0 0 4px rgba(246, 135, 18, 0.1);
+  background: white;
+}
+
+.modern-message-input-field {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: #06123D;
+  font-size: 15px;
+  outline: none;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.modern-message-input-field::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.modern-message-input-field:focus {
+  background: transparent;
+}
+
+.modern-input-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modern-file-upload-button {
+  width: 40px;
+  height: 40px;
+  background: rgba(246, 135, 18, 0.1);
+  color: #F68712;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-file-upload-button:hover {
+  background: rgba(246, 135, 18, 0.2);
+  transform: scale(1.05);
+  color: #e67e22;
+}
+
+.modern-file-upload-button:active {
+  transform: scale(0.95);
+}
+
+.modern-file-upload-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(246, 135, 18, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.modern-file-upload-button:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+.modern-send-button {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #F68712 0%, #ff9f43 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(246, 135, 18, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-send-button:hover {
+  background: linear-gradient(135deg, #e67e22 0%, #F68712 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(246, 135, 18, 0.4);
+}
+
+.modern-send-button:active {
+  transform: scale(0.95);
+}
+
+.modern-send-button:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  color: #94a3b8;
+}
+
+.modern-send-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.modern-send-button:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+/* Enhanced File Preview Styles */
+.modern-file-preview {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 20px rgba(6, 18, 61, 0.08);
+  border: 1px solid rgba(6, 18, 61, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-file-preview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #F68712, #ff9f43);
+}
+
+.modern-image-preview {
+  max-width: 80px;
+  max-height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(6, 18, 61, 0.1);
+  border: 2px solid rgba(246, 135, 18, 0.1);
+}
+
+.modern-file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.modern-file-info span:first-child {
+  font-weight: 600;
+  color: #06123D;
+  font-size: 14px;
+}
+
+.modern-file-size {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.modern-remove-file {
+  width: 32px;
+  height: 32px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-remove-file:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.1);
+  color: #dc2626;
+}
+
+.modern-remove-file:active {
+  transform: scale(0.9);
+}
+
+.modern-remove-file::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.modern-remove-file:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive Design for Message Input */
+@media (max-width: 768px) {
+  .modern-input-container {
+    gap: 8px;
+    padding: 6px;
+    border-radius: 20px;
+  }
+  
+  .modern-message-input-field {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  
+  .modern-file-upload-button,
+  .modern-send-button {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .modern-file-preview {
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .modern-image-preview {
+    max-width: 60px;
+    max-height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modern-input-container {
+    gap: 6px;
+    padding: 4px;
+  }
+  
+  .modern-message-input-field {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .modern-file-upload-button,
+  .modern-send-button {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .modern-file-preview {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .modern-image-preview {
+    max-width: 50px;
+    max-height: 50px;
+  }
+}
+
+/* Dark Mode Support for Message Input */
+@media (prefers-color-scheme: dark) {
+  .modern-input-container {
+    background: #23233a;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .modern-input-container:focus-within {
+    background: #2a2a3e;
+    border-color: #F68712;
+  }
+  
+  .modern-message-input-field {
+    color: #ffffff;
+  }
+  
+  .modern-message-input-field::placeholder {
+    color: #94a3b8;
+  }
+  
+  .modern-file-preview {
+    background: linear-gradient(135deg, #23233a 0%, #1a1a2e 100%);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .modern-file-info span:first-child {
+    color: #ffffff;
+  }
+  
+  .modern-file-size {
+    color: #94a3b8;
+  }
+}
+
+/* Accessibility Improvements for Message Input */
+.modern-file-upload-button:focus,
+.modern-send-button:focus,
+.modern-remove-file:focus {
+  outline: 2px solid #F68712;
+  outline-offset: 2px;
+}
+
+.modern-message-input-field:focus {
+  outline: none;
+}
+
+/* High Contrast Mode for Message Input */
+@media (prefers-contrast: high) {
+  .modern-input-container {
+    border: 2px solid #000;
+  }
+  
+  .modern-file-preview {
+    border: 2px solid #000;
+  }
+  
+  .modern-file-upload-button,
+  .modern-send-button,
+  .modern-remove-file {
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced Motion for Message Input */
+@media (prefers-reduced-motion: reduce) {
+  .modern-input-container,
+  .modern-file-upload-button,
+  .modern-send-button,
+  .modern-remove-file {
+    transition: none;
+  }
+  
+  .modern-file-upload-button::before,
+  .modern-send-button::before,
+  .modern-remove-file::before {
+    transition: none;
+  }
 } 
