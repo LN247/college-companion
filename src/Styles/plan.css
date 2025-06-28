@@ -66,11 +66,12 @@
 .input-with-error {
   display: flex;
   flex-direction: column;
+  height:40%;
   gap: 0.5rem;
 }
 
 .input-label {
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   font-weight: 500;
   color: #334155;
   display: flex;

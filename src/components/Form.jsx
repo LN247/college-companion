@@ -141,67 +141,63 @@
                 </div>
 
                 {type === "signup" && (
-                  <div className="input-box">
+
                     <InputWithError
                       id="username"
                       type="text"
                       name="username"
                       label="Username"
-                      className="input"
+                      className="input-field-1"
                       placeholder="username"
                       errors={InputError.username}
                       value={formData.username}
                       onChange={handleChange}
                       disabled={loading}
                     />
-                  </div>
                 )}
 
-                <div className="input-box">
+
                   <InputWithError
                     id="email"
                     type="email"
                     name="email"
                     label="Email"
-                    className="input"
+                    className="input-field-1"
                     placeholder="example@gmail.com"
                     value={formData.email}
                     error={InputError.email}
                     onChange={handleChange}
                     disabled={loading}
               />
-            </div>
 
-            <div className="input-box">
+
               <InputWithError
                 id="password"
                 type="password"
                 label="password"
                 name="password"
-                className="input"
+                className="input-field-1"
                 value={formData.password}
                 error={InputError.password}
                 onChange={handleChange}
                 placeholder="password"
                 disabled={loading}
               />
-            </div>
 
             {type === "signup" && (
-              <div className="input-box">
+
                 <InputWithError
                   id="ConfirmPassword"
                   label="confirm Password"
                   type="password"
                   name="confirmPassword"
-                  className="input"
-                  placeholder="co+nfirm your password"
+                  className="input-field-1"
+                  placeholder="confirm your password"
                   value={formData.confirmPassword}
                   error={InputError.ConfirmPassword}
                   onChange={handleChange}
                   disabled={loading}
                 />
-              </div>
             )}
 
             <button type="submit" disabled={loading} className="submit">
