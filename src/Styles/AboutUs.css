@@ -1,0 +1,123 @@
+:root {
+  --primary-orange: #ff8c42;
+  --primary-white: #ffffff;
+  --primary-darkblue: #0a2342;
+}
+
+body,
+.about-us {
+  background-color: var(--primary-white);
+  color: var(--primary-darkblue);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.about-us {
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.main-heading {
+  font-size: 2.3rem;
+  color: var(--primary-darkblue);
+  margin: 0;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 1080px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contributors {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 960px;
+  justify-items: center;
+}
+
+.contributor-card {
+  background-color: var(--primary-white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  padding: 0.5rem;
+  max-width: 280px;
+  width: 100%;
+}
+
+.contributor-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-bottom: 4px solid var(--primary-orange);
+  border-radius: 8px 8px 0 0;
+}
+
+.contributor-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.1rem 0 0.2rem;
+  color: var(--primary-darkblue);
+}
+
+.contributor-role {
+  font-size: 1rem;
+  color: var(--primary-orange);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.team-mission {
+  max-width: 800px;
+  text-align: center;
+  font-style: italic;
+  font-size: 1.1rem;
+  margin: 2rem auto 0;
+  line-height: 1.6;
+  color: var(--primary-darkblue);
+}
+
+.footer {
+  background-color: var(--primary-darkblue);
+  color: var(--primary-white);
+  text-align: center;
+  padding: 1.5rem 0;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .main-heading {
+    font-size: 2rem;
+  }
+
+  .contributors {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+  }
+
+  .contributor-img {
+    height: 160px;
+  }
+
+  .team-mission {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+} 
