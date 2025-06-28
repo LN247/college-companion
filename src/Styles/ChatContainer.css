@@ -1,68 +1,305 @@
 .chat-container {
   flex: 1;
   overflow-y: auto;
-  padding: 24px 16px 120px;
+  padding: 24px 32px 140px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  position: relative;
+}
+
+.chat-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(246, 135, 18, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(6, 18, 61, 0.03) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .messages {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
+/* Enhanced Typing Indicator */
 .typing-indicator {
   display: flex;
   gap: 16px;
+  align-items: flex-start;
+  animation: slideInUp 0.3s ease;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .typing-dots {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 12px 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(6, 18, 61, 0.08);
+  border-radius: 20px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 20px rgba(6, 18, 61, 0.08);
   display: flex;
-  gap: 4px;
+  gap: 6px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.typing-dots::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #F68712, #ff9f43);
+  opacity: 0.3;
 }
 
 .typing-dot {
-  width: 8px;
-  height: 8px;
-  background: #9ca3af;
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(135deg, #F68712 0%, #ff9f43 100%);
   border-radius: 50%;
-  animation: bounce 1.4s ease-in-out infinite both;
+  animation: modernBounce 1.4s ease-in-out infinite both;
+  box-shadow: 0 2px 4px rgba(246, 135, 18, 0.3);
 }
 
 .typing-dot:nth-child(1) { animation-delay: -0.32s; }
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
-@keyframes bounce {
+@keyframes modernBounce {
   0%, 80%, 100% {
-    transform: scale(0);
-  } 40% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
     transform: scale(1);
+    opacity: 1;
   }
 }
 
+/* Enhanced Scrollbar */
 .chat-container::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .chat-container::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: rgba(6, 18, 61, 0.02);
+  border-radius: 4px;
 }
 
 .chat-container::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: linear-gradient(135deg, rgba(246, 135, 18, 0.3), rgba(255, 159, 67, 0.3));
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .chat-container::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: linear-gradient(135deg, rgba(246, 135, 18, 0.5), rgba(255, 159, 67, 0.5));
+}
+
+/* Message Animation */
+.message {
+  animation: messageSlideIn 0.4s ease;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Empty State */
+.chat-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+}
+
+.chat-empty-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, rgba(246, 135, 18, 0.1), rgba(255, 159, 67, 0.1));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: #F68712;
+}
+
+.chat-empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #06123D;
+  margin-bottom: 12px;
+}
+
+.chat-empty-text {
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .chat-container {
+    padding: 20px 24px 140px;
+  }
+  
+  .messages {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
   .chat-container {
-    padding: 16px 12px 120px;
+    padding: 16px 20px 140px;
+  }
+  
+  .messages {
+    gap: 20px;
+  }
+  
+  .typing-dots {
+    padding: 14px 18px;
+  }
+  
+  .typing-dot {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .chat-empty-state {
+    padding: 30px 16px;
+  }
+  
+  .chat-empty-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 20px;
+  }
+  
+  .chat-empty-title {
+    font-size: 18px;
+  }
+  
+  .chat-empty-text {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-container {
+    padding: 12px 16px 140px;
+  }
+  
+  .messages {
+    gap: 16px;
+  }
+  
+  .typing-dots {
+    padding: 12px 16px;
+  }
+  
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .chat-empty-state {
+    padding: 20px 12px;
+  }
+  
+  .chat-empty-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 16px;
+  }
+  
+  .chat-empty-title {
+    font-size: 16px;
+  }
+  
+  .chat-empty-text {
+    font-size: 13px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .chat-container {
+    background: linear-gradient(135deg, #1a1a2e 0%, #23233a 100%);
+  }
+  
+  .chat-container::before {
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(246, 135, 18, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+  }
+  
+  .typing-dots {
+    background: linear-gradient(135deg, #23233a 0%, #1a1a2e 100%);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .chat-empty-title {
+    color: #ffffff;
+  }
+  
+  .chat-empty-text {
+    color: #94a3b8;
+  }
+  
+  .chat-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  .typing-indicator,
+  .message,
+  .typing-dot {
+    animation: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .typing-dots {
+    border: 2px solid #000;
+  }
+  
+  .typing-dot {
+    background: #000;
   }
 }

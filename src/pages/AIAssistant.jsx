@@ -5,6 +5,14 @@ import ChatContainer from '../components/ChatContainer';
 import InputArea from '../components/InputArea';
 import '../Styles/AIAssistant.css';
 
+// Helper function to get CSRF token from cookies
+const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return '';
+};
+
 function AIAssistant() {
      const [messages, setMessages] = useState([
     {
@@ -35,6 +43,16 @@ function AIAssistant() {
     }
   };
 
+  // Helper function to add messages to the chat
+  const addMessage = (type, content) => {
+    const newMessage = {
+      id: Date.now(),
+      type: type,
+      content: content,
+      time: new Date()
+    };
+    setMessages(prevMessages => [...prevMessages, newMessage]);
+  };
 
    const formatTime = (date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -62,9 +80,6 @@ function AIAssistant() {
       setIsTyping(false);
     }
   };
-
-
-
 
   return (
     <div className="app-container">
