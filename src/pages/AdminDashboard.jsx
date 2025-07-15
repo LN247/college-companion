@@ -9,6 +9,7 @@ import { AdminProvider } from "../context/AdminContext";
 import SemesterManager from "../components/SemesterManager";
 import "../Styles/AdminDashboard.css";
 import CourseManager from "../components/CourseManager";
+import AnalyticsBoard from "../components/AnalyticsBoard";
 
 const AdminDashboard = () => {
   return (
@@ -21,7 +22,7 @@ const AdminDashboard = () => {
               Manage semesters, courses, and academic data
             </p>
           </div>
-
+               <AnalyticsBoard/>
           <Tabs defaultValue="semesters" className="admin-dashboard__tabs">
             <TabsList className="admin-dashboard__tabs-list">
               <TabsTrigger value="semesters" className="admin-dashboard__tab-trigger">

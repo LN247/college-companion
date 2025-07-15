@@ -11,6 +11,7 @@ import { Plus, Edit, Trash2 } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import {getCookie} from "../utils/getcookies";
 import '../Styles/CourseManager.css';
+import {API_BASE} from "../consatants/Constants";
 import axios from "axios";
 
 const CourseManager = () => {
@@ -45,7 +46,7 @@ const CourseManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-     response = await axios.patch(`http://localhost/api/courses/${courses.id}/`, FormData, {
+     response = await axios.patch(`${API_BASE}/courses/${courses.id}/`, FormData, {
             headers: {'X-CSRFToken': csrfToken},
             withCredentials: true
         });
@@ -58,7 +59,7 @@ const CourseManager = () => {
       });
     } else {
 
-        response = await axios.post("http://localhost:8000/api/courses/", FormData, {
+        response = await axios.post(`${API_BASE}/courses/`, FormData, {
             headers: {'X-CSRFToken': csrfToken},
             withCredentials: true
         });
@@ -88,7 +89,7 @@ const CourseManager = () => {
 
   const handleDelete =async (id) => {
 
-      response = await axios.delete(`http://localhost:8000/api/courses/${id}/`, FormData, {
+      response = await axios.delete(`${API_BASE}/courses/${id}/`, FormData, {
             headers: {'X-CSRFToken': csrfToken},
             withCredentials: true
         });

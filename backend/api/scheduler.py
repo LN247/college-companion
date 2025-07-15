@@ -19,6 +19,8 @@ def generate_timetable(user, semester_start, semester_end, semester_id):
     off_days = [day.lower() for day in prefs.get_off_days_list()]
 
 
+
+
     # Convert preferred times
     preferred_start_time = prefs.study_start_min
     preferred_end_time = prefs.study_end_max

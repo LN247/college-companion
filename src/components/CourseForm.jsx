@@ -6,13 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import axios from "axios";
 import { Plus, Trash2, BookOpen, Edit3, Save, X, Clock, Calendar } from "lucide-react";
 import "../Styles/CourseForm.css";
+import {API_BASE} from "../consatants/Constants";
 import userContext from "../context/UserContext";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 const CourseForm = ({ semester, level,onFormComplete }) => {
   const formRef = useRef(null);
-  const API_BASE = "http://localhost:8000/api";
+
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -38,7 +39,7 @@ const selectedCourseName = courses.find((c) => c.id === currentCourse.name)  ;
   useEffect(() => {
     if (semester && level) {
       axios
-        .get(`http://localhost:8000/api/courses/?semester=Spring&academicLevel=${level}`,{withCredentials: true})
+        .get(`${API_BASE}/courses/?semester=${semester.semester_type}&academicLevel=${level}`,{withCredentials: true})
         .then((response) => {
           const fetchedCourses = Array.isArray(response.data) ? response.data : response.data.courses || [];
           setCourses(fetchedCourses);

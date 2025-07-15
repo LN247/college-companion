@@ -1,11 +1,12 @@
 import React, {createContext, useState, useEffect, useContext} from "react";
+   import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useLoading } from "./LoadingContext";
-
+import {API_BASE} from "../consatants/Constants";
 // Create UserContext
 const UserContext = createContext();
 
-const API_BASE = "http://localhost:8000/api";
+
 
 // UserProvider Component
 export const UserProvider = ({ children }) => {
@@ -17,6 +18,7 @@ export const UserProvider = ({ children }) => {
   const [userTimetable,setuserTimetable]=useState([]);
   const [events, setEvents] = useState([]);
   const loadingIndicator = useLoading();
+  const navigate = useNavigate();
 
   useEffect(() => {
   const fetchData = async () => {
@@ -51,7 +53,9 @@ export const UserProvider = ({ children }) => {
         })
        setEvents(Events.data);
 
-
+      if (response.status===200){
+        navigate('/dashboard')
+      }
 
     } catch (error) {
       console.error("Auth check failed:", error);

@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta, time
-
 from django.utils import timezone
 from .models import StudyBlock,Event,FixedClassSchedule
 from celery import shared_task

@@ -24,9 +24,9 @@ import { useToast } from "../hooks/use-toast";
 import axios from "axios";
 import "../Styles/SemesterManager.css";
 import { format } from "date-fns";
+import {API_BASE} from "../consatants/Constants";
 import {getCookie} from "../utils/getcookies";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/Select';
-
 
 const SemesterManager = () => {
 
@@ -80,7 +80,7 @@ const SemesterManager = () => {
       if (editingSemester) {
         // Update semester in backend
         response = await axios.patch(
-          `http://localhost:8000/api/semesters/${editingSemester.id}`,
+          `${API_BASE}/semesters/${editingSemester.id}`,
           formattedFormData
         );
         updateSemester(editingSemester.name, formattedFormData);
@@ -90,7 +90,7 @@ const SemesterManager = () => {
         });
       } else {
         // Add semester to backend
-        response = await axios.post("http://localhost:8000/api/semesters-operation/", formattedFormData, {
+        response = await axios.post(`${API_BASE}/semesters-operation/`, formattedFormData, {
             headers: {'X-CSRFToken': csrfToken},
             withCredentials: true
         });
@@ -116,7 +116,7 @@ const SemesterManager = () => {
   const handleDelete = async (semester) => {
     try {
       console.log('Deleting semester with id:', semester.id);
-      await axios.delete(`http://localhost:8000/api/semesters-operation/${semester.id}/`);
+      await axios.delete(`${API_BASE}/semesters-operation/${semester.id}/`);
       deleteSemester(semesters.find((semester) => semester.id === id));
       toast({
         title: "Semester deleted",
@@ -153,6 +153,7 @@ const SemesterManager = () => {
     <Card>
       <CardHeader className="semester-manager__card-header">
         <CardTitle className="semester-manager__card-title">Semester Management</CardTitle>
+
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm} className="semester-manager__add-btn">
@@ -200,21 +201,19 @@ const SemesterManager = () => {
               </div>
 
 
-              <div className="semester-manager__form-group">
-                <Label htmlFor="year" className="semester-manager__label">
-                  Semester Type
-                </Label>
-                <Input
-                  id="semesterType"
-                  type="select"
-                  value={formData.semester_type}
-                  onChange={(e) =>
-                    setFormData({ ...formData,semester_type: (e.target.value) })
-                  }
-                  required
-                  className="semester-manager__input"
-                />
-              </div>
+              <div className="course-manager__form-group">
+                  <Label htmlFor="semester">Semester</Label>
+                  <Select value={formData.semester_type} onValueChange={(value) => setFormData({...formData, semester_type:value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select semester" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value='Fall' >Fall</SelectItem>
+                         <SelectItem value='Spring' >Spring</SelectItem>
+                         <SelectItem value='Fall' >Summer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
               <div className="semester-manager__form-grid-2">
                 <div className="semester-manager__form-group">

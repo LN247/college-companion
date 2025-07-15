@@ -36,7 +36,7 @@ const InputArea = ({ onSend }) => {
 
   return (
     <div className="input-area">
-      <div className="input-container">
+      <div className="input-container-1">
         <div className="input-row">
           <div className="input-wrapper">
             <textarea

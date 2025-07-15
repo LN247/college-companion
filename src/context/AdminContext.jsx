@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import {API_BASE} from "../consatants/Constants";
 
 const AdminContext = createContext();
 
@@ -8,7 +9,7 @@ export const AdminProvider = ({ children }) => {
   const [semesters, setSemesters] = useState([]);
   const [Courses, setCourses] = useState([]);
   const [error, setError] = useState(null);
-  const API_BASE = "http://localhost:8000/api";
+
 
   useEffect(() => {
     const fetchSemestersAndCourses = async () => {

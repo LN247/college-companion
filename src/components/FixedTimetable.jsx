@@ -1,5 +1,5 @@
 import React from "react";
-import { DAYS, TIME_SLOTS } from "../consatants/timetableConstants";
+import { DAYS, TIME_SLOTS } from "../consatants/Constants";
 import '../Styles/FixedTimetable.css';
 
 const getTimeSlotIndex = (time) => {

@@ -5,9 +5,10 @@ import ChatWindow from "../components/ChatWindow";
 import MessageInput from "../components/MessageInput";
 import CreateGroupModal from "../components/CreateGroupModal";
 import useWebSocket from '../hooks/UseWebSocket';
-import { useToast } from "../hooks/use-toast.js";
+import { useToast } from "../context/ToastContext";
 import userContext from "../context/UserContext.jsx";
 import axios from 'axios';
+import {API_BASE} from "../consatants/Constants";
 function ChatPage() {
   const [theme, setTheme] = useState("light");
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -18,29 +19,35 @@ function ChatPage() {
   const fileInputRef = useRef(null);
   const [allGroups, setAllGroups] = useState([]);
   const { user } = useContext(userContext);
-  const { addtoast } = useToast();
+  const axiosInstance =axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
+});
+
+  const { addToast } = useToast();
 
   // Fetch groups
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const res = await axios.get("/group-memberships/");
+        const res = await axiosInstance.get("/group-memberships/");
         setAllGroups(res.data.map(m => ({
           ...m.group,
           isJoined: true
         })));
       } catch (error) {
         console.error("Error fetching groups:", error);
-        addtoast({
-          title: 'Error',
-          description: 'Failed to load study groups',
-          variant: "Error",
+        addToast({
+          message: `An unexpected error occurred while fetching your data  check your internet connection`,
+                       type: 'Error',
+                       duration: 3000,
+                       title: 'Error while fetching data '
         });
       }
     };
 
     if (user) fetchGroups();
-  }, [user, addtoast]);
+  }, [user, addToast]);
 
   const handleMessageReceived = useCallback((data) => {
     if (data.type === 'chat_message') {
@@ -65,7 +72,7 @@ function ChatPage() {
 
     const loadMessages = async () => {
       try {
-        const res = await axios.get(`/group-messages/?group=${selectedGroup.id}`);
+        const res = await axiosInstance.get(`/group-messages/?group=${selectedGroup.id}`);
         setMessages(res.data);
       } catch (error) {
         console.error("Error loading messages:", error);
@@ -83,7 +90,7 @@ function ChatPage() {
   // Join a group
   const handleJoinGroup = async (groupId) => {
     try {
-      await axios.post("/group-memberships/", { group: groupId });
+      await axiosInstance.post("/group-memberships/", { group: groupId });
       setAllGroups(groups =>
         groups.map(g => g.id === groupId ? { ...g, isJoined: true } : g)
       );
@@ -103,7 +110,7 @@ function ChatPage() {
   // Leave a group
   const handleLeaveGroup = async (groupId) => {
     try {
-      const membershipRes = await axios.get("/group-memberships/");
+      const membershipRes = await axiosInstance.get("/group-memberships/");
       const membership = membershipRes.data.find(m => m.group.id === groupId);
       if (membership) {
         await axiosInstance.delete(`/group-memberships/${membership.id}/`);
@@ -272,7 +279,7 @@ function ChatPage() {
         </div>
         <StudyGroupList
           allGroups={allGroups}
-          currentUser={currentUser}
+
           onSelectGroup={handleSelectGroup}
           onJoinLeaveGroup={(groupId, isJoined) =>
             isJoined ? handleLeaveGroup(groupId) : handleJoinGroup(groupId)

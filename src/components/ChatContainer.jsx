@@ -12,7 +12,7 @@ const ChatContainer = ({ messages, isTyping, formatTime }) => {
   }, [messages, isTyping]);
 
   return (
-    <div className="chat-container" ref={chatContainerRef}>
+    <div className="chat-container-1" ref={chatContainerRef}>
       <div className="messages">
         {messages.map(message => (
           <Message

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useNavigate } from "react";
 import {
   Card,
   CardContent,
@@ -20,6 +20,7 @@ import { Camera, User } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import "../Styles/UserProfileForm.css";
 import { requestForToken } from "../utils/firebase";
+import {API_BASE} from "../consatants/Constants";
 import axios from "axios";
 
 
@@ -37,6 +38,9 @@ function UserProfileForm() {
   const [isFormComplete, setIsFormComplete] = useState(false);
   const toast = useToast();
   const currentYear = new Date().getFullYear();
+  const navigate= useNavigate();
+
+
 
   // Check if all required fields are filled
   useEffect(() => {
@@ -79,7 +83,7 @@ function UserProfileForm() {
       const token = await requestForToken();
       if (token) {
      await axios.put(
-       "http://localhost:8000/api/user/profile/",
+       `${API_BASE}/user/profile/`,
     {
       ...FormData,
       fcm_token: token
@@ -92,6 +96,8 @@ function UserProfileForm() {
         title: "Profile Updated",
         description: "Your profile has been successfully updated.",
       });
+
+      navigate('/add-semester');
     } catch (error) {
       toast({
         title: "Error",

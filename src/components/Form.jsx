@@ -2,12 +2,12 @@
     import { useNavigate } from "react-router-dom";
     import axios from "axios";
     import "../Styles/Forms.css";
-    import { useToast } from "../hooks/use-toast";
     import validation from "../utils/validation";
+    import {useToast}  from '../context/ToastContext'
     import InputWithError from "./InputwithError";
     import { GoogleLogin } from "@react-oauth/google";
     import {useLoading} from "../context/LoadingContext";
-
+    import API_BASE from '../consatants/Constants';
     function FormComponent({
       type = "login",
       login_message,
@@ -26,8 +26,8 @@
       const [responseData, setResponseData] = useState(null);
       const [InputError, setInputError] = useState("");
       const [loading, setLoading] = useState(false);
-      const toast = useToast();
-      const [error, setError] = useState("");
+      const {addToast} = useToast();
+
       const navigate = useNavigate();
 
       function validate() {
@@ -61,7 +61,7 @@
         setIsLoading(true);
 
         try {
-          const url = `http://localhost:8000/api/${
+          const url = API_BASE`${
             type === "login" ? "login" : "register"
           }/`;
 
@@ -84,7 +84,7 @@
           if (type === "login") {
               console.log(response.data);
 
-                  if (responseData.is_superuser === 1) {
+                  if (responseData.is_superuse) {
                       navigate("/admin-dashboard");
 
 
@@ -94,10 +94,12 @@
                       navigate("/dashboard");
                   }
 
-                     toast({
-                  title: "Welcome" ,
-                  description: `Welcome back ${responseData.username}`,
-                 });
+                  addToast({
+                    message: `Welcome back ${responseData.username}`,
+                       type: 'success',
+                       duration: 3000,
+                       title: 'Success '
+    });
               }
 
 
@@ -108,7 +110,12 @@
           }
 
       } catch (err) {
-        setError(err.response?.data?.error || "Something went wrong");
+            addToast({
+                    message: `Something went wrong `,
+                       type: 'warning',
+                       duration: 3000,
+                       title: 'Unexpected Error'
+    });
       } finally {
         setLoading(false);
       }
@@ -225,7 +232,7 @@
 
                 try {
                   const response = await axios.post(
-                    "http://localhost:8000/api/google-auth/",
+                    `${API_BASE}/google-auth/`,
                     { idToken },
                     {
                       withCredentials: true,

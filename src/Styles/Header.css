@@ -650,7 +650,7 @@
 }
 
 /* High Contrast Mode */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .modern-header {
     border-bottom: 2px solid #000;
   }

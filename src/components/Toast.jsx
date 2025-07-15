@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
-import '../Styles/Toast.css'; // We'll create this CSS file
+import '../Styles/Toast.css';
 
 const Toast = ({ toast, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);

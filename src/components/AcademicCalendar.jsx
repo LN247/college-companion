@@ -8,13 +8,14 @@ import { Plus, Calendar as CalendarIcon, Trash2, Edit } from "lucide-react";
 import EventModal from "./EventModal";
 import "../Styles/AcademicCalendar.css";
 import userContext from "../context/UserContext.jsx";
+import {API_BASE} from "../consatants/Constants";
 import axios from "axios";
 
 const localizer = momentLocalizer(moment);
 
 // Create Axios instance with credentials
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE,
   withCredentials: true,
 });
 

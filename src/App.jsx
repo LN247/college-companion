@@ -5,9 +5,8 @@ import SignupForm from "./pages/SignupForm";
 import Notfound from "./pages/Notfound";
 import Dashboard from "./pages/dashboard";
 import SemesterPlan from "./pages/SemesterPlan";
-import Progress from "./pages/Progress";
 import Settings from "./pages/Settings";
-import HelpCenter from "./pages/HelpCenter";
+import {ToastProvider} from './context/ToastContext'
 import Homepage from "./pages/Homepage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AddSemester from "./pages/AddSemester.jsx";
@@ -41,7 +40,7 @@ const AppContent = () => {
         <Route path="/calendar" element={<AcademicCalendar />} />
         <Route path="*" element={<Notfound />} />
         <Route path="/not-authorized" element={<Unauthorised />} />
-        <Route path="aboutus" element={<About Us />} />
+        <Route path="About Us" element={<AboutUs />} />
         
         <Route
           path="/add-semester"
@@ -60,10 +59,7 @@ const AppContent = () => {
         <Route
           path="/dashboard"
           element={
-          <ProtectedRoute><Dashboard />
-          </ProtectedRoute>
-
-
+          <Dashboard />
           }
         />
      
@@ -71,21 +67,13 @@ const AppContent = () => {
         <Route
           path="/timetable"
           element={
-            <ProtectedRoute>
+
               <SemesterPlan />
-            </ProtectedRoute>
+
           }
         />
        
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          }
-        />
-       
+
         <Route
           path="/notifications"
           element={
@@ -106,11 +94,11 @@ const AppContent = () => {
         <Route
           path="/admin-dashboard"
           element={
-            <AdminProtectedRoute>
+
               <AdminProvider>
                 <AdminDashboard />
               </AdminProvider>
-            </AdminProtectedRoute>
+
           }
         />
       </Routes>
@@ -121,7 +109,9 @@ const AppContent = () => {
 const AppProviders = ({ children }) => {
   return (
     <LoadingProvider>
+
       <UserProvider>{children}</UserProvider>
+
     </LoadingProvider>
   );
 };
@@ -131,9 +121,11 @@ function App() {
 
 
   return (
+         <ToastProvider>
     <AppProviders>
       <AppContent />
     </AppProviders>
+               </ToastProvider>
   );
 }
 

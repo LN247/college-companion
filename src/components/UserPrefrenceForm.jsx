@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Settings, Clock, Bell, Calendar, BookOpen } from 'lucide-react';
 import '../Styles/UserPrefrenceForm.css';
 import {getCookie} from "../utils/getcookies";
+import {API_BASE} from "../consatants/Constants";
 import axios from "axios";
 
 const PreferencesForm = ({  semester, level, onFormComplete, onBack }) => {
@@ -16,9 +17,8 @@ const PreferencesForm = ({  semester, level, onFormComplete, onBack }) => {
   const [notifications, setNotifications] = useState(true);
   const [offDays, setOffDays] = useState([]);
   const [studyHoursPerDay, setStudyHoursPerDay] = useState(2);
-  const API_BASE = "http://localhost:8000/api";
+  const  csrfToken = getCookie("csrftoken");
 
-   const  csrfToken = getCookie("csrftoken");
   const daysOfWeek = [
     { id: 'monday', label: 'Monday', short: 'Mon' },
     { id: 'tuesday', label: 'Tuesday', short: 'Tue' },

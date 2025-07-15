@@ -4,7 +4,7 @@ import Header from '../components/Headers';
 import ChatContainer from '../components/ChatContainer';
 import InputArea from '../components/InputArea';
 import '../Styles/AIAssistant.css';
-
+import {API_BASE} from "../consatants/Constants";
 // Helper function to get CSRF token from cookies
 const getCookie = (name) => {
   const value = `; ${document.cookie}`;
@@ -24,7 +24,7 @@ function AIAssistant() {
   ]);
 
   const [isTyping, setIsTyping] = useState(false);
-  const API_BASE = "http://localhost:8000/api";
+
 
   const sendToAI = async (prompt) => {
     try {
